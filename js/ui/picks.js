@@ -17,7 +17,7 @@
       const untrained = s.trainedOnly && s.ranks === 0;
       const pro = k === 'pro' ? ' ' + select('proAbility', C.proAbility || s.ability, rules.SKILLS.pro.variable.map((a) => [a, a.toUpperCase()]), { c: 'sm' }) : '';
       return '<tr><td>' + esc(s.name) + (s.trainedOnly ? ' <span class="mute" title="Trained only">*</span>' : '') + '</td><td class="mute">' + esc(s.ability.toUpperCase()) + pro + '</td><td>' + (s.classSkill ? '<span class="ok">class</span>' : '') + '</td><td>'
-        + input(C, UI, 'levels.' + i + '.skills.' + k, { t: 'n', min: 0, z: true, c: 's' }) + '</td><td class="num">' + s.ranks + '</td><td class="num"><b>' + (untrained ? '—' : sign(s.total)) + '</b></td></tr>';
+        + input(C, UI, 'levels.' + i + '.skills.' + k, { t: 'n', min: 0, max: rules.rankMax(i, C, data, k), z: true, c: 's' }) + '</td><td class="num">' + s.ranks + '</td><td class="num"><b>' + (untrained ? '—' : sign(s.total)) + '</b></td></tr>';
     });
     const left = budget - spent;
     return U.levelTabs(C, UI, data, ctx, 'skills') + '<div class="card"><h2>Skill ranks at level ' + (i + 1) + '</h2><p class="note">Ranks this level: ' + spent + ' of ' + budget

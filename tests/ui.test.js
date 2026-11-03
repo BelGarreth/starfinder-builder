@@ -166,3 +166,69 @@ test('race variants and the enhanced toggle', () => {
   const blank = U.renderBlockers(U.blank(), ui(), data);
   assert.ok(text(blank).indexOf('Choose a race') !== -1);
 });
+
+const maxOf = (html, b) => { const m = new RegExp('data-b="' + b.replace(/[.$()]/g, '\\$&') + '"[^>]*data-max="(-?\\d+)"').exec(html); return m ? Number(m[1]) : null; };
+
+test('point buy inputs are capped at the creation maximum and points left, and bind clamps typed values', () => {
+  const c = vesk();
+  const html = U.tabAbilities(c, ui(), data, U.ctxOf(c, data));
+  assert.strictEqual(maxOf(html, 'abilities.pb.str'), 5);
+  assert.strictEqual(maxOf(html, 'abilities.pb.int'), 0);
+  U.bind(c, ui(), 'abilities.pb.str', '20', { t: 'n', min: 0, max: 5 });
+  assert.strictEqual(c.abilities.pb.str, 5);
+  U.bind(c, ui(), 'abilities.pb.int', '-3', { t: 'n', min: 0, max: 0 });
+  assert.strictEqual(c.abilities.pb.int, 0);
+});
+
+test('ability increases stop at four and only exist at 5, 10, 15 and 20', () => {
+  const c = vesk();
+  const UI = ui();
+  for (let n = 0; n < 4; n++) c.levels.push(U.newLevel('soldier'));
+  ['str', 'dex', 'con', 'wis', 'cha'].forEach((a) => U.actions.inc(c, UI, data, '4', a));
+  assert.deepStrictEqual(clone(c.levels[4].increases), ['str', 'dex', 'con', 'wis']);
+  U.actions.inc(c, UI, data, '3', 'str');
+  assert.deepStrictEqual(clone(c.levels[3].increases), []);
+  const html = U.tabAbilities(c, UI, data, U.ctxOf(c, data));
+  assert.ok(/data-b2="cha" disabled/.test(html));
+  assert.ok(/data-b2="str" checked>/.test(html));
+});
+
+test('skill rank inputs are capped by the level budget and the rank cap', () => {
+  const c = vesk();
+  const html = U.tabSkills(c, ui(), data, U.ctxOf(c, data));
+  assert.strictEqual(maxOf(html, 'levels.0.skills.acr'), 1);
+  assert.strictEqual(maxOf(html, 'levels.0.skills.eng'), 0);
+  U.bind(c, ui(), 'levels.0.skills.acr', '9', { t: 'n', min: 0, max: 1, z: true });
+  assert.strictEqual(c.levels[0].skills.acr, 1);
+  U.bind(c, ui(), 'levels.0.skills.eng', '4', { t: 'n', min: 0, max: 0, z: true });
+  assert.ok(!('eng' in c.levels[0].skills));
+});
+
+test('skill picks disable skills outside the list or below the rank minimum, and a single pick replaces', () => {
+  const c = U.blank();
+  c.race = 'human'; c.theme = 'ace_pilot'; c.abilities.raceAny = 'cha';
+  c.levels = [U.newLevel('envoy')];
+  const UI = ui();
+  let html = U.tabClass(c, UI, data, U.ctxOf(c, data));
+  const box = (k) => new RegExp('<label[^>]*><input[^>]*data-b2="' + k + '" data-c="skillExpertise"[^>]*>[^<]*(<span class="why">[^<]*</span>)?').exec(html)[0];
+  assert.ok(/disabled/.test(box('acr')) && /not an option for Skill expertise/.test(box('acr')));
+  assert.ok(/disabled/.test(box('blu')) && /needs 1 rank in Bluff/.test(box('blu')));
+  c.levels[0].skills = { blu: 1, com: 1 };
+  html = U.tabClass(c, UI, data, U.ctxOf(c, data));
+  assert.ok(!/disabled/.test(box('blu')));
+  U.actions.skillPick(c, UI, data, '0', 'acr', 'skillExpertise');
+  assert.strictEqual(c.levels[0].choices.skillExpertise, undefined);
+  U.actions.skillPick(c, UI, data, '0', 'blu', 'skillExpertise');
+  U.actions.skillPick(c, UI, data, '0', 'com', 'skillExpertise');
+  assert.strictEqual(c.levels[0].choices.skillExpertise, 'com');
+});
+
+test('multi-skill picks disable the rest once full', () => {
+  const c = vesk();
+  c.levels[0] = U.newLevel('solarian');
+  const UI = ui();
+  ['acr', 'ath', 'blu'].forEach((k) => U.actions.skillPick(c, UI, data, '0', k, 'skillAdept'));
+  assert.deepStrictEqual(clone(c.levels[0].choices.skillAdept), ['acr', 'ath']);
+  const html = U.tabClass(c, UI, data, U.ctxOf(c, data));
+  assert.ok(/data-b2="blu" data-c="skillAdept" disabled/.test(html) && html.indexOf('Unpick one to choose another') !== -1);
+});

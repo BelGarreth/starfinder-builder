@@ -47,7 +47,7 @@
       const opts = slugs.map((k) => [k, data.races[k].variant || 'Standard']);
       const traits = asList(current.coreTraits).map((k) => (table(data, 'features')[k] || {}).name || k);
       const mods = asList(current.abilityMods).map(([n, a]) => sign(n) + ' ' + (a === 'any' ? 'any one' : a.toUpperCase())).join(', ');
-      variant = '<div class="row c" style="margin-top:10px">' + fld('Variant', select('race', C.race, opts)) + '<span class="note">' + esc(current.name) + ': ' + esc(mods) + ', ' + current.hp + ' HP</span></div>'
+      variant = '<div class="row c" style="margin-top:10px">' + fld('Variant', select('race', C.race, opts)) + '<span class="note">' + esc(current.name) + ': ' + esc(mods) + ', ' + esc(current.hp) + ' HP</span></div>'
         + (traits.length ? '<p class="note">Racial traits: ' + esc(traits.join(', ')) + '</p>' : '');
     }
     return '<div class="card"><h2>Race</h2>' + pickTable(rows, 'tall') + variant + '</div>';
@@ -113,7 +113,7 @@
     const rows = rules.ABILITIES.map((a) => {
       const s = ctx.sheet.abilities[a];
       const adj = creation[a] - rules.POINT_BUY.base - (Number(pb[a]) || 0);
-      return '<tr><td><b>' + ABILITY_NAME[a] + '</b></td><td class="num">' + rules.POINT_BUY.base + '</td><td class="num">' + (adj ? sign(adj) : '') + '</td><td>' + input(C, UI, 'abilities.pb.' + a, { t: 'n', min: 0, c: 's' })
+      return '<tr><td><b>' + ABILITY_NAME[a] + '</b></td><td class="num">' + rules.POINT_BUY.base + '</td><td class="num">' + (adj ? sign(adj) : '') + '</td><td>' + input(C, UI, 'abilities.pb.' + a, { t: 'n', min: 0, max: rules.pointBuyMax(C, data, a), c: 's' })
         + '</td><td class="num">' + (now[a] - creation[a] ? sign(now[a] - creation[a]) : '') + '</td><td class="num"><b>' + s.score + '</b></td><td class="num brass">' + sign(s.mod) + '</td></tr>';
     });
     const race = table(data, 'races')[C.race];
@@ -127,10 +127,14 @@
       + (picks ? '<div class="row">' + picks + '</div>' : '')
       + '<div class="scroll"><table class="t"><thead><tr><th>Ability</th><th class="num">Base</th><th class="num">Race/theme</th><th>Points</th><th class="num">Increases</th><th class="num">Score</th><th class="num">Mod</th></tr></thead><tbody>' + rows.join('') + '</tbody></table></div></div>';
     const incLevels = rules.increaseAt.filter((n) => n <= levelsOf(C).length);
-    const incCard = incLevels.length ? '<div class="card"><h2>Ability increases</h2><p class="note">At each of these levels raise four different scores by 2, or by 1 if the score is already 17 or more.</p>'
+    const incCard = incLevels.length ? '<div class="card"><h2>Ability increases</h2><p class="note">At each of these levels raise ' + rules.INCREASE_COUNT + ' different scores by 2, or by 1 if the score is already 17 or more.</p>'
       + incLevels.map((n) => {
         const chosen = asList(C.levels[n - 1].increases);
-        return '<div class="row c"><b>Level ' + n + '</b>' + rules.ABILITIES.map((a) => '<label class="note tog"><input type="checkbox" data-act="inc" data-a="' + (n - 1) + '" data-b2="' + a + '"' + (chosen.indexOf(a) !== -1 ? ' checked' : '') + '> ' + a.toUpperCase() + '</label>').join('') + '<span class="mute">' + chosen.length + ' of 4</span></div>';
+        const full = chosen.length >= rules.INCREASE_COUNT;
+        return '<div class="row c"><b>Level ' + n + '</b>' + rules.ABILITIES.map((a) => {
+          const on = chosen.indexOf(a) !== -1;
+          return '<label class="note tog"><input type="checkbox" data-act="inc" data-a="' + (n - 1) + '" data-b2="' + a + '"' + (on ? ' checked' : '') + (!on && full ? ' disabled title="' + rules.INCREASE_COUNT + ' already chosen"' : '') + '> ' + a.toUpperCase() + '</label>';
+        }).join('') + '<span class="mute">' + chosen.length + ' of ' + rules.INCREASE_COUNT + '</span></div>';
       }).join('') + '</div>' : '';
     return pointsCard + incCard;
   };
@@ -157,10 +161,17 @@
   }
 
   function skillPicker(C, UI, data, i, entry, here) {
-    const SKILLS = SF().SKILLS;
+    const rules = SF();
+    const SKILLS = rules.SKILLS;
+    const count = entry.count || 1;
     const picks = asList(here.choices[entry.skillPick]);
-    const from = Array.isArray(entry.from) ? entry.from : Object.keys(SKILLS);
-    const boxes = from.map((k) => '<label><input type="checkbox" data-act="skillPick" data-a="' + i + '" data-b2="' + esc(k) + '" data-c="' + esc(entry.skillPick) + '"' + (picks.indexOf(k) !== -1 ? ' checked' : '') + '> ' + esc((SKILLS[k] || {}).name || k) + '</label>').join('');
+    const boxes = Object.keys(SKILLS).map((k) => {
+      const on = picks.indexOf(k) !== -1;
+      let ans = rules.allowed('choice', k, i, C, data, { id: entry.skillPick });
+      if (ans.ok && !on && count > 1 && picks.length >= count) ans = { ok: false, why: 'Unpick one to choose another' };
+      const why = !ans.ok ? ' <span class="why">' + esc(ans.why) + '</span>' : '';
+      return '<label class="' + (ans.ok || on ? '' : 'dis') + '"><input type="' + (count === 1 ? 'radio' : 'checkbox') + '" data-act="skillPick" data-a="' + i + '" data-b2="' + esc(k) + '" data-c="' + esc(entry.skillPick) + '"' + (on ? ' checked' : '') + (!ans.ok && !on ? ' disabled' : '') + '> ' + esc(SKILLS[k].name) + why + '</label>';
+    }).join('');
     const notes = [entry.classSkill ? 'they become class skills' : '', entry.skillFocus ? 'they gain the Skill Focus bonus' : '', entry.minRanks ? 'needs ' + entry.minRanks + ' rank in the skill' : ''].filter(Boolean).join('; ');
     return '<h3>' + esc(entry.label || entry.skillPick) + ' <span class="mute">(' + picks.length + ' of ' + (entry.count || 1) + ')</span></h3>' + (notes ? '<p class="note">' + esc(cap(notes)) + '</p>' : '') + '<div class="csgrid">' + boxes + '</div>';
   }

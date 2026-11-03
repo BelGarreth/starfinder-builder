@@ -254,6 +254,8 @@ test('specialization free ranks count once: in the sheet and prerequisites, not 
   const plain = build('operative', 3);
   const c = build('operative', 3, { 1: { specialization: 'class-daredevil' } });
   assert.deepStrictEqual(rules.freeRanks(c, data), { acr: 3, ath: 3 });
+  assert.strictEqual(rules.rankMax(1, c, data, 'acr'), 0);
+  assert.ok(rules.rankMax(1, plain, data, 'acr') >= 1);
   assert.strictEqual(rules.derive(c, data).skills.acr.ranks, 3);
   assert.strictEqual(rules.derive(plain, data).skills.acr.ranks, 0);
   [0, 1, 2].forEach((i) => assert.strictEqual(rules.rankBudget(i, c, data), rules.rankBudget(i, plain, data)));
@@ -268,4 +270,15 @@ test('specialization free ranks count once: in the sheet and prerequisites, not 
     assert.strictEqual(allowed('feat', feat, 2, c, data).ok, true);
     assert.strictEqual(allowed('feat', feat, 2, plain, data).ok, false);
   }
+});
+
+test('allowed answers skill picks with the same checks validate uses', () => {
+  const c = build('envoy', 5);
+  assert.deepStrictEqual(allowed('choice', 'acr', 0, c, data, { id: 'skillExpertise' }), { ok: false, why: 'Acrobatics is not an option for Skill expertise' });
+  assert.deepStrictEqual(allowed('choice', 'blu', 0, c, data, { id: 'skillExpertise' }), { ok: false, why: 'Skill expertise needs 1 rank in Bluff' });
+  c.levels[0].skills = { blu: 1 };
+  assert.deepStrictEqual(allowed('choice', 'blu', 0, c, data, { id: 'skillExpertise' }), { ok: true });
+  c.levels[0].choices.skillExpertise = 'blu';
+  assert.deepStrictEqual(allowed('choice', 'blu', 4, c, data, { id: 'skillExpertise' }), { ok: false, why: 'Bluff is already chosen for Skill expertise' });
+  assert.ok(blockersAt(c, 1).every((b) => b.ref !== 'blu'));
 });

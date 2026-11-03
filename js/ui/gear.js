@@ -41,7 +41,7 @@
       const attached = asList(g.slots).map((s, j) => '<div class="note">Upgrade: ' + esc((items[s && s.item] || { name: s && s.item }).name) + ' ' + btn('detach', '×', { c: 'sm x', a: k, b: 'slots', cc: j }) + '</div>')
         .concat(asList(g.fusions).map((f, j) => '<div class="note">Fusion: ' + esc((items[f && f.item] || { name: f && f.item }).name) + ' ' + btn('detach', '×', { c: 'sm x', a: k, b: 'fusions', cc: j }) + '</div>'));
       const slots = rec.armor ? ' <span class="mute">' + asList(g.slots).length + ' of ' + (Number(rec.slots) || 0) + ' upgrade slots</span>' : '';
-      const per = Number(rec.perPack) > 1 ? ' <span class="mute">(' + rec.perPack + ' per pack)</span>' : '';
+      const per = Number(rec.perPack) > 1 ? ' <span class="mute">(' + esc(rec.perPack) + ' per pack)</span>' : '';
       return '<tr><td><b>' + esc(rec.name) + '</b> ' + U.aon(rec) + slots + attached.join('') + '</td><td class="num">' + esc(rec.level) + '</td><td>' + input(C, UI, 'gear.' + k + '.qty', { t: 'n', min: 1, c: 's' }) + per
         + '</td><td><input type="checkbox" data-b="gear.' + k + '.equipped" data-t="b"' + (g.equipped ? ' checked' : '') + ' title="Equipped"></td><td class="num">' + fmt(rec.price) + '</td><td class="num">' + esc(bulkText(rec.bulk)) + '</td><td class="acts">' + btn('dropGear', 'Remove', { c: 'sm x', a: k }) + '</td></tr>';
     });

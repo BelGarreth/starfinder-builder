@@ -93,6 +93,20 @@ holds through the level gate, because swapping mods on level-up is not modelled.
 
 Gear (`js/gear.js`): `char.gear = [{id, item, qty, equipped, slots?: [{item}], fusions?: [{item, level}]}]`. `qty` is a count of units (rounds for ammunition) and must be a positive whole number; price and bulk are charged per pack, `ceil(qty / perPack) x price`, where `perPack` comes from Foundry's `quantityPerPack` (kept only when above 1). `budget` uses the CRB wealth table. Item level is capped at character level (AoN Gaining Wealth sets no hard cap, so this follows its APL guideline). A fusion is `{item, level?, seal?}`. Per AoN Rules ID=86 a fusion's price depends on the item level of the weapon it is installed in, a seal costs 110% of the fusion price for the seal's level, and grenades and ammunition pay half. Total fusion levels (seal level for seals, the fusion's own level otherwise) can't exceed the weapon level, and a seal can't be below its fusion's level. The price table `FUSION_PRICE` (CRB pp. 191-192, price by weapon level) is empty because the table isn't on AoN or in Foundry; until it is filled, installed fusions and seals can't be bought (`allowed` answers "Fusion pricing not available yet") and saved ones raise a `price-unknown` blocker. Upgrades only fit armor and fusions only fit weapons. `gearBlockers` also backs `allowed('item', slug, levelIndex, char, data, {into: gearId, level?})`. `attackLines` filters weapon-scoped modifiers by `weapon.type`, and `derive().attacks` is the same list. Weapon Focus and Weapon Specialization (Combat) store the chosen type key at `levels[i].choices[featSlug]`, and Special Weapon Proficiency stores the chosen special weapon's item slug the same way; validate flags a missing choice as `unspent` and a type you aren't proficient in as `invalid-choice`, and `allowed('choice', value, levelIndex, char, data, {id: featSlug})` answers for the picker.
 
+## UI and the persistence hook
+
+`js/ui/*.js` holds pure render functions, `(C, UI, data, ctx) => html`, one per tab plus the top bar and the blocker bar. `js/ui.js` wires them up with one delegated listener and a full re-render on each change. Inputs that `allowed()` has no kind for are clamped by engine helpers: point buy by `rules.pointBuyMax`, skill ranks by `rules.rankMax`, increases by `rules.INCREASE_COUNT`, and skill picks through `allowed('choice', skill, i, char, data, {id})`.
+
+`js/character.js` can define one optional hook object, `window.SFCHAR`, with these members:
+
+- `load()`: the starting character, or null for a blank one.
+- `save(char)`: called after every render. Errors are swallowed.
+- `statusLine(char, UI, data)`: HTML for the top bar, such as the "Not saving" notice.
+- `tabPrint(char, UI, data, ctx)` and `tabIO(...)`: HTML for the Print and Import/Export tabs.
+- `actions[name](char, UI, data, a, b, c, el)`: extra `data-act` handlers.
+
+`SFUI.setCharacter(char)` replaces the current character, for example after an import, and resets the level, feat-slot and swap selections.
+
 ## Tests
 
 ```

@@ -2,6 +2,7 @@
   const ABILITIES = ['str', 'dex', 'con', 'int', 'wis', 'cha'];
   const POINT_BUY = { base: 10, points: 10, maxAtCreation: 18 };
   const increaseAt = [5, 10, 15, 20];
+  const INCREASE_COUNT = 4;
   const SAVE_KEYS = ['fort', 'ref', 'will'];
 
   const mod = (score) => Math.floor((score - 10) / 2);
@@ -256,6 +257,32 @@
     return Math.max(1, (rec ? rec.ranks : 0) + intMod) + (isHuman(char, data) ? 1 : 0);
   }
 
+  function pointBuyMax(char, data, ability) {
+    const pb = pbOf(char);
+    const current = Number(pb[ability]) || 0;
+    const spent = ABILITIES.reduce((n, a) => n + Math.max(0, Number(pb[a]) || 0), 0);
+    const adjust = creationScores(char, data)[ability] - POINT_BUY.base - current;
+    const byScore = POINT_BUY.maxAtCreation - POINT_BUY.base - adjust;
+    return Math.max(0, Math.min(byScore, current + POINT_BUY.points - spent));
+  }
+
+  function rankMax(levelIndex, char, data, skill) {
+    const levels = levelsOf(char);
+    const lvl = levels[levelIndex];
+    if (!lvl) return 0;
+    const picked = lvl.skills || {};
+    const current = Math.max(0, Number(picked[skill]) || 0);
+    const spent = Object.keys(picked).reduce((n, k) => n + Math.max(0, Number(picked[k]) || 0), 0);
+    let max = current + rankBudget(levelIndex, char, data) - spent;
+    for (let j = levelIndex; j < levels.length; j++) {
+      const asOf = charAt(char, j + 1);
+      const others = (skillRanksOf(asOf)[skill] || 0) - current;
+      const free = freeRanks(asOf, data)[skill] || 0;
+      max = Math.min(max, j + 1 - others - free);
+    }
+    return Math.max(0, max);
+  }
+
   const SPELL_LISTS = { mystic: 'myst', technomancer: 'tech' };
   const MAX_BONUS_MOD = 10;
 
@@ -455,8 +482,8 @@
 
   const api = {
     version: 1,
-    ABILITIES, POINT_BUY, increaseAt,
-    mod, baseScores, pointBuyErrors, classLevels, charLevel,
+    ABILITIES, POINT_BUY, increaseAt, INCREASE_COUNT,
+    mod, baseScores, pointBuyErrors, pointBuyMax, rankMax, classLevels, charLevel,
     bab, baseSave, hp, sp, rp, featSlots, rankBudget,
     spellSlots, connectionSpells, spellListOf, spellSlotsFor, progressionOf, entriesAt, levelPlan, choiceEntry, poolOf, pickedFor, classFeatures, skillPicks, skillFocusSkills, freeRanks,
     SKILLS, ACP_SKILLS, charAt, classSkillSet, equippedArmor, skillRanksOf, bulkState, derive

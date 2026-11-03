@@ -42,7 +42,7 @@
     const x = o || {};
     const v = getPath(C, UI, p);
     if (x.t === 'n') {
-      return '<input type="number"' + attrs({ 'data-b': p, 'data-t': 'n', 'data-z': x.z ? 'del' : undefined, min: x.min, max: x.max, class: 'n ' + (x.c || ''), value: v === undefined || v === null ? '' : v }) + '>';
+      return '<input type="number"' + attrs({ 'data-b': p, 'data-t': 'n', 'data-z': x.z ? 'del' : undefined, min: x.min, max: x.max, 'data-min': x.min, 'data-max': x.max, class: 'n ' + (x.c || ''), value: v === undefined || v === null ? '' : v }) + '>';
     }
     if (x.t === 'ta') return '<textarea' + attrs({ 'data-b': p, rows: x.rows || 3, class: 'w' }) + '>' + esc(v) + '</textarea>';
     return '<input type="text"' + attrs({ 'data-b': p, value: v === undefined || v === null ? '' : v, placeholder: x.ph, class: x.c || 'w' }) + '>';
@@ -115,7 +115,8 @@
     const bulk = s.bulk && s.bulk.state !== 'ok'
       ? '<span class="pill warn" title="Carrying too much is legal but slows you down">' + (s.bulk.state === 'overburdened' ? 'Overburdened' : 'Encumbered') + ' (bulk ' + s.bulk.carried + ' of ' + s.bulk.limit + ')</span>'
       : '';
-    const status = U.statusLine ? U.statusLine(C, UI, data) : '';
+    const store = root.SFCHAR;
+    const status = store && typeof store.statusLine === 'function' ? store.statusLine(C, UI, data) : '';
     return '<div class="who"><h1>' + esc(C.name || 'Unnamed character') + '</h1><div class="sub">' + esc(sub.join(' · ') || 'No race, theme or class yet') + '</div></div>'
       + '<div class="wallet stats">' + stat('SP', s.sp) + stat('HP', s.hp) + stat('RP', s.rp) + stat('EAC', s.eac) + stat('KAC', s.kac)
       + stat('Fort', sign(s.fort)) + stat('Ref', sign(s.ref)) + stat('Will', sign(s.will)) + stat('Init', sign(s.initiative)) + bulk + '</div>'

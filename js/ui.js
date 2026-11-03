@@ -99,9 +99,12 @@
     },
     removeLevel: (C, UI) => { C.levels.pop(); UI.lvl = Math.max(0, C.levels.length - 1); },
     inc: (C, UI, data, a, ability) => {
-      const lvl = C.levels[Number(a)];
+      const i = Number(a);
+      const lvl = C.levels[i];
+      if (!lvl || SF().increaseAt.indexOf(i + 1) === -1 || SF().ABILITIES.indexOf(ability) === -1) return;
       const list = asList(lvl.increases);
-      lvl.increases = list.indexOf(ability) !== -1 ? list.filter((x) => x !== ability) : list.concat([ability]);
+      if (list.indexOf(ability) !== -1) lvl.increases = list.filter((x) => x !== ability);
+      else if (list.length < SF().INCREASE_COUNT) lvl.increases = list.concat([ability]);
     },
     pick: (C, UI, data, a, slug, id) => {
       const i = Number(a);
@@ -119,7 +122,10 @@
       const entry = entryAt(C, data, i, id);
       const count = (entry && entry.count) || 1;
       const list = asList(lvl.choices[id]);
-      setChoice(lvl, id, list.indexOf(skill) !== -1 ? list.filter((k) => k !== skill) : list.concat([skill]), count);
+      if (list.indexOf(skill) !== -1) return setChoice(lvl, id, list.filter((k) => k !== skill), count);
+      if (!SF().allowed('choice', skill, i, C, data, { id }).ok) return;
+      if (count === 1) return setChoice(lvl, id, [skill], count);
+      if (list.length < count) setChoice(lvl, id, list.concat([skill]), count);
     },
     featSlot: (C, UI, data, a) => { UI.featSlot = Number(a); },
     takeFeat: (C, UI, data, a, slug, slot) => {
@@ -201,7 +207,11 @@
     const { o, k } = splitPath(C, UI, path);
     if (x.t === 'b') { o[k] = !!raw; return; }
     if (x.t === 'n') {
-      const n = raw === '' || raw === null ? null : Math.floor(Number(raw));
+      let n = raw === '' || raw === null ? null : Math.floor(Number(raw));
+      if (n !== null && Number.isFinite(n)) {
+        if (Number.isFinite(x.max)) n = Math.min(n, x.max);
+        if (Number.isFinite(x.min)) n = Math.max(n, x.min);
+      }
       if (n === null || !Number.isFinite(n) || (x.z && n === 0)) { if (x.z || n === null) delete o[k]; return; }
       o[k] = n;
       return;
@@ -217,6 +227,8 @@
   U.setCharacter = function (c) {
     state.C = U.normalize(c, data);
     state.UI.lvl = 0;
+    state.UI.featSlot = null;
+    state.UI.swapFrom = {};
     publish();
     if (root.document) render();
   };
@@ -248,7 +260,7 @@
     }
     root.scrollTo(0, y);
     const s = store();
-    if (s && typeof s.save === 'function') s.save(state.C);
+    try { if (s && typeof s.save === 'function') s.save(state.C); } catch (e) { }
   }
   U.render = render;
   root.render = render;
@@ -278,7 +290,8 @@
       return;
     }
     if (!t.dataset.b || (t.type !== 'checkbox' && t.type !== 'number' && t.tagName !== 'SELECT')) return;
-    U.bind(state.C, state.UI, t.dataset.b, t.type === 'checkbox' ? t.checked : t.value, { t: t.dataset.t, z: t.dataset.z === 'del' });
+    const num = (v) => (v === undefined || v === '' ? undefined : Number(v));
+    U.bind(state.C, state.UI, t.dataset.b, t.type === 'checkbox' ? t.checked : t.value, { t: t.dataset.t, z: t.dataset.z === 'del', min: num(t.dataset.min), max: num(t.dataset.max) });
     render();
   });
   doc.addEventListener('click', (e) => {

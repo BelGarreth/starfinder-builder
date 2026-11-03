@@ -9,7 +9,6 @@
   const asList = (v) => (Array.isArray(v) ? v : v === undefined || v === null || v === '' ? [] : [v]);
   const cap = (s) => s.charAt(0).toUpperCase() + s.slice(1);
 
-  const INCREASE_COUNT = 4;
   const REPEATABLE_FEATS = ['skill_focus', 'weapon_focus_(combat)', 'weapon_specialization_(combat)'];
   const REPEATABLE_TEXT = /multiple times|more than once|each time you (?:take|select|gain) this feat/i;
   const PROFICIENCY = {
@@ -272,6 +271,11 @@
     if (kind === 'choice') {
       const here = rules.levelPlan(char, data)[levelIndex];
       const id = slot && typeof slot === 'object' ? slot.id : slot;
+      const pick = here && here.entries.find((e) => e.skillPick === id);
+      if (pick) {
+        const problem = skillPickProblem(pick, here, rules.levelPlan(char, data), char, slug);
+        return problem ? { ok: false, why: problem.why } : { ok: true };
+      }
       const entry = here && here.entries.find((e) => e.choice === id);
       if (!entry) return { ok: false, why: 'No ' + id + ' choice at this level' };
       const problem = choiceProblem(entry, slug, levelIndex, char, data, slot && typeof slot === 'object' ? slot.index : undefined, true);
@@ -425,19 +429,31 @@
     return problem ? { ok: false, why: problem.why } : { ok: true };
   }
 
-  function skillProblems(entry, here, plan, char, push) {
-    const picks = asList(here.choices[entry.skillPick]);
+  function earlierSkillPicks(entry, here, plan) {
     const earlier = [];
     plan.slice(0, here.levelIndex).forEach((p) => {
       if (p.cls === here.cls && p.entries.some((e) => e.skillPick === entry.skillPick)) asList(p.choices[entry.skillPick]).forEach((k) => earlier.push(k));
     });
+    return earlier;
+  }
+
+  function skillPickProblem(entry, here, plan, char, k) {
+    const name = (rules.SKILLS[k] || {}).name || k;
+    if (!has(rules.SKILLS, k)) return { code: 'invalid', why: "Skill '" + k + "' does not exist" };
+    if (Array.isArray(entry.from) && entry.from.indexOf(k) === -1) return { code: 'pool', why: name + ' is not an option for ' + entry.label };
+    if (earlierSkillPicks(entry, here, plan).indexOf(k) !== -1) return { code: 'duplicate', why: name + ' is already chosen for ' + entry.label };
     const ranks = rules.skillRanksOf(rules.charAt(char, here.levelIndex + 1));
+    if (entry.minRanks && (ranks[k] || 0) < entry.minRanks) return { code: 'ranks', why: entry.label + ' needs ' + entry.minRanks + ' rank in ' + name };
+    return null;
+  }
+
+  function skillProblems(entry, here, plan, char, push) {
+    const picks = asList(here.choices[entry.skillPick]);
     picks.forEach((k, j) => {
       const name = (rules.SKILLS[k] || {}).name || k;
-      if (!has(rules.SKILLS, k)) push('invalid', "Skill '" + k + "' does not exist", k);
-      else if (Array.isArray(entry.from) && entry.from.indexOf(k) === -1) push('pool', name + ' is not an option for ' + entry.label, k);
-      else if (earlier.indexOf(k) !== -1 || picks.indexOf(k) !== j) push('duplicate', name + ' is already chosen for ' + entry.label, k);
-      else if (entry.minRanks && (ranks[k] || 0) < entry.minRanks) push('ranks', entry.label + ' needs ' + entry.minRanks + ' rank in ' + name, k);
+      let problem = skillPickProblem(entry, here, plan, char, k);
+      if ((!problem || problem.code === 'ranks') && picks.indexOf(k) !== j) problem = { code: 'duplicate', why: name + ' is already chosen for ' + entry.label };
+      if (problem) push(problem.code, problem.why, k);
     });
     return picks.length;
   }
@@ -532,8 +548,8 @@
       const increases = asList(lv.increases);
       if (rules.increaseAt.indexOf(n) !== -1) {
         const distinct = increases.filter((a, j) => isAbility(a) && increases.indexOf(a) === j);
-        if (increases.length !== INCREASE_COUNT || distinct.length !== INCREASE_COUNT) {
-          push(n, 'abilities', 'increases', 'Choose ' + INCREASE_COUNT + ' different ability scores to raise at level ' + n);
+        if (increases.length !== rules.INCREASE_COUNT || distinct.length !== rules.INCREASE_COUNT) {
+          push(n, 'abilities', 'increases', 'Choose ' + rules.INCREASE_COUNT + ' different ability scores to raise at level ' + n);
         }
       } else if (increases.length) {
         push(n, 'abilities', 'increases', 'Ability increases are only gained at levels ' + rules.increaseAt.join(', '));

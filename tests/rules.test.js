@@ -126,3 +126,31 @@ test('progression bonus feat entries become pooled slots at the class level that
   const slots = rules.featSlots(vesk, fake);
   assert.deepStrictEqual(slots.map((s) => [s.level, s.kind, s.pool || null]), [[1, 'general', null], [1, 'bonus', null]]);
 });
+
+test('pointBuyMax caps a score at the creation maximum and the points left', () => {
+  assert.deepStrictEqual(rules.ABILITIES.map((a) => rules.pointBuyMax(vesk, data, a)), [5, 4, 1, 0, 0, 0]);
+  const fresh = clone(vesk);
+  fresh.abilities.pb = {};
+  assert.strictEqual(rules.pointBuyMax(fresh, data, 'str'), 5);
+  assert.strictEqual(rules.pointBuyMax(fresh, data, 'int'), 10);
+  assert.strictEqual(rules.INCREASE_COUNT, 4);
+});
+
+test('rankMax caps ranks at the level budget and the character level at every later level', () => {
+  const c = clone(vesk);
+  c.levels = [level('soldier', { skills: { ath: 1, acr: 1 } }), level('soldier'), level('soldier', { skills: { ath: 1 } })];
+  assert.strictEqual(rules.rankMax(0, c, data, 'ath'), 1);
+  assert.strictEqual(rules.rankMax(0, c, data, 'per'), 1);
+  c.levels[0].skills.per = 1;
+  assert.strictEqual(rules.rankMax(0, c, data, 'eng'), 0);
+  assert.strictEqual(rules.rankMax(1, c, data, 'ath'), 1);
+  c.levels[1].skills = { ath: 1 };
+  assert.strictEqual(rules.rankMax(0, c, data, 'ath'), 1);
+  c.levels[0].skills.ath = 0;
+  assert.strictEqual(rules.rankMax(0, c, data, 'ath'), 1);
+  c.levels[0].skills.ath = 1;
+  c.levels[1].skills = {};
+  assert.strictEqual(rules.rankMax(1, c, data, 'acr'), 1);
+  assert.strictEqual(rules.rankMax(1, c, data, 'per'), 1);
+  assert.strictEqual(rules.rankMax(5, c, data, 'per'), 0);
+});
