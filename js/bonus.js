@@ -213,6 +213,27 @@
     return { constants, situational, inactive };
   }
 
+  const PLAY_FIXED = { eac: ['eac'], kac: ['kac'], cmd: ['cmd'], fort: ['fort'], ref: ['ref'], will: ['will'], initiative: ['initiative'], 'speed.land': ['speed.land'], 'attack.melee': ['attack.melee'], 'attack.ranged': ['attack.ranged'], 'damage.all': ['damage.all'] };
+  const PLAY_TEMP_LIMIT = 99;
+
+  function playTargets(key) {
+    if (typeof key !== 'string') return null;
+    if (has(PLAY_FIXED, key)) return PLAY_FIXED[key];
+    if (rules.ABILITIES.indexOf(key) !== -1) return ['ability.' + key];
+    const skill = key.indexOf('skill.') === 0 ? key.slice(6) : null;
+    return skill && has(rules.SKILLS, skill) ? ['skill.' + skill] : null;
+  }
+
+  function playModifiers(char) {
+    const temp = char && char.play && typeof char.play.temp === 'object' && char.play.temp ? char.play.temp : {};
+    return Object.keys(temp).map((key) => {
+      const targets = playTargets(key);
+      const value = Math.max(-PLAY_TEMP_LIMIT, Math.min(PLAY_TEMP_LIMIT, Math.floor(Number(temp[key]))));
+      if (!targets || !Number.isFinite(value) || value === 0 || !has(temp, key)) return null;
+      return { name: 'Temporary bonus', type: UNTYPED, modifier: String(value), value, targets, source: 'Temporary', sourceKey: 'temp:' + key, kind: 'play' };
+    }).filter(Boolean);
+  }
+
   function resolve(char, data, opts) {
     const o = opts || {};
     const collected = collectModifiers(char, data, o);
@@ -230,6 +251,7 @@
       }
       constants.push(Object.assign({}, m, { value, targets }));
     });
+    if (o.play) playModifiers(char).forEach((m) => constants.push(m));
     return { constants, situational: collected.situational, inactive: collected.inactive };
   }
 
@@ -240,6 +262,6 @@
     return stack(bonuses);
   }
 
-  const api = { stack, target, whenHolds, armorTypeOf, overrideKeys, collectModifiers, gatherRecords, resolve, totalFor };
+  const api = { stack, target, whenHolds, armorTypeOf, overrideKeys, collectModifiers, gatherRecords, resolve, totalFor, playTargets, playModifiers, PLAY_TEMP_LIMIT };
   if (typeof module !== 'undefined') module.exports = api; else root.SF = Object.assign(root.SF || {}, api);
 })(this);

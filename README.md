@@ -129,12 +129,22 @@ Gear (`js/gear.js`): `char.gear = [{id, item, qty, equipped, ability?, slots?: [
 - `load()`: the starting character, or null for a blank one.
 - `save(char)`: called after every render. Errors are swallowed.
 - `statusLine(char, UI, data)`: HTML for the top bar, such as the "Not saving" notice.
-- `tabPrint(char, UI, data, ctx)` and `tabIO(...)`: HTML for the Print and Import/Export tabs. `tabBBCode` and `tabMythWeavers` work the same way.
+- `tabPrint(char, UI, data, ctx)` and `tabIO(...)`: HTML for the Print and Import/Export tabs. `tabSheet`, `tabBBCode` and `tabMythWeavers` work the same way. The Sheet tab is hidden when the hook is absent.
 - `actions[name](char, UI, data, a, b, c, el)`: extra `data-act` handlers.
 
 The Feats, Gear shop, Spells and class-choice pickers share one "Hide options I don't qualify for" checkbox. It lives in the UI state (`UI.hideIneligible`, default off), not the character, so it is never exported. When ticked, options for which `allowed()` returns `ok: false` are omitted before the row cap, so the cap counts visible rows. The option you currently hold (the feat in the slot, a learned spell, an owned item, a picked feature) always stays visible, and `ok: true` options with a "Not checked" note stay too.
 
 `SFUI.setCharacter(char)` replaces the current character, for example after an import, and resets the level, feat-slot and swap selections.
+
+## Sheet tab and play state
+
+The Sheet tab (right after Character) is an on-screen character sheet for use at the table: identity, abilities, vitals, defenses, attacks, skills, situational modifiers, feats, class features by class, racial and theme traits, spells and gear. Everything comes from `derive()` and the character; the print pages share `featEntries`, `featureEntries`, `gearParts` and the skill and attack formatters with it.
+
+Play-time state lives in `char.play = {hp: {current, nonlethal?}, sp: {current}, rp: {current}, temp: {[target]: n}, conditions?, notes?}`. Current HP, SP and RP default to the maximum and are clamped to 0..max. `temp` keys are `str`..`cha`, `eac`, `kac`, `cmd`, `fort`, `ref`, `will`, `initiative`, `speed.land`, `attack.melee`, `attack.ranged`, `damage.all` and `skill.<key>`; values are whole numbers within ±99, applied as untyped modifiers only by `derive(char, data, {play: true})`, which only the Sheet calls. Validation, Print, BBCode and the Myth-Weavers maximums use the build. `migrate()` sanitises `play` and drops unknown targets. Myth-Weavers export writes current HP, SP and RP to `hp`, `stam` and `res`, and the maximums to `max_*`. Rest restores SP and RP, Heal to full restores HP and clears nonlethal damage, and Reset temp bonuses clears `temp`.
+
+## Clear
+
+The Clear button in the top bar asks for confirmation, then replaces the character with a blank one through `SFUI.setCharacter`, returns to the Character tab and lets autosave overwrite the stored character. It never touches `sfbuilder.v1.backup-*` keys. If an unbacked recovery is pending it releases the block the same way Start fresh does.
 
 ## BBCode export
 

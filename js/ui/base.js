@@ -14,7 +14,7 @@
   const ROW_CAP = 200;
 
   const TABS = [
-    ['char', 'Character'], ['abilities', 'Abilities'], ['class', 'Class features'], ['skills', 'Skills'],
+    ['char', 'Character'], ['sheet', 'Sheet'], ['abilities', 'Abilities'], ['class', 'Class features'], ['skills', 'Skills'],
     ['feats', 'Feats'], ['gear', 'Gear'], ['spells', 'Spells'], ['print', 'Print'], ['io', 'Import/Export'], ['bbcode', 'BBCode'], ['mythweavers', 'Myth-Weavers']
   ];
   const TAB_LABEL = {};
@@ -77,7 +77,7 @@
     const x = o || {};
     const ans = x.ans || { ok: true };
     const label = x.on ? (x.onLabel || 'Chosen') : (x.label || 'Choose');
-    const why = ans.why ? '<div class="why' + (ans.ok ? ' soft' : '') + '">' + esc(ans.why) + '</div>' : '';
+    const why = ans.why && !ans.quiet ? '<div class="why' + (ans.ok ? ' soft' : '') + '">' + esc(ans.why) + '</div>' : '';
     const extra = x.extra ? ' <span class="mute">' + x.extra + '</span>' : '';
     const summary = rec && rec.summary ? '<div class="note">' + esc(rec.summary) + '</div>' : '';
     const button = x.noButton ? '' : btn(x.act, label, { c: 'sm' + (x.on ? ' pri' : ''), a: x.a, b: x.b, cc: x.cc, d: !x.on && !ans.ok, title: !ans.ok ? ans.why : undefined });
@@ -103,7 +103,9 @@
     return levelsOf(C).some((l) => l && !!SF().spellListOf(l.class, data));
   }
 
-  const visibleTabs = (C, data) => TABS.filter((t) => t[0] !== 'spells' || isCaster(C, data));
+  const hasSheet = () => !!root.SFCHAR && typeof root.SFCHAR.tabSheet === 'function';
+
+  const visibleTabs = (C, data) => TABS.filter((t) => (t[0] !== 'spells' || isCaster(C, data)) && (t[0] !== 'sheet' || hasSheet()));
 
   const ctxOf = (C, data) => ({ sheet: SF().derive(C, data), blockers: SF().validate(C, data) });
 
@@ -141,7 +143,7 @@
     return '<div class="who"><h1>' + esc(C.name || 'Unnamed character') + '</h1><div class="sub">' + esc(sub.join(' · ') || 'No race, theme or class yet') + '</div></div>'
       + '<div class="wallet stats">' + stat('SP', s.sp) + stat('HP', s.hp) + stat('RP', s.rp) + stat('EAC', s.eac) + stat('KAC', s.kac)
       + stat('Fort', sign(s.fort)) + stat('Ref', sign(s.ref)) + stat('Will', sign(s.will)) + stat('Init', sign(s.initiative)) + bulk + '</div>'
-      + '<div class="acts">' + status + '</div>';
+      + '<div class="acts">' + status + btn('clear', 'Clear', { c: 'sm x', title: 'Start over with a blank character' }) + '</div>';
   }
 
   function renderTabs(C, UI, data, ctx) {

@@ -119,13 +119,18 @@
     return (race ? race.hp : 0) + sumClasses(char, data, (c, n) => c.hp * n);
   }
 
-  function sp(char, data) {
-    const conMod = mod(abilityScores(char, data).con);
+  function adjusted(scores, adj) {
+    Object.keys(adj || {}).forEach((a) => { if (isAbility(a)) scores[a] += adj[a]; });
+    return scores;
+  }
+
+  function sp(char, data, adj) {
+    const conMod = mod(adjusted(abilityScores(char, data), adj).con);
     return sumClasses(char, data, (c, n) => (c.sp + conMod) * n);
   }
 
-  function rp(char, data) {
-    const scores = abilityScores(char, data);
+  function rp(char, data, adj) {
+    const scores = adjusted(abilityScores(char, data), adj);
     const keyMods = Object.keys(classLevels(char))
       .map((slug) => classRec(data, slug))
       .filter((c) => c && isAbility(c.kas))
@@ -340,10 +345,10 @@
     return { known, perDay };
   }
 
-  function spellSlots(char, data) {
+  function spellSlots(char, data, adj) {
     const out = {};
     const levels = classLevels(char);
-    const scores = abilityScores(char, data);
+    const scores = adjusted(abilityScores(char, data), adj);
     Object.keys(levels).forEach((cls) => {
       const rec = classRec(data, cls);
       if (!spellListOf(cls, data) || !isAbility(rec.spellAbility)) return;
@@ -436,6 +441,12 @@
     return set;
   }
 
+  function tempAbilityScores(lib, char) {
+    const adj = {};
+    lib.playModifiers(char).forEach((m) => m.targets.forEach((t) => { if (t.indexOf('ability.') === 0) adj[t.slice(8)] = (adj[t.slice(8)] || 0) + m.value; }));
+    return adj;
+  }
+
   function derive(char, data, opts) {
     const lib = typeof module !== 'undefined' ? require('./bonus.js') : root.SF;
     const c = opts && opts.levels !== undefined ? charAt(char, opts.levels) : char;
@@ -444,7 +455,9 @@
     const preBulk = gearBulk(c, data, scores.str);
     const encumbered = preBulk.state !== 'ok';
     const speedBase = BASE_SPEED + (armor ? armor.speedAdjust || 0 : 0);
-    const resolved = lib.resolve(c, data, { state: { encumbered }, derived: { speedBase: BASE_SPEED, speedLand: speedBase } });
+    const play = !!(opts && opts.play);
+    const tempScores = play ? tempAbilityScores(lib, c) : undefined;
+    const resolved = lib.resolve(c, data, { play, state: { encumbered }, derived: { speedBase: BASE_SPEED, speedLand: speedBase } });
     const total = (keys, extra) => lib.stack(resolved.constants
       .filter((m) => m.targets.some((t) => keys.indexOf(t) !== -1))
       .map((m) => ({ type: m.type, value: m.value, source: m.kind + ':' + m.sourceKey }))
@@ -494,8 +507,8 @@
     const sheet = {
       abilities,
       hp: hp(c, data) + total(['hp']),
-      sp: sp(c, data) + total(['sp']),
-      rp: rp(c, data) + total(['rp']),
+      sp: sp(c, data, tempScores) + total(['sp']),
+      rp: rp(c, data, tempScores) + total(['rp']),
       eac, kac,
       cmd: kac + 8 + total(['cmd']),
       fort: saves.fort, ref: saves.ref, will: saves.will,
@@ -506,9 +519,10 @@
       skills,
       attacks: [],
       situational: resolved.situational,
+      spellAdjust: tempScores,
       bulk
     };
-    sheet.attacks = (typeof module !== 'undefined' ? require('./gear.js') : root.SF).attackLines(c, data, sheet);
+    sheet.attacks = (typeof module !== 'undefined' ? require('./gear.js') : root.SF).attackLines(c, data, sheet, { play });
     return sheet;
   }
 

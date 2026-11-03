@@ -113,6 +113,35 @@
     return out;
   }
 
+  const bonusLib = () => (typeof module !== 'undefined' ? require('./bonus.js') : root.SF);
+
+  function cleanPlay(v) {
+    if (!isObject(v)) return undefined;
+    const out = {};
+    const whole = (x) => { const n = num(x); return n === undefined ? undefined : Math.min(1000000, Math.max(0, Math.floor(n))); };
+    [['hp', ['current', 'nonlethal']], ['sp', ['current']], ['rp', ['current']]].forEach(([k, fields]) => {
+      if (!isObject(v[k])) return;
+      const o = {};
+      fields.forEach((f) => put(o, f, whole(v[k][f])));
+      if (Object.keys(o).length) out[k] = o;
+    });
+    if (isObject(v.temp)) {
+      const lib = bonusLib();
+      const limit = lib.PLAY_TEMP_LIMIT;
+      const temp = {};
+      Object.keys(v.temp).forEach((k) => {
+        const n = num(v.temp[k]);
+        if (!safeKey(k) || !lib.playTargets(k) || n === undefined) return;
+        const w = Math.max(-limit, Math.min(limit, Math.floor(n)));
+        if (w !== 0) temp[k] = w;
+      });
+      if (Object.keys(temp).length) out.temp = temp;
+    }
+    put(out, 'conditions', text(v.conditions));
+    put(out, 'notes', text(v.notes));
+    return Object.keys(out).length ? out : undefined;
+  }
+
   function migrate(raw) {
     if (!isObject(raw)) throw new ImportError('That file is not a character: expected a JSON object.');
     if (typeof raw.v !== 'number' || !Number.isFinite(raw.v)) throw new ImportError('That file has no version number, so it is not a Starfinder builder character.');
@@ -132,6 +161,7 @@
     c.levels = raw.levels.map(cleanLevel);
     c.gear = (Array.isArray(raw.gear) ? raw.gear : []).filter((g) => isObject(g) && typeof g.item === 'string').map(cleanGear);
     put(c, 'notes', text(raw.notes));
+    put(c, 'play', cleanPlay(raw.play));
     return c;
   }
 
@@ -295,11 +325,15 @@
   const stat = (label, value, cls) => '<div class="pp-box ' + (cls || '') + '"><small>' + esc(label) + '</small><b>' + esc(value) + '</b></div>';
   const boxes = (list) => '<div class="pp-boxes">' + list.map((x) => stat(x[0], x[1])).join('') + '</div>';
 
+  const skillTotal = (sk) => (sk.trainedOnly && !sk.ranks ? '—' : UI().sign(sk.total));
+  const attackBonus = (a) => (a.attack === undefined || a.attack === null || a.attack === false ? '—' : UI().sign(a.attack));
+  const attackDamage = (a) => (a.damage === false ? '—' : a.damage);
+
   function skillRows(s) {
     const head = '<div class="pp-sk hd"><span></span><span>Skill</span><span>Abil</span><span class="r">Rk</span><span class="r">Total</span></div>';
     return head + Object.keys(s.skills).map((k) => {
       const sk = s.skills[k];
-      const total = sk.trainedOnly && !sk.ranks ? '—' : UI().sign(sk.total);
+      const total = skillTotal(sk);
       return '<div class="pp-sk"><span>' + (sk.classSkill ? '●' : '') + '</span><span class="n">' + esc(sk.name) + '</span><span class="a">' + esc(sk.ability) + '</span><span class="r">' + esc(sk.ranks) + '</span><b>' + esc(total) + '</b></div>';
     }).join('');
   }
@@ -307,7 +341,7 @@
   function attackTable(s) {
     if (!s.attacks.length) return '<p class="pp-note">No attacks.</p>';
     return '<table><thead><tr><th>Attack</th><th class="num">Atk</th><th>Damage</th></tr></thead><tbody>'
-      + s.attacks.map((a) => '<tr><td>' + esc(a.name) + (a.notes ? '<div class="pp-note">' + esc(a.notes) + '</div>' : '') + '</td><td class="num">' + esc(a.attack === undefined || a.attack === null || a.attack === false ? '—' : UI().sign(a.attack)) + '</td><td>' + esc(a.damage === false ? '—' : a.damage) + '</td></tr>').join('')
+      + s.attacks.map((a) => '<tr><td>' + esc(a.name) + (a.notes ? '<div class="pp-note">' + esc(a.notes) + '</div>' : '') + '</td><td class="num">' + esc(attackBonus(a)) + '</td><td>' + esc(attackDamage(a)) + '</td></tr>').join('')
       + '</tbody></table>';
   }
 
@@ -353,31 +387,37 @@
     return list.filter(Boolean).map((v) => SF().optionName(param.kind, v)).join(', ');
   }
 
-  function featPage(C, data) {
+  function featEntries(C, data) {
     const u = UI();
     const rules = SF();
-    const feats = [];
+    const out = [];
     u.levelsOf(C).forEach((l, i) => {
       const seen = {};
       rules.grantedAt(C, data, i).forEach((slug) => {
         const rec = own(u.table(data, 'feats'), slug);
-        feats.push(li(rec ? rec.name : slug, rec && rec.summary, 'granted, level ' + (i + 1)));
+        out.push({ rec, name: rec ? rec.name : slug, summary: rec && rec.summary, tag: 'granted, level ' + (i + 1), level: i + 1, granted: true });
       });
       asList(l.feats).forEach((slug) => {
         const k = seen[slug] || 0;
         seen[slug] = k + 1;
         const rec = own(u.table(data, 'feats'), slug);
         const detail = featDetail(C, data, i, slug, k);
-        feats.push(li((rec ? rec.name : slug) + (detail ? ' (' + detail + ')' : ''), rec && rec.summary, 'level ' + (i + 1)));
+        out.push({ rec, name: (rec ? rec.name : slug) + (detail ? ' (' + detail + ')' : ''), summary: rec && rec.summary, tag: 'level ' + (i + 1), level: i + 1 });
       });
     });
+    return out;
+  }
+
+  function featureEntries(C, data) {
+    const u = UI();
+    const rules = SF();
     const plan = rules.levelPlan(C, data);
     const label = (f) => {
       const e = plan[f.levelIndex].entries.find((x) => x.choice === f.choice);
       return e && e.label ? e.label : '';
     };
     const counts = {};
-    const features = rules.classFeatures(C, data).map((f) => {
+    const out = rules.classFeatures(C, data).map((f) => {
       const rec = own(u.table(data, 'features'), f.slug);
       const key = f.levelIndex + '|' + f.slug;
       const k = counts[key] || 0;
@@ -385,13 +425,19 @@
       const detail = paramDetail(data, C.levels[f.levelIndex].choices || {}, f.slug, k);
       const from = f.via === 'choice' ? label(f) : '';
       const tag = [from, u.className(data, f.cls) + ' (level ' + (f.levelIndex + 1) + ')'].filter(Boolean).join(', ');
-      return li((rec ? rec.name : f.slug) + (detail ? ' (' + detail + ')' : ''), rec && rec.summary, tag);
+      return { rec, name: (rec ? rec.name : f.slug) + (detail ? ' (' + detail + ')' : ''), summary: rec && rec.summary, tag, from, cls: f.cls, level: f.levelIndex + 1 };
     });
     plan.forEach((p) => p.entries.forEach((e) => {
       if (!e.skillPick) return;
       const names = asList(p.choices[e.skillPick]).filter((v) => own(rules.SKILLS, v)).map((v) => rules.SKILLS[v].name);
-      if (names.length) features.push(li((e.label || 'Skill choice') + ': ' + names.join(', '), '', u.className(data, p.cls) + ' (level ' + (p.levelIndex + 1) + ')'));
+      if (names.length) out.push({ rec: null, name: (e.label || 'Skill choice') + ': ' + names.join(', '), summary: '', tag: u.className(data, p.cls) + ' (level ' + (p.levelIndex + 1) + ')', from: '', cls: p.cls, level: p.levelIndex + 1 });
     }));
+    return out;
+  }
+
+  function featPage(C, data) {
+    const feats = featEntries(C, data).map((e) => li(e.name, e.summary, e.tag));
+    const features = featureEntries(C, data).map((e) => li(e.name, e.summary, e.tag));
     if (!feats.length && !features.length) return '';
     return '<section class="pp-page"><div class="pp-sec"><div class="pp-h">Class features</div><div class="pp-list">' + (features.join('') || '<div class="pp-note">None.</div>') + '</div></div>'
       + '<div class="pp-sec"><div class="pp-h">Feats</div><div class="pp-list">' + (feats.join('') || '<div class="pp-note">None.</div>') + '</div></div></section>';
@@ -414,11 +460,14 @@
     return '<section class="pp-page"><div class="pp-sec"><div class="pp-h">Spells</div><div class="pp-list">' + rows.join('') + '</div></div></section>';
   }
 
+  const gearName = (data, slug) => { const items = UI().table(data, 'items'); return own(items, slug) ? items[slug].name : slug; };
+  const gearParts = (data, g) => asList(g.slots).map((x) => gearName(data, x && x.item))
+    .concat(asList(g.fusions).map((x) => gearName(data, typeof x === 'string' ? x : x && x.item)), g.ability ? ['raises ' + String(g.ability).toUpperCase()] : []);
+
   function gearPage(C, data) {
-    const items = UI().table(data, 'items');
-    const nm = (slug) => (own(items, slug) ? items[slug].name : slug);
+    const nm = (slug) => gearName(data, slug);
     const rows = asList(C.gear).filter(Boolean).map((g) => {
-      const parts = asList(g.slots).map((x) => nm(x && x.item)).concat(asList(g.fusions).map((x) => nm(typeof x === 'string' ? x : x && x.item)), g.ability ? ['raises ' + String(g.ability).toUpperCase()] : []);
+      const parts = gearParts(data, g);
       return '<tr><td>' + esc(nm(g.item)) + (parts.length ? '<div class="pp-note">' + esc(parts.join(', ')) + '</div>' : '') + '</td><td class="num">' + esc(g.qty) + '</td><td>' + (g.equipped ? 'equipped' : '') + '</td></tr>';
     });
     if (!rows.length) return '';
@@ -590,6 +639,203 @@
       + '<div class="paperwrap"><div class="paper">' + pages.join('') + '</div></div>';
   }
 
+  const playPath = (C) => { if (!isObject(C.play)) C.play = {}; return C.play; };
+  const wholeOr = (v, fallback) => { const n = num(v); return n === undefined ? fallback : Math.max(0, Math.floor(n)); };
+
+  function playCurrent(C, s) {
+    const play = isObject(C.play) ? C.play : {};
+    const cur = (key, max) => Math.min(max, wholeOr(isObject(play[key]) ? play[key].current : undefined, max));
+    return {
+      hp: { current: cur('hp', s.hp), max: s.hp, nonlethal: wholeOr(isObject(play.hp) ? play.hp.nonlethal : undefined, 0) },
+      sp: { current: cur('sp', s.sp), max: s.sp },
+      rp: { current: cur('rp', s.rp), max: s.rp }
+    };
+  }
+
+  function playAdjust(C, data, key, delta) {
+    const cur = playCurrent(C, SF().derive(C, data, { play: true }));
+    const step = Math.floor(Number(delta));
+    if (!Number.isFinite(step)) return;
+    const play = playPath(C);
+    if (key === 'nonlethal') {
+      play.hp = Object.assign({}, play.hp, { nonlethal: Math.max(0, cur.hp.nonlethal + step) });
+      return;
+    }
+    if (!isObject(cur[key]) || key === 'nonlethal') return;
+    play[key] = Object.assign({}, play[key], { current: Math.max(0, Math.min(cur[key].max, cur[key].current + step)) });
+  }
+
+  const tempOf = (C, key) => (isObject(C.play) && isObject(C.play.temp) && C.play.temp[key] ? C.play.temp[key] : '');
+  const tempInput = (C, key, label) => '<input' + UI().attrs({ type: 'number', class: 'n s', 'data-sel': 'playTemp', 'data-c': key, min: -99, max: 99, value: tempOf(C, key), 'aria-label': 'Temporary bonus to ' + label, placeholder: 'temp' }) + '>';
+  const tempNote = (delta) => (delta ? ' <small class="tmp">(temp ' + UI().sign(delta) + ')</small>' : '');
+  const sheetStat = (label, value, o) => '<div class="stat"><small>' + esc(label) + '</small><span class="big">' + esc(value) + '</span>' + tempNote(o && o.delta) + (o && o.input ? '<div>' + o.input + '</div>' : '') + '</div>';
+  const sheetCard = (title, boxes) => '<div class="card"><h2>' + esc(title) + '</h2><div class="csbox">' + boxes.join('') + '</div></div>';
+  const named = (rec, name) => '<b>' + esc(name) + '</b> ' + UI().aon(rec);
+  const sheetEntry = (e) => '<div class="csli">' + named(e.rec, e.name) + (e.from || e.level ? ' <small class="mute">' + esc([e.from, e.level ? 'level ' + e.level : ''].filter(Boolean).join(', ')) + '</small>' : '') + (e.summary ? '<div class="note">' + esc(e.summary) + '</div>' : '') + '</div>';
+
+  function sheetIdentity(C, data, s) {
+    const u = UI();
+    const race = own(u.table(data, 'races'), C.race);
+    const theme = own(u.table(data, 'themes'), C.theme);
+    const size = race && race.size ? String(race.size).charAt(0).toUpperCase() + String(race.size).slice(1) : '';
+    const kv = [['Race', race ? race.name : ''], ['Theme', theme ? theme.name : ''], ['Classes', u.classSummary(C, data)], ['Level', u.levelsOf(C).length || ''], ['Size', size], ['Speed', s.speed + ' ft']]
+      .map((r) => '<span>' + esc(r[0]) + '</span><span>' + (r[1] === '' ? '<span class="mute">None</span>' : esc(r[1])) + '</span>').join('');
+    const links = [race && u.aon(race), theme && u.aon(theme)].filter(Boolean).join(' ');
+    return '<div class="card"><h1 class="csname">' + esc(C.name || 'Unnamed character') + '</h1><div class="kv">' + kv + '</div>' + (links ? '<div class="note">' + links + '</div>' : '') + '</div>';
+  }
+
+  function sheetPlay(C, UIstate, data, s) {
+    const u = UI();
+    const cur = playCurrent(C, s);
+    const meter = (key, label, extra) => {
+      const m = cur[key];
+      const input = '<input' + u.attrs({ type: 'number', class: 'n s', 'data-b': 'play.' + key + '.current', 'data-t': 'n', min: 0, max: m.max, 'data-min': 0, 'data-max': m.max, value: m.current, 'aria-label': 'Current ' + label }) + '>';
+      return '<div class="stat"><small>' + esc(label) + '</small><div class="curow">' + u.btn('playAdj', '−', { c: 'sm', a: key, b: -1, title: label + ' −1' }) + input + u.btn('playAdj', '+', { c: 'sm', a: key, b: 1, title: label + ' +1' }) + '</div><span class="note">of ' + esc(m.max) + '</span>' + (extra || '') + '</div>';
+    };
+    const nonlethal = '<div class="curow">' + u.btn('playAdj', '−', { c: 'sm', a: 'nonlethal', b: -1, title: 'Nonlethal −1' }) + '<input' + u.attrs({ type: 'number', class: 'n s', 'data-b': 'play.hp.nonlethal', 'data-t': 'n', 'data-z': 'del', min: 0, 'data-min': 0, max: 1000000, 'data-max': 1000000, value: cur.hp.nonlethal || '', 'aria-label': 'Nonlethal damage', placeholder: '0' }) + '>' + u.btn('playAdj', '+', { c: 'sm', a: 'nonlethal', b: 1, title: 'Nonlethal +1' }) + '</div><span class="note">nonlethal</span>';
+    const actions = '<div class="row c">' + u.btn('playRest', 'Rest', { title: 'Restore SP and RP to max' }) + u.btn('playHeal', 'Heal to full', { title: 'Restore HP to max and clear nonlethal damage' }) + u.btn('playResetTemp', 'Reset temp bonuses') + '</div>';
+    const play = isObject(C.play) ? C.play : {};
+    const conditions = '<label class="fld">Conditions<input type="text" class="w" data-b="play.conditions" value="' + esc(play.conditions || '') + '"></label>';
+    const notes = '<label class="fld">Session notes<textarea class="w" rows="3" data-b="play.notes">' + esc(play.notes || '') + '</textarea></label>';
+    return '<div class="card"><h2>Vitals</h2><div class="csbox">' + meter('hp', 'HP', nonlethal) + meter('sp', 'SP') + meter('rp', 'RP') + '</div>' + actions + '<div class="g2">' + conditions + notes + '</div></div>';
+  }
+
+  function sheetAbilities(C, p, b) {
+    const u = UI();
+    return '<div class="card"><h2>Abilities</h2><div class="csbox">' + SF().ABILITIES.map((a) => '<div class="ab"><b>' + esc(a.toUpperCase()) + '</b><div class="tot">' + esc(p.abilities[a].score) + '</div>' + tempNote(p.abilities[a].score - b.abilities[a].score) + '<div class="md">' + esc(u.sign(p.abilities[a].mod)) + '</div><div>' + tempInput(C, a, a.toUpperCase()) + '</div></div>').join('') + '</div></div>';
+  }
+
+  function sheetAttacks(C, p, b) {
+    const head = '<tr><th>Attack</th><th class="num">Atk</th><th>Damage</th><th>Crit</th><th>Range</th><th>Notes</th></tr>';
+    const rows = p.attacks.map((a, i) => '<tr><td>' + esc(a.name) + '</td><td class="num"><b>' + esc(attackBonus(a)) + '</b>' + (b.attacks[i] && Number.isFinite(a.attack) && Number.isFinite(b.attacks[i].attack) ? tempNote(a.attack - b.attacks[i].attack) : '') + '</td><td>' + esc(attackDamage(a)) + '</td><td>' + esc(a.crit || '—') + '</td><td>' + esc(a.range || '—') + '</td><td class="note">' + esc(a.notes) + '</td></tr>').join('');
+    const temps = '<div class="row c">' + [['attack.melee', 'Melee attack'], ['attack.ranged', 'Ranged attack'], ['damage.all', 'All damage']].map((t) => '<label class="fld">' + esc(t[1]) + tempInput(C, t[0], t[1]) + '</label>').join('') + '</div>';
+    return '<div class="card"><h2>Attacks</h2>' + (rows ? '<div class="scroll"><table class="t">' + head + rows + '</table></div>' : '<p class="note">No attacks.</p>') + temps + '</div>';
+  }
+
+  function sheetSkills(C, p, b) {
+    const rows = Object.keys(p.skills).map((k) => {
+      const sk = p.skills[k];
+      return '<tr><td class="skcol">' + (sk.classSkill ? '●' : '') + '</td><td>' + esc(sk.name) + '</td><td class="mute">' + esc(sk.ability.toUpperCase()) + '</td><td class="num">' + esc(sk.ranks) + '</td><td class="num"><b>' + esc(skillTotal(sk)) + '</b>' + tempNote(sk.total - b.skills[k].total) + '</td><td>' + tempInput(C, 'skill.' + k, sk.name) + '</td></tr>';
+    }).join('');
+    return '<div class="card"><h2>Skills</h2><div class="scroll"><table class="t"><tr><th></th><th>Skill</th><th>Abil</th><th class="num">Ranks</th><th class="num">Total</th><th>Temp</th></tr>' + rows + '</table></div><p class="note">● class skill. — trained only, no ranks.</p></div>';
+  }
+
+  function sheetSituational(s) {
+    const u = UI();
+    const rows = asList(s.situational).map((m) => {
+      const v = /^-?\d+$/.test(String(m.modifier)) ? u.sign(m.modifier) : m.modifier;
+      const what = [v, m.effectType, m.valueAffected].filter((x) => x !== undefined && x !== null && x !== '').join(' ');
+      return '<div class="csli"><b>' + esc(m.source) + '</b> ' + esc(what) + (m.condition ? ' <small class="mute">' + esc(m.condition) + '</small>' : '') + (m.notes ? '<div class="note">' + esc(m.notes) + '</div>' : '') + '</div>';
+    });
+    return rows.length ? '<div class="card"><h2>Situational</h2>' + rows.join('') + '</div>' : '';
+  }
+
+  function sheetFeats(C, data) {
+    const rows = featEntries(C, data).map(sheetEntry);
+    return '<div class="card"><h2>Feats</h2>' + (rows.join('') || '<p class="note">None.</p>') + '</div>';
+  }
+
+  function sheetFeatures(C, data) {
+    const u = UI();
+    const groups = [];
+    featureEntries(C, data).forEach((e) => {
+      let g = groups.find((x) => x.cls === e.cls);
+      if (!g) { g = { cls: e.cls, rows: [] }; groups.push(g); }
+      g.rows.push(e);
+    });
+    const body = groups.map((g) => '<h3>' + esc(u.className(data, g.cls)) + '</h3>' + g.rows.map(sheetEntry).join('')).join('');
+    return '<div class="card"><h2>Class features</h2>' + (body || '<p class="note">None.</p>') + '</div>';
+  }
+
+  function sheetTraits(C, data) {
+    const u = UI();
+    const features = u.table(data, 'features');
+    const total = SF().charLevel(C);
+    const race = own(u.table(data, 'races'), C.race);
+    const theme = own(u.table(data, 'themes'), C.theme);
+    const rec = (k) => own(features, k);
+    const gated = (k) => !(typeof rec(k).level === 'number') || rec(k).level <= total;
+    const entry = (k) => sheetEntry({ rec: rec(k), name: rec(k).name, summary: rec(k).summary });
+    const racial = asList(race && race.coreTraits).filter(rec).map(entry);
+    const thematic = asList(theme && theme.features).filter((k) => rec(k) && gated(k)).map(entry);
+    const block = (title, rows) => (rows.length ? '<h3>' + esc(title) + '</h3>' + rows.join('') : '');
+    const body = block('Racial traits', racial) + block('Theme', thematic);
+    return '<div class="card"><h2>Traits</h2>' + (body || '<p class="note">None.</p>') + '</div>';
+  }
+
+  function knownSpellsOf(C, cls) {
+    const known = [];
+    UI().levelsOf(C).forEach((l) => {
+      if (!l || l.class !== cls) return;
+      const sp = l.spells || {};
+      asList(sp.learn).forEach((k) => { if (known.indexOf(k) === -1) known.push(k); });
+      if (sp.swap && sp.swap.to) {
+        const at = known.indexOf(sp.swap.from);
+        if (at !== -1) known.splice(at, 1);
+        if (known.indexOf(sp.swap.to) === -1) known.push(sp.swap.to);
+      }
+    });
+    return known;
+  }
+
+  function sheetSpells(C, data, adj) {
+    const u = UI();
+    const rules = SF();
+    const spells = u.table(data, 'spells');
+    const slots = rules.spellSlots(C, data, adj);
+    const conn = rules.connectionSpells(C, data);
+    return Object.keys(slots).map((cls) => {
+      const levels = Object.keys(slots[cls].known).sort((a, b) => a - b);
+      const grid = '<div class="scroll"><table class="t"><tr><th>Spell level</th>' + levels.map((l) => '<th class="num">' + esc(l) + '</th>').join('') + '</tr>'
+        + '<tr><td>Known</td>' + levels.map((l) => '<td class="num">' + esc(slots[cls].known[l]) + '</td>').join('') + '</tr>'
+        + '<tr><td>Per day</td>' + levels.map((l) => '<td class="num">' + (l === '0' ? '∞' : esc(slots[cls].perDay[l] || 0)) + '</td>').join('') + '</tr></table></div>';
+      const entries = knownSpellsOf(C, cls).map((k) => ({ slug: k, connection: false }))
+        .concat(asList(conn[cls]).map((c) => ({ slug: c.slug, connection: true, level: c.level })));
+      const byLevel = {};
+      entries.forEach((e) => {
+        const r = own(spells, e.slug);
+        const lvl = r && Number.isFinite(r.level) ? r.level : e.level === undefined ? '?' : e.level;
+        (byLevel[lvl] = byLevel[lvl] || []).push(Object.assign({ rec: r }, e));
+      });
+      const lists = Object.keys(byLevel).sort((a, b) => a - b).map((lvl) => '<h3>Level ' + esc(lvl) + '</h3>' + byLevel[lvl].map((e) => sheetEntry({ rec: e.rec, name: e.rec ? e.rec.name : e.slug, summary: e.rec && e.rec.summary, from: e.connection ? 'connection' : '' })).join('')).join('');
+      return '<div class="card"><h2>Spells: ' + esc(u.className(data, cls)) + '</h2>' + grid + lists + '</div>';
+    }).join('');
+  }
+
+  function sheetGear(C, data, s) {
+    const u = UI();
+    const items = u.table(data, 'items');
+    const b = SF().budget(C, data);
+    const gear = asList(C.gear).filter(Boolean);
+    const ordered = gear.filter((g) => g.equipped).concat(gear.filter((g) => !g.equipped));
+    const state = s.bulk.state === 'ok' ? '<span class="pill on">Unencumbered</span>' : '<span class="pill warn">' + (s.bulk.state === 'overburdened' ? 'Overburdened' : 'Encumbered') + '</span>';
+    const rows = ordered.map((g) => {
+      const rec = own(items, g.item);
+      const parts = gearParts(data, g);
+      const bulk = rec && rec.bulk !== undefined && rec.bulk !== '' && rec.bulk !== '-' ? rec.bulk : '—';
+      return '<tr><td>' + named(rec, rec ? rec.name : g.item) + (parts.length ? '<div class="note">' + esc(parts.join(', ')) + '</div>' : '') + '</td><td class="num">' + esc(g.qty) + '</td><td class="num">' + esc(bulk) + '</td><td>' + (g.equipped ? 'equipped' : '') + '</td></tr>';
+    }).join('');
+    return '<div class="card"><h2>Gear</h2><div class="wallet"><span>Credits left <b class="' + (b.left < 0 ? 'bad' : '') + '">' + esc(u.fmt(b.left)) + '</b></span><span>Bulk <b>' + esc(s.bulk.carried) + '</b> of ' + esc(s.bulk.limit) + '</span>' + state + '</div>'
+      + (rows ? '<div class="scroll"><table class="t"><tr><th>Item</th><th class="num">Qty</th><th class="num">Bulk</th><th></th></tr>' + rows + '</table></div>' : '<p class="note">No gear.</p>') + '</div>';
+  }
+
+  function tabSheet(C, UIstate, data, ctx) {
+    const u = UI();
+    const build = (ctx || u.ctxOf(C, data)).sheet;
+    const p = SF().derive(C, data, { play: true });
+    const sign = u.sign;
+    const d = (k) => p[k] - build[k];
+    const t = (key, label, value, delta) => sheetStat(label, value, { delta, input: tempInput(C, key, label) });
+    const notes = C.notes ? '<div class="card"><h2>Notes</h2><div class="csnotes">' + esc(C.notes) + '</div></div>' : '';
+    const hasTemp = isObject(C.play) && isObject(C.play.temp) && Object.keys(C.play.temp).length;
+    const reset = hasTemp ? '<p class="note">Temporary bonuses are untyped, shown on this tab only, and never change the build, Print or exports.</p>' : '';
+    return '<div class="cs">' + sheetIdentity(C, data, p) + sheetPlay(C, UIstate, data, p) + sheetAbilities(C, p, build)
+      + sheetCard('Defense', [t('eac', 'EAC', p.eac, d('eac')), t('kac', 'KAC', p.kac, d('kac')), t('cmd', 'CMD', p.cmd, d('cmd')), t('fort', 'Fort', sign(p.fort), d('fort')), t('ref', 'Ref', sign(p.ref), d('ref')), t('will', 'Will', sign(p.will), d('will'))])
+      + sheetCard('Offense', [t('initiative', 'Init', sign(p.initiative), d('initiative')), sheetStat('BAB', sign(p.bab)), t('speed.land', 'Speed', p.speed + ' ft', d('speed'))])
+      + reset + sheetAttacks(C, p, build) + sheetSkills(C, p, build) + sheetSituational(p) + sheetFeats(C, data) + sheetFeatures(C, data) + sheetTraits(C, data)
+      + sheetSpells(C, data, p.spellAdjust) + sheetGear(C, data, p) + notes + '</div>';
+  }
+
   const actions = {
     print: () => { root.print(); },
     copyBBCode: (C, UIstate, data) => { copyText(toBBCode(C, data)); },
@@ -601,7 +847,11 @@
       download(text, 'sfbuilder-recovered.txt', 'text/plain');
       if (recovered) recovered.backed = true;
     },
-    startFresh: () => { recovered = null; }
+    startFresh: () => { recovered = null; },
+    playAdj: (C, UIstate, data, key, delta) => { playAdjust(C, data, key, delta); },
+    playRest: (C) => { if (isObject(C.play)) { delete C.play.sp; delete C.play.rp; } },
+    playHeal: (C) => { if (isObject(C.play)) delete C.play.hp; },
+    playResetTemp: (C) => { if (isObject(C.play)) delete C.play.temp; }
   };
 
   function recoveryNotice() {
@@ -618,11 +868,12 @@
     statusLine: () => (available ? '' : '<span class="pill warn">' + esc(NOT_SAVING) + '</span>')
       + recoveryNotice(),
     tabPrint,
+    tabSheet,
     tabIO,
     tabBBCode,
     actions,
     toBBCode, featDetail, paramDetail,
-    VERSION, KEY, ImportError, defaultChar, migrate, exportJSON, importJSON, saveLocal, loadLocal, exportName, applyImport, applyChar, download, toast, probeStorage, recoveredBackup: () => recovered
+    VERSION, KEY, ImportError, defaultChar, migrate, exportJSON, importJSON, saveLocal, loadLocal, exportName, applyImport, applyChar, download, toast, probeStorage, recoveredBackup: () => recovered, unbackedPending, playCurrent, playAdjust
   };
   probeStorage();
   root.SFCHAR = hook;

@@ -359,7 +359,7 @@
   const halfSpec = (type, operative) => type === 'smallA' || operative;
   const knownTypes = Object.keys(WEAPON_PROFICIENCY);
 
-  function attackLines(char, data, sheet) {
+  function attackLines(char, data, sheet, opts) {
     const s = sheet || rules.derive(char, data);
     const lvl = rules.charLevel(char);
     const prof = proficiency(char, data);
@@ -367,7 +367,7 @@
     const armorKey = armorRec ? ARMOR_PROFICIENCY[armorRec.type] : null;
     const armorUntrained = !!armorRec && !(armorKey && prof.armor[armorKey]);
     const acpPenalty = armorUntrained ? Math.min(0, s.acp) : 0;
-    const resolved = bonus.resolve(char, data, { state: { encumbered: !!s.bulk && s.bulk.state !== 'ok' } });
+    const resolved = bonus.resolve(char, data, { play: !!(opts && opts.play), state: { encumbered: !!s.bulk && s.bulk.state !== 'ok' } });
     const baseCtx = formula.formulaCtx(char, data);
     const raceRec = own(table(data, 'races'), char.race);
     const features = rules.classFeatures(char, data).map((f) => f.slug);

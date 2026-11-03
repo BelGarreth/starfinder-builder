@@ -227,9 +227,11 @@
     });
     const m = (a) => s.abilities[a].mod;
 
-    set('hp', s.hp); set('max_hp', s.hp);
-    set('stam', s.sp); set('max_stam', s.sp);
-    set('res', s.rp); set('max_res', s.rp);
+    const cur = H.playCurrent(C, s);
+    set('hp', cur.hp.current); set('max_hp', s.hp);
+    set('stam', cur.sp.current); set('max_stam', s.sp);
+    set('res', cur.rp.current); set('max_res', s.rp);
+    if (cur.hp.nonlethal) set('hp_nonlethal', cur.hp.nonlethal);
 
     const armor = rules.equippedArmor(C, data);
     const dexForAc = armor && Number.isFinite(armor.dex) ? Math.min(m('dex'), armor.dex) : m('dex');

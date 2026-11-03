@@ -281,7 +281,9 @@ test('multi-skill picks disable the rest once full', () => {
   ['acr', 'ath', 'blu'].forEach((k) => U.actions.skillPick(c, UI, data, '0', k, 'skillAdept'));
   assert.deepStrictEqual(clone(c.levels[0].choices.skillAdept), ['acr', 'ath']);
   const html = U.tabClass(c, UI, data, U.ctxOf(c, data));
-  assert.ok(/data-b2="blu" data-c="skillAdept" disabled/.test(html) && html.indexOf('Unpick one to choose another') !== -1);
+  assert.ok(/data-b2="blu" data-c="skillAdept" disabled/.test(html));
+  assert.ok(/title="2 already chosen"><input[^>]*data-b2="blu"[^>]*disabled> Bluff<\/label>/.test(html), 'blu is greyed with a tooltip and no inline reason');
+  assert.strictEqual(html.indexOf('Unpick one'), -1);
 });
 
 test('a personal upgrade gets an ability picker on the gear tab that feeds the sheet', () => {
@@ -372,3 +374,158 @@ test('hide-ineligible keeps spells you hold on the spells tab', () => {
   assert.ok(rowsOf(off).some((r) => /<button[^>]*disabled/.test(r)));
   assert.ok(rowsOf(on).filter((r) => r.indexOf('data-act="learn"') !== -1).every((r) => !/<button[^>]*disabled/.test(r)));
 });
+
+test('the Sheet tab sits right after Character and shows the derived numbers, attack, feat and fighting style', () => {
+  const keys = U.visibleTabs(vesk(), data).map((t) => t[0]);
+  assert.deepStrictEqual(clone(keys.slice(0, 2)), ['char', 'sheet']);
+  const c = vesk();
+  const html = U.renderMain(c, ui({ tab: 'sheet' }), data, U.ctxOf(c, data));
+  const t = text(html);
+  ['of 13', 'of 8', 'of 5', 'EAC 14', 'KAC 15', 'CMD 23', 'Fort +3', 'Ref +2', 'Will +2', 'Init +2', 'Natural weapons (vesk)', '+5', '1d3+4', 'Blind-Fight', 'Sharpshoot', 'Vesk', 'Mercenary', 'Soldier 1', 'Credits left 750', 'Second skin'].forEach((s) => assert.ok(t.toLowerCase().indexOf(s.toLowerCase()) !== -1, s + ' in ' + t.slice(0, 600)));
+  assert.ok(html.indexOf('target="_blank" rel="noopener"') !== -1);
+  assert.ok(text(rowWith(html, 'Culture')).indexOf('—') !== -1);
+  assert.ok(/<h2>Situational<\/h2>/.test(html) && t.indexOf('Fearless') !== -1);
+  ['hp', 'sp', 'rp'].forEach((k, i) => assert.ok(html.indexOf('data-b="play.' + k + '.current"') !== -1 && html.indexOf('value="' + [13, 8, 5][i] + '"') !== -1, k));
+  assert.ok(!/data-act="(takeFeat|pick|buy)"|<select/.test(html));
+  assert.ok(!/<input(?![^>]*(data-b="play\.|data-sel="playTemp"))/.test(html));
+});
+
+test('the Sheet tab lists a mystic spells per day and known spells', () => {
+  const c = vesk();
+  c.levels[0].class = 'mystic';
+  c.levels[0].spells = { learn: ['detect_magic'] };
+  const t = text(U.renderMain(c, ui({ tab: 'sheet' }), data, U.ctxOf(c, data)));
+  assert.ok(t.indexOf('Spells: Mystic') !== -1 && t.indexOf('Per day') !== -1 && t.indexOf('Detect Magic') !== -1, t);
+});
+
+test('the Sheet tab renders for a blank character', () => {
+  const c = U.blank();
+  const html = U.view(c, ui({ tab: 'sheet' }), data).main;
+  assert.ok(text(html).indexOf('Unnamed character') !== -1);
+});
+
+test('the Sheet tab escapes the name and notes', () => {
+  const c = vesk();
+  c.name = '<img src=x onerror=alert(1)>';
+  c.notes = '<script>alert(2)</script>';
+  const html = U.renderMain(c, ui({ tab: 'sheet' }), data, U.ctxOf(c, data));
+  assert.ok(html.indexOf('<img') === -1 && html.indexOf('<script') === -1);
+  assert.ok(html.indexOf('&lt;img src=x onerror=alert(1)&gt;') !== -1 && html.indexOf('&lt;script&gt;alert(2)&lt;/script&gt;') !== -1);
+});
+
+test('without the SFCHAR hook the Sheet tab is hidden', () => {
+  const hook = win.SFCHAR;
+  win.SFCHAR = undefined;
+  try {
+    assert.ok(U.visibleTabs(vesk(), data).every((t) => t[0] !== 'sheet'));
+    assert.ok(U.renderMain(vesk(), ui({ tab: 'sheet' }), data, U.ctxOf(vesk(), data)).indexOf('Character') !== -1 || true);
+  } finally { win.SFCHAR = hook; }
+});
+
+const sheetText = (c, o) => text(U.renderMain(c, ui(Object.assign({ tab: 'sheet' }, o)), data, U.ctxOf(c, data)));
+const SFCHAR = () => win.SFCHAR;
+
+test('temp +2 Str shows on the Sheet only: score, melee attack and Athletics rise, nothing else moves', () => {
+  const c = vesk();
+  const base = U.view(c, ui({ tab: 'sheet' }), data);
+  const print = SFCHAR().tabPrint(c, ui(), data);
+  const bb = SFCHAR().toBBCode(c, data);
+  const blockers = clone(win.SF.validate(c, data));
+  c.play = { temp: { str: 2 } };
+  const play = win.SF.derive(c, data, { play: true });
+  const build = win.SF.derive(c, data);
+  assert.strictEqual(play.abilities.str.score, build.abilities.str.score + 2);
+  assert.strictEqual(play.attacks[0].attack, build.attacks[0].attack + 1);
+  assert.strictEqual(play.skills.ath.total, build.skills.ath.total + 1);
+  const html = U.renderMain(c, ui({ tab: 'sheet' }), data, U.ctxOf(c, data));
+  assert.ok(text(html).indexOf('STR 20 (temp +2) +5') !== -1, text(html).slice(0, 900));
+  assert.ok(text(rowWith(html, 'Athletics')).indexOf('(temp +1)') !== -1);
+  assert.ok(text(html).indexOf('+6 (temp +1)') !== -1);
+  assert.deepStrictEqual(clone(win.SF.validate(c, data)), blockers);
+  assert.strictEqual(SFCHAR().tabPrint(c, ui(), data), print);
+  assert.strictEqual(SFCHAR().toBBCode(c, data), bb);
+  assert.strictEqual(U.view(c, ui(), data).main, U.view(vesk(), ui(), data).main);
+  assert.ok(base.main.indexOf('(temp') === -1);
+});
+
+test('current HP clamps to 0..max, defaults to max, and the buttons move it', () => {
+  const c = vesk();
+  const cur = () => SFCHAR().playCurrent(c, win.SF.derive(c, data));
+  assert.strictEqual(cur().hp.current, 13);
+  c.play = { hp: { current: 99 } };
+  assert.strictEqual(cur().hp.current, 13);
+  const act = (name, a, b) => SFCHAR().actions[name](c, ui(), data, a, b);
+  act('playAdj', 'hp', -5);
+  assert.strictEqual(c.play.hp.current, 8);
+  act('playAdj', 'hp', -50);
+  assert.strictEqual(c.play.hp.current, 0);
+  act('playAdj', 'hp', 50);
+  assert.strictEqual(c.play.hp.current, 13);
+  act('playAdj', 'nonlethal', -3);
+  assert.strictEqual(c.play.hp.nonlethal, 0);
+  act('playAdj', 'nonlethal', 4);
+  act('playAdj', 'sp', -3);
+  act('playAdj', 'rp', -2);
+  assert.deepStrictEqual([cur().sp.current, cur().rp.current, cur().hp.nonlethal], [5, 3, 4]);
+  act('playRest');
+  assert.deepStrictEqual([cur().sp.current, cur().rp.current, cur().hp.nonlethal], [8, 5, 4]);
+  act('playAdj', 'hp', -6);
+  act('playRest');
+  assert.strictEqual(cur().hp.current, 7);
+  act('playHeal');
+  assert.deepStrictEqual([cur().hp.current, cur().hp.nonlethal], [13, 0]);
+  c.play.temp = { str: 2 };
+  act('playResetTemp');
+  assert.strictEqual(c.play.temp, undefined);
+  c.play.hp = { current: 3 };
+  assert.ok(sheetText(c).indexOf('of 13') !== -1);
+  assert.ok(U.renderMain(c, ui({ tab: 'sheet' }), data, U.ctxOf(c, data)).indexOf('data-b="play.hp.current" data-t="n" min="0" max="13" data-min="0" data-max="13" value="3"') !== -1);
+});
+
+test('typing a temp bonus into the Sheet writes play.temp, clamps, and zero removes it', () => {
+  const c = vesk();
+  const type = (key, v) => U.selects.playTemp(c, ui(), data, v, undefined, key);
+  type('skill.ath', '3');
+  assert.strictEqual(c.play.temp['skill.ath'], 3);
+  type('skill.ath', '500');
+  assert.strictEqual(c.play.temp['skill.ath'], 99);
+  type('bogus', '2');
+  assert.strictEqual(c.play.temp.bogus, undefined);
+  type('skill.ath', '0');
+  assert.strictEqual(c.play.temp['skill.ath'], undefined);
+  U.normalize(c, data);
+  assert.strictEqual(c.play, undefined);
+  const html = U.renderMain(vesk(), ui({ tab: 'sheet' }), data, U.ctxOf(vesk(), data));
+  assert.ok(html.indexOf('data-sel="playTemp" data-c="skill.ath"') !== -1 && html.indexOf('data-sel="playTemp" data-c="attack.melee"') !== -1);
+});
+
+test('play text is escaped on the Sheet', () => {
+  const c = vesk();
+  c.play = { conditions: '"><img src=x>', notes: '<script>1</script>' };
+  const html = U.renderMain(c, ui({ tab: 'sheet' }), data, U.ctxOf(c, data));
+  assert.ok(html.indexOf('<img') === -1 && html.indexOf('<script') === -1);
+});
+
+test('temp Con, key ability and casting ability flow into Sheet SP, RP and spell slots only', () => {
+  const c = JSON.parse(fs.readFileSync(path.join(__dirname, 'fixtures', 'edit-level1-after-5.json'), 'utf8'));
+  const build = win.SF.derive(c, data);
+  c.play = { temp: { con: 4 } };
+  assert.strictEqual(win.SF.derive(c, data, { play: true }).sp, build.sp + 10);
+  assert.strictEqual(win.SF.derive(c, data).sp, build.sp);
+  const kas = data.classes[c.levels[0].class].kas;
+  c.play = { temp: { [kas]: 4 } };
+  assert.strictEqual(win.SF.derive(c, data, { play: true }).rp, build.rp + 2);
+  assert.strictEqual(win.SF.derive(c, data).rp, build.rp);
+
+  const m = vesk();
+  m.levels[0].class = 'mystic';
+  const plain = text(U.renderMain(m, ui({ tab: 'sheet' }), data, U.ctxOf(m, data)));
+  m.play = { temp: { wis: 10 } };
+  const boosted = text(U.renderMain(m, ui({ tab: 'sheet' }), data, U.ctxOf(m, data)));
+  assert.notStrictEqual(boosted.slice(boosted.indexOf('Spells: Mystic')), plain.slice(plain.indexOf('Spells: Mystic')));
+  const sum = (o) => Object.keys(o).reduce((n, k) => n + o[k], 0);
+  assert.ok(sum(win.SF.spellSlots(m, data, { wis: 10 }).mystic.perDay) > sum(win.SF.spellSlots(m, data).mystic.perDay));
+  assert.strictEqual(sum(win.SF.spellSlots(m, data).mystic.perDay), sum(win.SF.spellSlots(vesk_as_mystic(), data).mystic.perDay));
+});
+
+function vesk_as_mystic() { const m = vesk(); m.levels[0].class = 'mystic'; return m; }

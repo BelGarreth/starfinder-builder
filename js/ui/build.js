@@ -157,7 +157,7 @@
       const on = picks.indexOf(slug) !== -1;
       let ans;
       if (!on && count === 1 && picks.length) ans = rules.allowed('choice', slug, i, cleared, data, { id });
-      else if (!on && picks.length >= count) ans = { ok: false, why: 'Unpick one to choose another' };
+      else if (!on && picks.length >= count) ans = { ok: false, why: count + ' already chosen', quiet: true };
       else ans = rules.allowed('choice', slug, i, C, data, { id });
       return { slug, on, ans };
     }).filter((r) => !UI.hideIneligible || r.on || r.ans.ok).map(({ slug, on, ans }) => {
@@ -175,9 +175,9 @@
     const boxes = Object.keys(SKILLS).map((k) => {
       const on = picks.indexOf(k) !== -1;
       let ans = rules.allowed('choice', k, i, C, data, { id: entry.skillPick });
-      if (ans.ok && !on && count > 1 && picks.length >= count) ans = { ok: false, why: 'Unpick one to choose another' };
-      const why = !ans.ok ? ' <span class="why">' + esc(ans.why) + '</span>' : '';
-      return '<label class="' + (ans.ok || on ? '' : 'dis') + '"><input type="' + (count === 1 ? 'radio' : 'checkbox') + '" data-act="skillPick" data-a="' + i + '" data-b2="' + esc(k) + '" data-c="' + esc(entry.skillPick) + '"' + (on ? ' checked' : '') + (!ans.ok && !on ? ' disabled' : '') + '> ' + esc(SKILLS[k].name) + why + '</label>';
+      if (ans.ok && !on && count > 1 && picks.length >= count) ans = { ok: false, why: count + ' already chosen', quiet: true };
+      const why = !ans.ok && !ans.quiet ? ' <span class="why">' + esc(ans.why) + '</span>' : '';
+      return '<label class="' + (ans.ok || on ? '' : 'dis') + '"' + (!ans.ok && !on ? ' title="' + esc(ans.why) + '"' : '') + '><input type="' + (count === 1 ? 'radio' : 'checkbox') + '" data-act="skillPick" data-a="' + i + '" data-b2="' + esc(k) + '" data-c="' + esc(entry.skillPick) + '"' + (on ? ' checked' : '') + (!ans.ok && !on ? ' disabled' : '') + '> ' + esc(SKILLS[k].name) + why + '</label>';
     }).join('');
     const notes = [entry.classSkill ? 'they become class skills' : '', entry.skillFocus ? 'they gain the Skill Focus bonus' : '', entry.minRanks ? 'needs ' + entry.minRanks + ' rank in the skill' : ''].filter(Boolean).join('; ');
     return '<h3>' + esc(entry.label || entry.skillPick) + ' <span class="mute">(' + esc(picks.length) + ' of ' + esc(entry.count || 1) + ')</span></h3>' + (notes ? '<p class="note">' + esc(cap(notes)) + '</p>' : '') + '<div class="csgrid">' + boxes + '</div>';
