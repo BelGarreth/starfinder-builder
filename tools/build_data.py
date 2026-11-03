@@ -1,0 +1,379 @@
+import argparse
+import html
+import json
+import re
+import subprocess
+from datetime import date
+from pathlib import Path
+from urllib.parse import quote
+
+ROOT = Path(__file__).resolve().parent.parent
+REPO_URL = 'https://github.com/foundryvtt-starfinder/foundryvtt-starfinder.git'
+SPARSE_DIRS = [
+    'src/items/races', 'src/items/racial-features', 'src/items/themes', 'src/items/theme-features',
+    'src/items/classes', 'src/items/feats', 'src/items/spells', 'src/items/equipment',
+]
+AON = 'https://www.aonsrd.com/'
+SUMMARY_LIMIT = 300
+ITEM_SUMMARY_LIMIT = 160
+
+RACES = ['android', 'human', 'kasatha', 'lashunta', 'shirren', 'vesk', 'ysoki', 'dwarf', 'elf', 'gnome',
+         'half-elf', 'halfling', 'half-orc']
+CLASSES = ['envoy', 'mechanic', 'mystic', 'operative', 'solarian', 'soldier', 'technomancer']
+ITEM_TYPES = {'weapon', 'shield', 'upgrade', 'fusion', 'augmentation', 'technological', 'magic', 'hybrid',
+              'equipment', 'consumable', 'ammunition', 'goods', 'container', 'weaponAccessory'}
+
+UUID_LABELLED = re.compile(r'@\w+\[[^\]]*\]\{([^}]*)\}')
+UUID_BARE = re.compile(r'@\w+\[[^\]]*\]')
+ROLL_LABELLED = re.compile(r'\[\[[^\]]*\]\]\{([^}]*)\}')
+ROLL_BARE = re.compile(r'\[\[/\w+\s+([^\]]*?)\]\]')
+LABEL_PARAGRAPH = re.compile(r'<(p|h\d)>\s*&gt;.*?</\1>', re.S)
+BLOCK_END = re.compile(r'</p>|</li>|<br\s*/?>|<hr\s*/?>|</h\d>', re.I)
+TAG = re.compile(r'<[^>]*>')
+SENTENCE_BREAK = re.compile(r'(?<=[.!?])\s+(?=[A-Z0-9"“(])')
+RACIAL_LINK = re.compile(r'@UUID\[Compendium\.sfrpg\.racial-features\.Item\.(\w+)\]')
+THEME_LINK = re.compile(r'@UUID\[Compendium\.sfrpg\.theme-features\.Item\.(\w+)\]')
+LEVEL_REQ = re.compile(r'^(\d+)(?:st|nd|rd|th) Level')
+PREREQ = re.compile(r'Prerequisites?\s*(?:</\w+>)*\s*:?\s*(?:</\w+>)*\s*(.*?)(?:</p>|<br|<strong>|<hr)', re.S)
+BENEFIT = re.compile(r'Benefits?\s*(?:</\w+>)*\s*:?\s*(?:</\w+>)*\s*')
+
+
+def fetch_foundry(sha, dest):
+    dest = Path(dest)
+    if not (dest / '.git').exists():
+        dest.parent.mkdir(parents=True, exist_ok=True)
+        subprocess.run(['git', 'clone', '--filter=blob:none', '--sparse', REPO_URL, str(dest)], check=True)
+        subprocess.run(['git', '-C', str(dest), 'sparse-checkout', 'set', '--no-cone', *[d + '/' for d in SPARSE_DIRS]], check=True)
+    head = subprocess.run(['git', '-C', str(dest), 'rev-parse', 'HEAD'], capture_output=True, text=True).stdout.strip()
+    if head != sha:
+        subprocess.run(['git', '-C', str(dest), 'fetch', '--filter=blob:none', 'origin', sha], check=True)
+        subprocess.run(['git', '-C', str(dest), 'checkout', '--detach', sha], check=True)
+    return dest / 'src' / 'items'
+
+
+def plain(markup):
+    text = UUID_LABELLED.sub(r'\1', LABEL_PARAGRAPH.sub('', markup or ''))
+    text = UUID_BARE.sub('', text)
+    text = ROLL_LABELLED.sub(r'\1', text)
+    text = ROLL_BARE.sub(r'\1', text)
+    text = TAG.sub(' ', BLOCK_END.sub(' ', text))
+    text = html.unescape(text).replace('<', 'less than ')
+    text = re.sub(r'\s+', ' ', text).strip()
+    return re.sub(r'\s+([.,;:!?])', r'\1', text)
+
+
+def summarize(markup, limit=SUMMARY_LIMIT):
+    text = plain(markup)
+    out = ''
+    for sentence in SENTENCE_BREAK.split(text):
+        candidate = f'{out} {sentence}'.strip()
+        if len(candidate) > limit:
+            break
+        out = candidate
+    if out:
+        return out
+    if len(text) <= limit:
+        return text
+    cut = text[:limit - 1].rsplit(' ', 1)[0].rstrip(' .,;:')
+    return cut + '…'
+
+
+def load_dir(path):
+    out = {}
+    for f in sorted(Path(path).glob('*.json')):
+        data = json.loads(f.read_text(encoding='utf-8'))
+        if isinstance(data, dict) and isinstance(data.get('system'), dict):
+            out[f.stem] = data
+    return out
+
+
+def description(item):
+    return item['system'].get('description', {}).get('value', '')
+
+
+def aon(page, name):
+    return f'{AON}{page}.aspx?ItemName={quote(name)}'
+
+
+def aon_search(name):
+    return f'{AON}Search.aspx?Query={quote(name)}'
+
+
+def modifiers(system):
+    keys = ('name', 'type', 'effectType', 'valueAffected', 'modifier', 'modifierType', 'condition', 'notes')
+    return [{k: m.get(k) for k in keys} for m in system.get('modifiers', []) if m.get('enabled')]
+
+
+def split_name(name):
+    match = re.match(r'^(.*?)\s*\((.*)\)\s*$', name)
+    if match:
+        return match.group(1), match.group(2)
+    return name, None
+
+
+def slug_base(slug):
+    return slug.split('_(')[0]
+
+
+def compact(nested):
+    out = {}
+    for key, row in (nested or {}).items():
+        cleaned = {k: v for k, v in (row or {}).items() if v is not None}
+        if cleaned:
+            out[key] = cleaned
+    return out
+
+
+def true_keys(mapping):
+    return [k for k, v in (mapping or {}).items() if v]
+
+
+def traits_for_race(base, variant, markup, id_to_slug, by_name):
+    linked = []
+    for feature_id in RACIAL_LINK.findall(markup):
+        slug = id_to_slug.get(feature_id)
+        if slug and slug not in linked:
+            linked.append(slug)
+    if linked:
+        return linked
+    base_key = base.casefold()
+    tokens = [t.casefold() for t in re.split(r'[\s,]+', variant or '') if t]
+    found = []
+    for slug, requirement in by_name.values():
+        req = requirement.casefold()
+        if req == base_key or (req.startswith(base_key + ' ') and any(t in req for t in tokens)):
+            found.append(slug)
+    return found
+
+
+def build_features(racial, theme):
+    features = {}
+    for slug, item in racial.items():
+        if item['type'] != 'feat':
+            continue
+        features[slug] = {
+            'name': item['name'], 'kind': 'race', 'requirements': item['system'].get('requirements', ''),
+            'level': None, 'aon': aon_search(item['name']), 'src': item['system'].get('source', ''),
+            'summary': summarize(description(item)), 'modifiers': modifiers(item['system']),
+        }
+    for slug, item in theme.items():
+        if item['type'] != 'feat':
+            continue
+        req = item['system'].get('requirements', '')
+        level = LEVEL_REQ.match(req)
+        key = slug if slug not in features else f'theme-{slug}'
+        features[key] = {
+            'name': item['name'], 'kind': 'theme', 'requirements': req,
+            'level': int(level.group(1)) if level else None, 'aon': aon_search(item['name']),
+            'src': item['system'].get('source', ''), 'summary': summarize(description(item)),
+            'modifiers': modifiers(item['system']),
+        }
+    return features
+
+
+def build_races(items, racial):
+    id_to_slug = {i['_id']: s for s, i in racial.items() if i['type'] == 'feat'}
+    by_name = {s: (s, i['system'].get('requirements', '')) for s, i in racial.items() if i['type'] == 'feat'}
+    races = {}
+    for slug, item in items.items():
+        base, variant = split_name(item['name'])
+        if base.casefold() not in RACES:
+            continue
+        s = item['system']
+        races[slug] = {
+            'name': item['name'], 'base': slug_base(slug), 'variant': variant, 'size': s.get('size', 'medium'),
+            'hp': s.get('hp', {}).get('value'), 'abilityMods': s.get('abilityMods', {}).get('parts', []),
+            'traits': traits_for_race(base, variant, description(item), id_to_slug, by_name),
+            'aon': aon('Races', base), 'src': s.get('source', ''), 'summary': summarize(description(item)),
+            'modifiers': modifiers(s),
+        }
+    return races
+
+
+def build_themes(items, theme_features, features):
+    id_to_slug = {i['_id']: s for s, i in theme_features.items() if i['type'] == 'feat'}
+    key_for = {}
+    for key, feature in features.items():
+        if feature['kind'] == 'theme':
+            key_for[key.removeprefix('theme-')] = key
+    themes = {}
+    for slug, item in items.items():
+        s = item['system']
+        linked = []
+        for feature_id in THEME_LINK.findall(description(item)):
+            feature_slug = id_to_slug.get(feature_id)
+            key = key_for.get(feature_slug)
+            if key and key not in linked:
+                linked.append(key)
+        if not linked:
+            linked = [k for k, f in features.items() if f['kind'] == 'theme' and f['requirements'].endswith(f' - {item["name"]}')]
+        themes[slug] = {
+            'name': item['name'], 'ability': s.get('abilityMod', {}).get('ability'),
+            'mod': s.get('abilityMod', {}).get('mod'), 'skill': s.get('skill'), 'features': linked,
+            'aon': aon('Themes', item['name']), 'src': s.get('source', ''), 'summary': summarize(description(item)),
+        }
+    return themes
+
+
+def build_classes(items):
+    classes = {}
+    for slug, item in items.items():
+        base_slug = slug.removesuffix('_enhanced')
+        if base_slug not in CLASSES:
+            continue
+        s = item['system']
+        base_name = split_name(items[base_slug]['name'])[0] if base_slug in items else item['name']
+        classes[slug] = {
+            'name': item['name'], 'slug': slug, 'bab': s['bab'], 'fort': s['fort'], 'ref': s['ref'], 'will': s['will'],
+            'hp': s['hp']['value'], 'sp': s['sp']['value'], 'ranks': s['skillRanks']['value'], 'kas': s['kas'],
+            'csk': true_keys(s.get('csk')),
+            'prof': {'armor': s.get('proficiencies', {}).get('armor', {}), 'weapon': s.get('proficiencies', {}).get('weapon', {})},
+            'caster': bool(s.get('isCaster')), 'spellAbility': s.get('spellAbility', ''),
+            'spellsKnown': compact(s.get('spellsKnown')), 'spellsPerDay': compact(s.get('spellsPerDay')),
+            'bonusSpellsPerDay': compact(s.get('bonusSpellsPerDay')),
+            'enhancedOf': base_slug if slug.endswith('_enhanced') else None,
+            'aon': aon('Classes', base_name), 'src': s.get('source', ''), 'summary': summarize(description(item)),
+        }
+    return classes
+
+
+def prereq_text(item):
+    s = item['system']
+    text = s.get('requirements') or ''
+    if not text:
+        match = PREREQ.search(description(item))
+        text = match.group(1) if match else ''
+    return plain(text)
+
+
+def build_feats(items):
+    feats = {}
+    for slug, item in items.items():
+        s = item['system']
+        markup = description(item)
+        benefit = BENEFIT.search(markup)
+        feats[slug] = {
+            'name': item['name'], 'combat': bool(s.get('details', {}).get('combat')), 'prereqText': prereq_text(item),
+            'prereq': None, 'modifiers': modifiers(s), 'aon': aon('Feats', item['name']), 'src': s.get('source', ''),
+            'summary': summarize(markup[benefit.end():] if benefit else markup),
+        }
+    return feats
+
+
+def build_spells(items):
+    spells = {}
+    for slug, item in items.items():
+        s = item['system']
+        allowed = s.get('allowedClasses', {})
+        spells[slug] = {
+            'name': item['name'], 'level': s.get('level'), 'school': s.get('school', ''),
+            'allowedClasses': {k: bool(allowed.get(k)) for k in ('myst', 'tech', 'precog', 'wysh')},
+            'modifiers': modifiers(s), 'aon': aon('SpellDisplay', item['name']), 'src': s.get('source', ''),
+            'summary': summarize(description(item)),
+        }
+    return spells
+
+
+def number(value):
+    if isinstance(value, float) and value.is_integer():
+        return int(value)
+    return value
+
+
+def storage_amount(system, subtype):
+    return sum((entry.get('amount') or 0) for entry in system.get('container', {}).get('storage', []) if entry.get('subtype') == subtype)
+
+
+def weapon_block(s):
+    rng = s.get('range', {})
+    units = rng.get('units', '')
+    properties = []
+    for key, prop in (s.get('properties') or {}).items():
+        if prop.get('value'):
+            properties.append(f"{key} {prop['extension']}".strip() if prop.get('extension') else key)
+    return {
+        'type': s.get('weaponType'), 'category': s.get('weaponCategory'),
+        'damage': [{'formula': p.get('formula', ''), 'types': true_keys(p.get('types'))} for p in s.get('damage', {}).get('parts', [])],
+        'crit': s.get('critical', {}).get('effect', ''),
+        'range': f"{rng.get('value')} {units}".strip() if units not in ('', 'none', None) and rng.get('value') else '',
+        'properties': properties, 'special': s.get('special', ''),
+    }
+
+
+def build_items(items):
+    out = {}
+    for slug, item in items.items():
+        kind = item['type']
+        if kind not in ITEM_TYPES:
+            continue
+        s = item['system']
+        rec = {
+            'name': item['name'], 'type': kind, 'level': number(s.get('level')), 'price': number(s.get('price')),
+            'bulk': str(s.get('bulk', '')), 'aon': aon_search(item['name']), 'src': s.get('source', ''),
+        }
+        armor = s.get('armor')
+        if kind == 'equipment' and armor and armor.get('type'):
+            rec['armor'] = {k: armor.get(k) for k in ('type', 'eac', 'kac', 'dex', 'acp', 'speedAdjust')}
+            rec['slots'] = storage_amount(s, 'armorUpgrade')
+        if kind == 'weapon':
+            rec['weapon'] = weapon_block(s)
+            rec['slots'] = storage_amount(s, 'fusion')
+        if kind == 'shield':
+            rec['slots'] = storage_amount(s, 'fusion')
+        if kind == 'upgrade':
+            rec['slotCost'] = s.get('slots')
+        if kind == 'fusion':
+            rec['fusionLevel'] = number(s.get('level'))
+        if kind == 'augmentation':
+            rec['augSystem'] = s.get('system')
+            rec['augType'] = s.get('type')
+        rec['modifiers'] = modifiers(s)
+        rec['summary'] = summarize(description(item), ITEM_SUMMARY_LIMIT)
+        out[slug] = rec
+    return out
+
+
+def build(src, sha=None, built=None):
+    src = Path(src)
+    racial = load_dir(src / 'racial-features')
+    theme = load_dir(src / 'theme-features')
+    features = build_features(racial, theme)
+    races = build_races(load_dir(src / 'races'), racial)
+    themes = build_themes(load_dir(src / 'themes'), theme, features)
+    used = {t for r in races.values() for t in r['traits']} | {f for t in themes.values() for f in t['features']}
+    return {
+        'meta': {'foundrySha': sha, 'built': built},
+        'races': races,
+        'themes': themes,
+        'classes': build_classes(load_dir(src / 'classes')),
+        'feats': build_feats(load_dir(src / 'feats')),
+        'features': {k: v for k, v in features.items() if k in used},
+        'spells': build_spells(load_dir(src / 'spells')),
+        'items': build_items(load_dir(src / 'equipment')),
+        'progressions': {},
+        'overrides': {'effects': {}},
+    }
+
+
+def write_data_js(data, path):
+    body = json.dumps(data, separators=(',', ':'), ensure_ascii=False)
+    text = (
+        '(function(root){\n'
+        f'  const data = {body};\n'
+        "  if (typeof module !== 'undefined') module.exports = data; else root.SFDATA = data;\n"
+        '})(this);\n'
+    )
+    Path(path).write_text(text, encoding='utf-8')
+
+
+def main():
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--sha', default=(ROOT / 'tools' / 'foundry.lock').read_text().strip())
+    parser.add_argument('--out', default=str(ROOT / 'data.js'))
+    args = parser.parse_args()
+    src = fetch_foundry(args.sha, ROOT / '.cache' / 'foundry')
+    write_data_js(build(src, sha=args.sha, built=date.today().isoformat()), Path(args.out))
+
+
+if __name__ == '__main__':
+    main()
