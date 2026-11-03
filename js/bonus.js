@@ -1,6 +1,6 @@
 (function(root){
-  const rules = typeof require !== 'undefined' ? require('./rules.js') : root.SF;
-  const formula = typeof require !== 'undefined' ? require('./formula.js') : root.SF;
+  const rules = new Proxy({}, { get: (_, k) => (typeof module !== 'undefined' ? require('./rules.js') : root.SF)[k] });
+  const formula = new Proxy({}, { get: (_, k) => (typeof module !== 'undefined' ? require('./formula.js') : root.SF)[k] });
 
   const UNTYPED = 'untyped';
   const CIRCUMSTANCE = 'circumstance';

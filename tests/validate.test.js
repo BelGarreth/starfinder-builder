@@ -70,12 +70,12 @@ test('lowering Int re-flags overspent ranks at every maxed level', () => {
 });
 
 test('allowed uses the same prerequisite text', () => {
-  assert.deepStrictEqual(allowed('feat', 'toughness', 0, edit, data), { ok: true });
+  assert.deepStrictEqual(allowed('feat', 'iron_will', 0, edit, data), { ok: true });
   assert.deepStrictEqual(allowed('feat', 'lunge_(combat)', 0, edit, data), { ok: false, why: 'Requires base attack bonus +6' });
   assert.strictEqual(allowed('feat', 'nimble_moves_(combat)', 0, edit, data).ok, true);
   const low = clone(edit);
   low.abilities.pb.dex = 2;
-  assert.deepStrictEqual(allowed('feat', 'nimble_moves_(combat)', 2, low, data), { ok: false, why: 'Requires Dex 15' });
+  assert.deepStrictEqual(allowed('feat', 'nimble_moves_(combat)', 2, low, data, 0), { ok: false, why: 'Requires Dex 15' });
 });
 
 test('ranks prerequisites read as a list of skills', () => {
@@ -156,4 +156,28 @@ test('area hooks default to no blockers and can be replaced', () => {
     hooks.choiceBlockers = original;
   }
   assert.deepStrictEqual(validate(edit, data), []);
+});
+
+test('allowed sees same-level picks before the slot being edited', () => {
+  assert.deepStrictEqual(allowed('feat', 'toughness', 0, edit, data), { ok: false, why: 'Toughness cannot be taken twice' });
+  assert.deepStrictEqual(allowed('feat', 'toughness', 0, edit, data, 1), { ok: true });
+  assert.strictEqual(allowed('feat', 'weapon_focus_(combat)', 0, edit, data, 1).ok, true);
+  const dependent = Object.keys(data.feats).find((k) => (data.feats[k].prereq.all || []).length === 1 && data.feats[k].prereq.all[0].k === 'feat' && data.feats[data.feats[k].prereq.all[0].feat] && data.feats[data.feats[k].prereq.all[0].feat].prereq.all.length === 0);
+  const base = data.feats[dependent].prereq.all[0].feat;
+  const c = clone(edit);
+  c.levels[0].feats = [base, 'toughness'];
+  assert.strictEqual(allowed('feat', dependent, 0, c, data, 1).ok, true);
+  assert.strictEqual(allowed('feat', dependent, 0, c, data, 0).ok, false);
+});
+
+test('gear blockers run even with zero levels', () => {
+  const original = hooks.gearBlockers;
+  hooks.gearBlockers = () => [{ level: null, tab: 'gear', code: 'g', msg: 'x' }];
+  try {
+    const c = clone(edit);
+    c.levels = [];
+    assert.strictEqual(find(validate(c, data), { code: 'g' }).length, 1);
+  } finally {
+    hooks.gearBlockers = original;
+  }
 });

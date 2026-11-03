@@ -1,5 +1,5 @@
 (function(root){
-  const rules = typeof require !== 'undefined' ? require('./rules.js') : root.SF;
+  const rules = new Proxy({}, { get: (_, k) => (typeof module !== 'undefined' ? require('./rules.js') : root.SF)[k] });
 
   const has = (o, k) => !!o && Object.prototype.hasOwnProperty.call(o, k);
   const table = (data, name) => (data && data[name]) || {};
@@ -8,7 +8,7 @@
   const cap = (s) => s.charAt(0).toUpperCase() + s.slice(1);
 
   const INCREASE_COUNT = 4;
-  const REPEATABLE_FEATS = ['skill_focus', 'weapon_focus_(combat)', 'weapon_specialization_(combat)', 'improved_critical_(combat)'];
+  const REPEATABLE_FEATS = ['skill_focus', 'weapon_focus_(combat)', 'weapon_specialization_(combat)'];
   const REPEATABLE_TEXT = /multiple times|more than once|each time you (?:take|select|gain) this feat/i;
   const PROFICIENCY = {
     'basic melee weapons': { cls: ['weapon', 'bmelee'], feat: 'basic_melee_weapon_proficiency_(combat)' },
@@ -151,9 +151,11 @@
     return featsOf(Object.assign({}, char, { levels: levelsOf(char).slice(0, levelIndex) }));
   }
 
-  function allowed(kind, slug, levelIndex, char, data) {
+  function allowed(kind, slug, levelIndex, char, data, slot) {
     if (kind !== 'feat') return { ok: true };
-    const problem = featProblem(slug, levelIndex, char, data, priorLevelFeats(char, levelIndex));
+    const here = asList((levelsOf(char)[levelIndex] || {}).feats);
+    const before = Number.isInteger(slot) ? here.slice(0, slot) : here;
+    const problem = featProblem(slug, levelIndex, char, data, priorLevelFeats(char, levelIndex).concat(before));
     return problem ? { ok: false, why: problem.why } : { ok: true };
   }
 
@@ -235,8 +237,9 @@
 
       const ctx = { level: n, levelIndex: i };
       [hooks.choiceBlockers, hooks.spellBlockers].forEach((hook) => hook(char, data, ctx).forEach((b) => out.push(b)));
-      if (n === levels.length) hooks.gearBlockers(char, data, ctx).forEach((b) => out.push(b));
     });
+    const last = { level: levels.length, levelIndex: levels.length - 1 };
+    hooks.gearBlockers(char, data, last).forEach((b) => out.push(b));
 
     const items = table(data, 'items');
     (Array.isArray(char && char.gear) ? char.gear : []).forEach((g) => {

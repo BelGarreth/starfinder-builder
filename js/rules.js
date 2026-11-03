@@ -220,7 +220,7 @@
   }
 
   function derive(char, data, opts) {
-    const lib = typeof require !== 'undefined' ? require('./bonus.js') : root.SF;
+    const lib = typeof module !== 'undefined' ? require('./bonus.js') : root.SF;
     const c = opts && opts.levels !== undefined ? charAt(char, opts.levels) : char;
     const armor = equippedArmor(c, data);
     const scores = baseScores(c, data);

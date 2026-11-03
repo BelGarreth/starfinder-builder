@@ -1,5 +1,5 @@
 (function(root){
-  const rules = typeof require !== 'undefined' ? require('./rules.js') : root.SF;
+  const rules = new Proxy({}, { get: (_, k) => (typeof module !== 'undefined' ? require('./rules.js') : root.SF)[k] });
 
   class FormulaError extends Error {
     constructor(message) { super(message); this.name = 'FormulaError'; }
