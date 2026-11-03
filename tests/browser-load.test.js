@@ -5,12 +5,18 @@ const fs = require('fs');
 const path = require('path');
 
 const root = path.join(__dirname, '..');
-const scripts = fs.readFileSync(path.join(root, 'index.html'), 'utf8')
+const NOT_YET_CREATED = ['js/character.js'];
+const listed = fs.readFileSync(path.join(root, 'index.html'), 'utf8')
   .split('\n')
   .map((line) => /<script src="([^"]+)"><\/script>/.exec(line))
   .filter(Boolean)
-  .map((m) => m[1])
-  .filter((src) => fs.existsSync(path.join(root, src)));
+  .map((m) => m[1]);
+const scripts = listed.filter((src) => fs.existsSync(path.join(root, src)));
+
+test('every script listed in index.html exists, apart from the not-yet-created allowlist', () => {
+  const missing = listed.filter((src) => !fs.existsSync(path.join(root, src)));
+  assert.deepStrictEqual(missing.filter((src) => NOT_YET_CREATED.indexOf(src) === -1), []);
+});
 
 test('every script loads in index.html order with no require or module', () => {
   const win = {};
@@ -23,4 +29,5 @@ test('every script loads in index.html order with no require or module', () => {
   assert.strictEqual(sheet.eac, 14);
   assert.strictEqual(sheet.kac, 15);
   assert.ok(Array.isArray(win.SF.validate(vesk, win.SFDATA)));
+  assert.strictEqual(typeof win.SFUI.view, 'function');
 });

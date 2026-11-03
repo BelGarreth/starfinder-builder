@@ -87,6 +87,33 @@ table.bt td{vertical-align:top}
 .kv{display:grid;grid-template-columns:auto 1fr;gap:2px 12px;font-size:13.5px}
 .kv span:nth-child(odd){color:var(--mute)}
 details>summary{cursor:pointer;color:var(--mute);margin:6px 0}
+a{color:var(--sys)}
+.aon{font-size:12px;white-space:nowrap;text-decoration:none}
+table.pick td{vertical-align:top;overflow-wrap:anywhere}
+table.pick td.acts{white-space:nowrap;text-align:right;width:1%}
+table.pick tr.dis .nm,table.pick tr.dis .note{opacity:.55}
+table.pick tr.on td{background:rgba(223,186,108,.06)}
+.why{font-size:12px;color:var(--bad);margin-top:2px}
+.why.soft{color:var(--mute)}
+.tog{display:inline-flex;gap:5px;align-items:center;margin-left:6px}
+.tabs .cnt{display:inline-block;min-width:16px;padding:0 4px;border-radius:99px;background:var(--bad);color:var(--on-sys);font-size:11px;text-align:center}
+#blockers:empty{display:none}
+.blockers{max-width:1280px;margin:10px auto 0;padding:8px 14px;border:1px solid var(--bad);border-radius:8px;background:var(--panel);display:flex;flex-direction:column;gap:4px}
+.blg{display:flex;flex-wrap:wrap;gap:2px 12px;align-items:baseline;font-size:13px}
+.blg>span{min-width:96px}
+.blb{background:none;border:0;padding:1px 0;color:var(--ink);cursor:pointer;text-align:left;text-decoration:underline dotted var(--mute)}
+.blb:hover{color:var(--brass)}
+.stats{flex-wrap:wrap}
+.note,.why{overflow-wrap:break-word}
+.legal{max-width:1280px;margin:0 auto;padding:10px 20px 28px;border-top:1px solid var(--line);color:var(--mute);font-size:11.5px;line-height:1.4}
+.legal p{margin:4px 0}
+.legal a{color:var(--mute)}
+body.phone .blockers{margin:8px}
+body.phone .blg>span{min-width:0;width:100%}
+body.phone .legal{padding:10px 10px 24px}
+body.phone .fld{width:100%}
+body.phone table.pick td.acts{white-space:normal;width:auto;min-width:76px}
+body.phone table.pick td.acts .btn{margin-top:4px}
 /* sheet mode */
 .sheet h2{border-bottom:1px solid var(--line);padding-bottom:3px}
 .sheet .hd{display:flex;gap:16px;align-items:center;margin-bottom:12px}
@@ -218,7 +245,7 @@ body.phone .toast{width:92%;text-align:center}
 }
 @media print{
   html,body{background:#fff!important;color:#000!important}
-  .top,.tabs,.noprint,.toast{display:none!important}
+  .top,.tabs,.noprint,.toast,#blockers,.legal{display:none!important}
   main{padding:0;max-width:none}
   .card{background:#fff;border-color:#999;break-inside:avoid}
   h2{color:#000!important;border-color:#999!important}
@@ -246,6 +273,10 @@ body.phone .toast{width:92%;text-align:center}
 <script src="js/gear.js"></script>
 <script src="js/validate.js"></script>
 <script src="js/character.js"></script>
+<script src="js/ui/base.js"></script>
+<script src="js/ui/build.js"></script>
+<script src="js/ui/picks.js"></script>
+<script src="js/ui/gear.js"></script>
 <script src="js/ui.js"></script>
 </body>
 </html>
