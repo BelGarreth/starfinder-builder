@@ -91,6 +91,8 @@ inventory items in Foundry, so the armor-or-weapon pick is left to gear. The Bul
 have no feature record to grant. The rule that an exocortex always keeps one mod from the 7th-level list
 holds through the level gate, because swapping mods on level-up is not modelled.
 
+Gear (`js/gear.js`): `char.gear = [{id, item, qty, equipped, slots?, fusions?}]`. `budget` uses the CRB wealth table; item level is capped at character level (AoN Gaining Wealth sets no hard cap, so this follows its APL guideline). `gearBlockers` also backs `allowed('item', slug, levelIndex, char, data, {into: gearId})`. `attackLines` filters weapon-scoped modifiers by `weapon.type`; Weapon Focus and the Weapon Specialization feat read the chosen type from `levels[i].choices[featSlug]`. Fusions carry no price in the data, so they cost 0.
+
 ## Tests
 
 ```

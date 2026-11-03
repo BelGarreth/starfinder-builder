@@ -1,6 +1,8 @@
 (function(root){
   const rules = new Proxy({}, { get: (_, k) => (typeof module !== 'undefined' ? require('./rules.js') : root.SF)[k] });
 
+  const gear = new Proxy({}, { get: (_, k) => (typeof module !== 'undefined' ? require('./gear.js') : root.SF)[k] });
+
   const has = (o, k) => !!o && Object.prototype.hasOwnProperty.call(o, k);
   const table = (data, name) => (data && data[name]) || {};
   const levelsOf = (char) => (char && Array.isArray(char.levels) ? char.levels : []);
@@ -27,7 +29,7 @@
   const hooks = {
     choiceBlockers: (char, data, ctx) => choiceBlockers(char, data, ctx),
     spellBlockers: (char, data, ctx) => spellBlockers(char, data, ctx),
-    gearBlockers: () => []
+    gearBlockers: (char, data, ctx) => gear.gearBlockers(char, data, ctx)
   };
 
   function featsOf(char) {
@@ -273,6 +275,7 @@
       const text = asList((table(data, 'features')[slug] || {}).needsText);
       return text.length ? { ok: true, why: 'Not checked: ' + text.join(' ') } : { ok: true };
     }
+    if (kind === 'item') return gear.itemAllowed(char, data, slug, slot);
     if (kind === 'spell') return spellAllowed(slug, levelIndex, char, data, slot);
     if (kind !== 'feat') return { ok: true };
     const here = asList((levelsOf(char)[levelIndex] || {}).feats);

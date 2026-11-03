@@ -340,7 +340,6 @@
   const CLASS_SKILL_BONUS = 3;
   const SKILL_FOCUS = { type: 'insight', value: 3, source: 'skill-focus' };
   const BASE_SPEED = 30;
-  const BULK_LIGHT = 0.1;
 
   const charAt = (char, n) => Object.assign({}, char, { levels: levelsOf(char).slice(0, n) });
 
@@ -355,24 +354,7 @@
     return null;
   }
 
-  function bulkOf(raw) {
-    if (raw === 'L') return BULK_LIGHT;
-    const n = Number(raw);
-    return raw === '-' || !Number.isFinite(n) ? 0 : n;
-  }
-
-  function bulkState(char, data, strScore) {
-    const items = (data && data.items) || {};
-    const gear = Array.isArray(char && char.gear) ? char.gear : [];
-    let carried = 0;
-    gear.forEach((g) => {
-      if (!g || g.carried === false || !Object.prototype.hasOwnProperty.call(items, g.item)) return;
-      carried += bulkOf(items[g.item].bulk) * (Number.isFinite(g.qty) ? g.qty : 1);
-    });
-    carried = Math.round(carried * 10) / 10;
-    const state = carried > strScore ? 'overburdened' : carried > strScore / 2 ? 'encumbered' : 'ok';
-    return { carried, limit: strScore, state };
-  }
+  const bulkState = (char, data, strScore) => (typeof module !== 'undefined' ? require('./gear.js') : root.SF).bulkState(char, data, strScore);
 
   function skillRanksOf(char) {
     const ranks = {};
