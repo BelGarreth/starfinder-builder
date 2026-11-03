@@ -394,6 +394,9 @@ class PrereqIntegrationTest(unittest.TestCase):
             if rec.get('category') != 'connection':
                 continue
             found = rec['connectionSpells']
+            fixed = set(found['fixed'])
+            full = {'1', '2', '3', '4', '5', '6'}
+            self.assertTrue(fixed == full or ('variable' in found and fixed == full - {'6'}), slug)
             for spell in list(found['fixed'].values()) + ([found['variable']] if 'variable' in found else []):
                 self.assertIn(spell, self.d['spells'], slug)
 

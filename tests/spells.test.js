@@ -166,3 +166,27 @@ test('non-casters cannot learn spells', () => {
   assert.deepStrictEqual(codes(c), ['invalid']);
   assert.deepStrictEqual(rules.spellSlots(c, data), {});
 });
+
+test('enhanced and base variants of a class cannot be mixed', () => {
+  const c = leveled('technomancer', 'int', 2, {});
+  c.levels[1].class = 'technomancer_enhanced';
+  const b = validate(c, data).filter((x) => x.tab === 'class' && x.code === 'class');
+  assert.deepStrictEqual(b.map((x) => x.level), [2]);
+  assert.strictEqual(allowed('class', 'technomancer_enhanced', 0, c, data).ok, true);
+  assert.strictEqual(allowed('class', 'technomancer', 1, c, data).ok, true);
+  assert.strictEqual(allowed('class', 'technomancer_enhanced', 1, c, data).ok, false);
+  assert.strictEqual(allowed('class', 'mystic', 1, c, data).ok, true);
+  assert.strictEqual(allowed('class', 'technomancer', 0, leveled('technomancer', 'int', 1, {}), data).ok, true);
+});
+
+test('a bad swap does not add its target and a self swap is rejected', () => {
+  const c = leveled('technomancer', 'int', 3, {
+    1: { learn: ['detect_magic', 'daze', 'ghost_sound', 'mending', 'magic_missile', 'grease'] },
+    2: { learn: [T0[8], T1[2]], swap: { from: T1[3], to: T1[4] } },
+    3: { learn: [T0[9], T1[3]] }
+  });
+  const dupe = spellBlockers(c).filter((b) => b.level === 3 && b.code === 'duplicate');
+  assert.deepStrictEqual(dupe, []);
+  const self = leveled('technomancer', 'int', 2, { 1: { learn: ['grease'] }, 2: { swap: { from: 'grease', to: 'grease' } } });
+  assert.ok(codes(self).indexOf('swap') !== -1);
+});

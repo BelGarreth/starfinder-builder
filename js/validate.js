@@ -244,7 +244,25 @@
     }, data);
   }
 
+  function baseClassOf(cls, data) {
+    const rec = table(data, 'classes')[cls];
+    return rec && rec.enhancedOf ? rec.enhancedOf : String(cls).replace(/_enhanced$/, '');
+  }
+
+  function variantMix(cls, levelIndex, char, data) {
+    const base = baseClassOf(cls, data);
+    const other = levelsOf(char).find((l, j) => j !== levelIndex && l && l.class !== cls && baseClassOf(l.class, data) === base);
+    return other ? { code: 'class', why: 'Enhanced and base ' + className(base, data) + ' levels can\'t be mixed' } : null;
+  }
+
+  function classAllowed(slug, levelIndex, char, data) {
+    if (!has(table(data, 'classes'), slug)) return { ok: false, why: "Class '" + slug + "' no longer exists" };
+    const mix = variantMix(slug, levelIndex, char, data);
+    return mix ? { ok: false, why: mix.why } : { ok: true };
+  }
+
   function allowed(kind, slug, levelIndex, char, data, slot) {
+    if (kind === 'class') return classAllowed(slug, levelIndex, char, data);
     if (kind === 'choice') {
       const here = rules.levelPlan(char, data)[levelIndex];
       const id = slot && typeof slot === 'object' ? slot.id : slot;
@@ -293,7 +311,7 @@
     const at = held.indexOf(swap.from);
     const next = held.slice();
     if (at !== -1) next.splice(at, 1);
-    if (typeof swap.to === 'string') next.push(swap.to);
+    if (at !== -1 && typeof swap.to === 'string') next.push(swap.to);
     return next;
   }
 
@@ -337,6 +355,7 @@
     const spells = table(data, 'spells');
     if (!swap || typeof swap !== 'object' || Array.isArray(swap)) return { code: 'invalid', why: 'A spell swap needs a spell to drop and a spell to learn', ref: undefined };
     if (!has(spells, swap.from)) return { code: 'missing', why: "Spell '" + swap.from + "' no longer exists", ref: swap.from };
+    if (swap.from === swap.to) return { code: 'swap', why: 'A swap must replace a spell with a different spell', ref: swap.to };
     if (held.indexOf(swap.from) === -1) return { code: 'swap', why: spells[swap.from].name + ' is not a spell you already know', ref: swap.from };
     const rest = held.filter((k) => k !== swap.from);
     const problem = spellProblem(swap.to, levelIndex, char, data, rest, { swap: true });
@@ -497,6 +516,10 @@
       const lv = lvl || {};
       if (!has(table(data, 'classes'), lv.class)) {
         push(n, 'class', 'missing', "Class '" + lv.class + "' no longer exists", lv.class);
+      } else {
+        const first = levels.findIndex((l) => l && baseClassOf(l.class, data) === baseClassOf(lv.class, data));
+        const mix = first < i && levels[first].class !== lv.class ? variantMix(lv.class, i, char, data) : null;
+        if (mix) push(n, 'class', mix.code, mix.why, lv.class);
       }
 
       const increases = asList(lv.increases);

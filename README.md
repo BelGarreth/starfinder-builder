@@ -83,7 +83,7 @@ rule (score of at least 10 + spell level), not a duplicate and within the known 
 known spell with another of the same level. A mystic's connection spells come from `features[connection].connectionSpells`
 (`{fixed: {level: slug}, variable?: slug}`), are added by `connectionSpells(char, data)` and do not count as known.
 A variable-level spell holds the highest spell level the mystic can cast, and the fixed spells fill the lower levels.
-The Crusader connection's 6th-level spell is plain text in Foundry with no link, so it has no entry.
+The Crusader 6th-level spell has no link in Foundry; it is matched by name words ("greater resistant armor") and must match one spell of that level.
 
 Known gaps: the mechanic gets the exocortex only. The drone is not offered, so drone mods and Control
 Net's drone half are not modelled, and tricks that need a drone are left out of the trick pool. The solarian's solar weapon, flare and shield are

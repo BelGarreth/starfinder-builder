@@ -287,7 +287,14 @@ NESTED_SPELL_LINK = re.compile(r'(\u27e6(\w+)\u27e7\{)\u27e6\2\u27e7\{')
 SPELL_ENTRY = re.compile(r'(\d)(?:st|nd|rd|th)?(?:\s*[-\u2013]\s*(\d)(?:st|nd|rd|th))?\s*[-\u2013]?\s*\u27e6(\w+)\u27e7')
 
 
-def connection_spells(markup, spell_ids):
+PLAIN_SPELL_ENTRY = re.compile(r"(\d)(?:st|nd|rd|th)\s*[-\u2013]\s*([A-Za-z][A-Za-z ,']*?)\s*(?=,\s*\d|$)")
+
+
+def word_key(name):
+    return tuple(sorted(re.findall(r"[a-z']+", name.lower())))
+
+
+def connection_spells(markup, spell_ids, spell_items=None):
     mark = SPELLS_MARK.search(markup)
     if not mark:
         return None
@@ -297,6 +304,7 @@ def connection_spells(markup, spell_ids):
         region = NESTED_SPELL_LINK.sub(r'\1', region)
     region = re.sub(r'<[^>]*>|&nbsp;', ' ', region)
     out = {'fixed': {}}
+    plain_text = SPELL_ENTRY.sub(' ', region)
     for start, end, spell_id in SPELL_ENTRY.findall(region):
         slug = spell_ids.get(spell_id)
         if slug is None:
@@ -305,10 +313,17 @@ def connection_spells(markup, spell_ids):
             out['variable'] = slug
         else:
             out['fixed'][start] = slug
+    by_words = {}
+    for slug, item in (spell_items or {}).items():
+        by_words.setdefault(word_key(item['name']), []).append(slug)
+    for level, name in PLAIN_SPELL_ENTRY.findall(plain_text.strip()):
+        found = by_words.get(word_key(name), [])
+        if level not in out['fixed'] and len(found) == 1 and str(spell_items[found[0]]['system'].get('level')) == level:
+            out['fixed'][level] = found[0]
     return out if out['fixed'] or 'variable' in out else None
 
 
-def build_class_features(class_features, features, classes=None, spell_ids=None):
+def build_class_features(class_features, features, classes=None, spell_ids=None, spell_items=None):
     feats = {s: i for s, i in class_features.items() if i['type'] == 'feat' or s in EXTRA_CLASS_FEATURES}
     by_id = {i['_id']: s for s, i in feats.items()}
     class_ids = {i['_id']: s for s, i in (classes or {}).items()}
@@ -329,7 +344,7 @@ def build_class_features(class_features, features, classes=None, spell_ids=None)
         if grants:
             raw[slug]['grants'] = grants
         if raw[slug]['category'] == 'connection' and spell_ids:
-            found = connection_spells(description(item), spell_ids)
+            found = connection_spells(description(item), spell_ids, spell_items)
             if found:
                 raw[slug]['connectionSpells'] = found
     for slug, rec in list(raw.items()):
@@ -810,7 +825,7 @@ def build(src, sha=None, built=None, core_path=ROOT / 'tools' / 'race_traits.jso
     class_items = load_dir(src / 'classes')
     spell_items = load_dir(src / 'spells')
     class_features = build_class_features(load_dir(src / 'class-features'), features, class_items,
-                                          {i['_id']: s for s, i in spell_items.items()})
+                                          {i['_id']: s for s, i in spell_items.items()}, spell_items)
     races = build_races(load_dir(src / 'races'), racial, load_core_traits(core_path, features))
     themes = build_themes(load_dir(src / 'themes'), theme, features)
     used = {t for r in races.values() for t in r['coreTraits'] + r['altTraits']} | {f for t in themes.values() for f in t['features']}
