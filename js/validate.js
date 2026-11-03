@@ -265,6 +265,10 @@
 
   function allowed(kind, slug, levelIndex, char, data, slot) {
     if (kind === 'class') return classAllowed(slug, levelIndex, char, data);
+    if (kind === 'choice' && slot && typeof slot === 'object' && has(gear.FEAT_CHOICE, slot.id)) {
+      const why = gear.featChoiceProblem(char, data, levelIndex, slot.id, slug);
+      return why ? { ok: false, why } : { ok: true };
+    }
     if (kind === 'choice') {
       const here = rules.levelPlan(char, data)[levelIndex];
       const id = slot && typeof slot === 'object' ? slot.id : slot;
@@ -476,7 +480,7 @@
     });
     const features = table(data, 'features');
     Object.keys(here.choices).forEach((id) => {
-      if (known.indexOf(id) !== -1) return;
+      if (known.indexOf(id) !== -1 || has(gear.FEAT_CHOICE, id)) return;
       asList(here.choices[id]).forEach((k) => {
         if (typeof k !== 'string' || !has(features, k)) push('missing', "Feature '" + k + "' no longer exists", k);
         else push('invalid', features[k].name + ' is not a choice at ' + className(here.cls, data) + ' level ' + here.classLevel, k);
@@ -561,6 +565,19 @@
         const problem = featProblem(slug, i, char, data, priorFeats) || slotProblem(here[j], slug, data);
         if (problem) push(n, 'feats', problem.code, problem.why, slug);
         priorFeats.push(slug);
+      });
+      Object.keys(gear.FEAT_CHOICE).forEach((featSlug) => {
+        const count = taken.filter((k) => k === featSlug).length;
+        if (!count) return;
+        const picks = asList(lv.choices && lv.choices[featSlug]);
+        const label = gear.FEAT_CHOICE[featSlug].label;
+        const noun = gear.FEAT_CHOICE[featSlug].kind === 'special' ? 'special weapon' : 'weapon type';
+        if (picks.length < count) push(n, 'feats', 'unspent', 'Choose a ' + noun + ' for ' + label, featSlug);
+        picks.forEach((v) => {
+          const why = gear.featChoiceProblem(char, data, i, featSlug, v);
+          if (why && typeof v === 'string' && v !== '') push(n, 'feats', 'invalid-choice', why, featSlug);
+          else if (why) push(n, 'feats', 'unspent', 'Choose a ' + noun + ' for ' + label, featSlug);
+        });
       });
       if (taken.length > available) push(n, 'feats', 'overspent', 'Level ' + n + ' takes ' + taken.length + ' feats with ' + available + ' slots');
       else if (taken.length < available) push(n, 'feats', 'unspent', 'Level ' + n + ' has ' + (available - taken.length) + ' empty feat slots');

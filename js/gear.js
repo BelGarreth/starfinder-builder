@@ -13,6 +13,7 @@
   const WEAPON_PROFICIENCY = {
     basicM: 'bmelee', advancedM: 'amelee', smallA: 'sarms', longA: 'larms', heavy: 'hweap', sniper: 'snipe', grenade: 'gren', special: 'spec', solarian: 'solarian'
   };
+  const FUSION_SEAL_PRICE = {};
   const ARMOR_PROFICIENCY = { light: 'lgt', heavy: 'hvy', power: 'pwr' };
   const FEAT_PROFICIENCY = {
     'basic_melee_weapon_proficiency_(combat)': { weapon: ['bmelee'] },
@@ -22,13 +23,22 @@
     'heavy_weapon_proficiency_(combat)': { weapon: ['hweap'] },
     'sniper_weapon_proficiency_(combat)': { weapon: ['snipe'] },
     'grenade_proficiency_(combat)': { weapon: ['gren'] },
-    'special_weapon_proficiency_(combat)': { weapon: ['spec'] },
     'light_armor_proficiency_(combat)': { armor: ['lgt'] },
     'heavy_armor_proficiency_(combat)': { armor: ['hvy'] },
     'powered_armored_proficiency_(combat)': { armor: ['pwr'] },
     'shield_proficiency_(combat)': { armor: ['shl'] }
   };
   const FEATURE_PROFICIENCY = { 'combat_tracking_(ex)': { weapon: ['larms'], armor: ['hvy'] } };
+  const TYPE_NAME = {
+    basicM: 'basic melee weapons', advancedM: 'advanced melee weapons', smallA: 'small arms', longA: 'longarms', heavy: 'heavy weapons',
+    sniper: 'sniper weapons', grenade: 'grenades', solarian: 'solarian weapons'
+  };
+  const SPECIAL_PROFICIENCY_FEAT = 'special_weapon_proficiency_(combat)';
+  const FEAT_CHOICE = {
+    'weapon_focus_(combat)': { kind: 'type', label: 'Weapon Focus' },
+    'weapon_specialization_(combat)': { kind: 'type', label: 'Weapon Specialization' },
+    'special_weapon_proficiency_(combat)': { kind: 'special', label: 'Special Weapon Proficiency' }
+  };
   const COMBAT_TRACKING = 'combat_tracking_(ex)';
   const COMBAT_TRACKING_SPEC_LEVEL = 3;
   const CHOSEN_TYPE_FEATS = ['weapon_focus_(combat)', 'weapon_specialization_(combat)'];
@@ -51,8 +61,16 @@
   const gearOf = (char) => (Array.isArray(char && char.gear) ? char.gear.filter((g) => g && typeof g === 'object') : []);
   const levelsOf = (char) => (char && Array.isArray(char.levels) ? char.levels : []);
   const itemOf = (data, slug) => (has(table(data, 'items'), slug) ? table(data, 'items')[slug] : null);
-  const qtyOf = (g) => (Number.isFinite(g.qty) && g.qty >= 0 ? g.qty : 1);
+  const validQty = (g) => g.qty === undefined || (Number.isInteger(g.qty) && g.qty >= 1);
+  const qtyOf = (g) => (g.qty === undefined ? 1 : validQty(g) ? g.qty : 0);
+  const packsOf = (rec, g) => Math.ceil(qtyOf(g) / (Number(rec.perPack) > 1 ? Number(rec.perPack) : 1));
   const fusionSlug = (f) => (f && typeof f === 'object' ? f.item : f);
+  const fusionLevelOf = (data, f) => {
+    const rec = itemOf(data, fusionSlug(f));
+    const own = rec ? Number(rec.fusionLevel) || Number(rec.level) || 0 : 0;
+    return f && typeof f === 'object' && Number.isFinite(f.level) ? f.level : own;
+  };
+  const sealPrice = (level) => (has(FUSION_SEAL_PRICE, level) ? FUSION_SEAL_PRICE[level] : 0);
   const level = (char) => Math.max(1, rules.charLevel(char));
   const fmt = (n) => n.toLocaleString('en-US');
 
@@ -62,9 +80,9 @@
     let spent = 0;
     gearOf(char).forEach((g) => {
       const main = itemOf(data, g.item);
-      if (main) spent += (Number(main.price) || 0) * qtyOf(g);
+      if (main) spent += (Number(main.price) || 0) * packsOf(main, g);
       asList(g.slots).forEach((s) => { const r = itemOf(data, s && s.item); if (r) spent += Number(r.price) || 0; });
-      asList(g.fusions).forEach((f) => { const r = itemOf(data, fusionSlug(f)); if (r) spent += Number(r.price) || 0; });
+      asList(g.fusions).forEach((f) => { if (itemOf(data, fusionSlug(f))) spent += sealPrice(fusionLevelOf(data, f)); });
     });
     return { credits, spent, left: credits - spent };
   }
@@ -79,7 +97,7 @@
     let carried = 0;
     gearOf(char).forEach((g) => {
       const rec = g.carried === false ? null : itemOf(data, g.item);
-      if (rec) carried += bulkOf(rec.bulk) * qtyOf(g);
+      if (rec) carried += bulkOf(rec.bulk) * packsOf(rec, g);
     });
     carried = Math.round(carried * 10) / 10;
     const state = carried > strScore ? 'overburdened' : carried > strScore / 2 ? 'encumbered' : 'ok';
@@ -119,18 +137,25 @@
       if (!rec) return;
       checkLevel(g.item);
       if (g.equipped && rec.armor) equippedArmor.push(rec.name);
-      const slotted = asList(g.slots).map((s) => s && s.item).filter((s) => itemOf(data, s));
+      if (!validQty(g)) push('qty', rec.name + ' quantity must be a whole number of 1 or more', g.item);
+      const slotted = asList(g.slots).map((x) => x && x.item).filter((x) => itemOf(data, x));
       slotted.forEach(checkLevel);
+      slotted.forEach((x) => {
+        if (!rec.armor || itemOf(data, x).type !== 'upgrade') push('attachment-kind', itemOf(data, x).name + ' is an armor upgrade and only fits armor', g.id + ':' + x);
+      });
       if (rec.armor) {
-        const used = slotted.reduce((n, s) => n + (Number(itemOf(data, s).slotCost) || 1), 0);
+        const used = slotted.filter((x) => itemOf(data, x).type === 'upgrade').reduce((n, x) => n + (Number(itemOf(data, x).slotCost) || 1), 0);
         if (used > (Number(rec.slots) || 0)) push('upgrade-slots', rec.name + ' has ' + (Number(rec.slots) || 0) + ' upgrade slots, ' + used + ' used', g.item);
       }
-      const fusions = asList(g.fusions).map(fusionSlug).filter((f) => itemOf(data, f));
-      fusions.forEach(checkLevel);
-      if (fusions.length) {
-        const total = fusions.reduce((n, f) => n + (Number(itemOf(data, f).fusionLevel) || Number(itemOf(data, f).level) || 0), 0);
-        if (total > (Number(rec.level) || 0)) push('fusion-level', rec.name + ' (level ' + rec.level + ') holds fusions totalling level ' + total, g.item);
-      }
+      const fusions = asList(g.fusions).filter((f) => itemOf(data, fusionSlug(f)));
+      fusions.forEach((f) => {
+        const frec = itemOf(data, fusionSlug(f));
+        checkLevel(fusionSlug(f));
+        if (!rec.weapon || frec.type !== 'fusion') push('attachment-kind', frec.name + ' is a weapon fusion and only fits weapons', g.id + ':' + fusionSlug(f));
+        else if (fusionLevelOf(data, f) < (Number(frec.fusionLevel) || 0)) push('fusion-seal-level', frec.name + ' seal is level ' + fusionLevelOf(data, f) + ', below the fusion level ' + frec.fusionLevel, g.id + ':' + fusionSlug(f));
+      });
+      const fusionTotal = fusions.reduce((n, f) => n + fusionLevelOf(data, f), 0);
+      if (rec.weapon && fusions.length && fusionTotal > (Number(rec.level) || 0)) push('fusion-level', rec.name + ' (level ' + rec.level + ') holds fusions totalling level ' + fusionTotal, g.item);
       if (rec.type === 'augmentation' && g.equipped !== false) {
         systemsOf(rec, g).forEach((part) => {
           (systems[part] = systems[part] || []).push(rec.name);
@@ -148,29 +173,33 @@
     const rec = itemOf(data, slug);
     if (!rec) return { ok: false, why: "Item '" + slug + "' no longer exists" };
     const o = opts || {};
-    const lvl = level(char);
-    const cap = ITEM_LEVEL_CAP(lvl);
+    const cap = ITEM_LEVEL_CAP(level(char));
     if (Number(rec.level) > cap) return { ok: false, why: 'Item level ' + rec.level + ' is above the level ' + cap + ' limit' };
     const b = budget(char, data);
-    const price = Number(rec.price) || 0;
+    const price = rec.type === 'fusion'
+      ? sealPrice(Number.isFinite(o.level) ? o.level : fusionLevelOf(data, slug))
+      : (Number(rec.price) || 0) * packsOf(rec, { qty: Number.isInteger(o.qty) && o.qty >= 1 ? o.qty : 1 });
     if (price > b.left) return { ok: false, why: 'Costs ' + fmt(price) + ' credits, ' + fmt(Math.max(0, b.left)) + ' left' };
+    const copy = JSON.parse(JSON.stringify(Object.assign({}, char, { gear: gearOf(char) })));
     if (o.into !== undefined) {
-      const copy = JSON.parse(JSON.stringify(Object.assign({}, char, { gear: gearOf(char) })));
       const parent = copy.gear.find((g) => g.id === o.into);
       if (!parent) return { ok: false, why: 'No such item to attach to' };
-      if (rec.type === 'fusion') parent.fusions = asList(parent.fusions).concat([slug]);
+      if (rec.type === 'fusion') parent.fusions = asList(parent.fusions).concat([{ item: slug, level: Number.isFinite(o.level) ? o.level : fusionLevelOf(data, slug) }]);
       else parent.slots = asList(parent.slots).concat([{ item: slug }]);
-      const before = blockersFor(char, data, {}).map((x) => x.code + '|' + x.ref);
-      const added = blockersFor(copy, data, {}).filter((x) => before.indexOf(x.code + '|' + x.ref) === -1 && x.code !== 'over-budget');
-      if (added.length) return { ok: false, why: added[0].msg };
     } else if (rec.type === 'augmentation') {
-      const copy = JSON.parse(JSON.stringify(Object.assign({}, char, { gear: gearOf(char) })));
       copy.gear.push({ id: '#candidate', item: slug, qty: 1, equipped: true });
-      const clash = blockersFor(copy, data, {}).find((x) => x.code === 'augmentation-system');
-      const had = blockersFor(char, data, {}).some((x) => x.code === 'augmentation-system');
-      if (clash && !had) return { ok: false, why: clash.msg };
+    } else {
+      return { ok: true };
     }
-    return { ok: true };
+    const held = {};
+    blockersFor(char, data, {}).forEach((x) => { const k = x.code + '|' + x.ref; held[k] = (held[k] || 0) + 1; });
+    const added = blockersFor(copy, data, {}).filter((x) => {
+      const k = x.code + '|' + x.ref;
+      if (x.code === 'over-budget') return false;
+      if (held[k] > 0) { held[k]--; return false; }
+      return true;
+    });
+    return added.length ? { ok: false, why: added[0].msg } : { ok: true };
   }
 
   function proficiency(char, data) {
@@ -190,7 +219,27 @@
     });
     levelsOf(char).forEach((l) => asList(l && l.feats).forEach((f) => { if (has(FEAT_PROFICIENCY, f)) grant(FEAT_PROFICIENCY[f]); }));
     rules.classFeatures(char, data).forEach((f) => { if (has(FEATURE_PROFICIENCY, f.slug) && has(features, f.slug)) grant(FEATURE_PROFICIENCY[f.slug]); });
-    return { weapon, armor };
+    const specialItems = [];
+    levelsOf(char).forEach((l) => {
+      if (l && asList(l.feats).indexOf(SPECIAL_PROFICIENCY_FEAT) !== -1) asList(l.choices && l.choices[SPECIAL_PROFICIENCY_FEAT]).forEach((k) => specialItems.push(k));
+    });
+    return { weapon, armor, specialItems };
+  }
+
+  function weaponTypeChoices(char, data, levelIndex) {
+    const prof = proficiency(rules.charAt(char, levelIndex + 1), data);
+    return Object.keys(TYPE_NAME).filter((t) => !!prof.weapon[WEAPON_PROFICIENCY[t]]);
+  }
+
+  function featChoiceProblem(char, data, levelIndex, slug, value) {
+    const def = has(FEAT_CHOICE, slug) ? FEAT_CHOICE[slug] : null;
+    if (!def) return null;
+    if (def.kind === 'special') {
+      const rec = itemOf(data, value);
+      return rec && rec.weapon && rec.weapon.type === 'special' ? null : 'Choose a special weapon for ' + def.label;
+    }
+    if (!has(TYPE_NAME, value)) return 'Choose a weapon type for ' + def.label;
+    return weaponTypeChoices(char, data, levelIndex).indexOf(value) === -1 ? 'Not proficient in ' + TYPE_NAME[value] + ' for ' + def.label : null;
   }
 
   function chosenTypes(char, slug) {
@@ -289,7 +338,7 @@
         if (scope.damage && m.targets.some((t) => t.indexOf('damage.') === 0)) damageBonuses.push(entry);
       });
       chosenTypes(char, SPEC_FEAT).forEach((t) => {
-        if (t === line.type && lvl >= SPEC_FEAT_MIN_LEVEL && features.indexOf('weapon_specialization_(ex)') === -1) {
+        if (t === line.type && lvl >= SPEC_FEAT_MIN_LEVEL) {
           damageBonuses.push({ type: SPEC_TYPE, value: halfSpec(t, line.operative) ? Math.floor(lvl / 2) : lvl, source: 'feat:' + SPEC_FEAT });
         }
       });
@@ -307,7 +356,8 @@
         : s.abilities.dex.mod;
       const mods = build(line);
       const key = WEAPON_PROFICIENCY[line.type];
-      const trained = line.alwaysProficient || (key !== undefined && !!prof.weapon[key]);
+      const trained = line.alwaysProficient || (key !== undefined && !!prof.weapon[key])
+        || (line.type === 'special' && prof.specialItems.indexOf(line.sources[0]) !== -1);
       const notes = [];
       if (key === undefined) notes.push('Unknown weapon type ' + line.type + ', treated as not proficient');
       if (!trained) notes.push('Not proficient (-4)');
@@ -350,12 +400,12 @@
     const naturalSpec = natural && lvl >= SPEC_FEAT_MIN_LEVEL ? Math.floor(lvl * 1.5) : 0;
     if (natural) {
       const extra = naturalSpec ? { type: SPEC_TYPE, value: naturalSpec, source: 'race:vesk' } : null;
-      addLine('Natural weapons (vesk)', Object.assign({}, unarmedBase, { types: ['lethal'], notes: 'Lethal, not archaic, threatens squares', extraDamage: extra }), strikeParts, null);
+      addLine('Natural weapons (vesk)', Object.assign({}, unarmedBase, { types: ['lethal'], notes: 'Not archaic, threatens squares', extraDamage: extra }), strikeParts, null);
     }
     addLine(UNARMED.name, Object.assign({}, unarmedBase, { types: ['nonlethal'] }), strikeParts, null);
     return lines;
   }
 
-  const api = { WEALTH, ITEM_LEVEL_CAP, WEAPON_PROFICIENCY, ARMOR_PROFICIENCY, budget, bulkState, gearBlockers: blockersFor, itemAllowed, proficiency, attackLines };
+  const api = { WEALTH, ITEM_LEVEL_CAP, WEAPON_PROFICIENCY, ARMOR_PROFICIENCY, FUSION_SEAL_PRICE, FEAT_CHOICE, TYPE_NAME, weaponTypeChoices, featChoiceProblem, budget, bulkState, gearBlockers: blockersFor, itemAllowed, proficiency, attackLines };
   if (typeof module !== 'undefined') module.exports = api; else root.SF = Object.assign(root.SF || {}, api);
 })(this);

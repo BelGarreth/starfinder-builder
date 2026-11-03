@@ -32,7 +32,8 @@
         "toughness"
       ],
       "choices": {
-        "fightingStyle": "blitz"
+        "fightingStyle": "blitz",
+        "weapon_focus_(combat)": "smallA"
       },
       "spells": {}
     },

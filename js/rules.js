@@ -432,7 +432,7 @@
     });
 
     const bulk = bulkState(c, data, abilities.str.score);
-    return {
+    const sheet = {
       abilities,
       hp: hp(c, data) + total(['hp']),
       sp: sp(c, data) + total(['sp']),
@@ -449,6 +449,8 @@
       situational: resolved.situational,
       bulk
     };
+    sheet.attacks = (typeof module !== 'undefined' ? require('./gear.js') : root.SF).attackLines(c, data, sheet);
+    return sheet;
   }
 
   const api = {

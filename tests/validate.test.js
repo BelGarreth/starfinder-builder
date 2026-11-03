@@ -19,7 +19,7 @@ test('vesk soldier 1 in second skin derives its defenses', () => {
   const s = rules.derive(veskInSecondSkin(), data);
   assert.deepStrictEqual([s.eac, s.kac, s.cmd], [14, 15, 23]);
   assert.deepStrictEqual([s.fort, s.ref, s.will, s.initiative], [3, 2, 2, 2]);
-  assert.deepStrictEqual(s.attacks, []);
+  assert.deepStrictEqual(s.attacks.map((a) => a.name), ['Natural weapons (vesk)', 'Unarmed strike']);
   assert.deepStrictEqual(s.bulk, { carried: 0.1, limit: 18, state: 'ok' });
 });
 

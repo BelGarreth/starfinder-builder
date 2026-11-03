@@ -160,7 +160,7 @@ test('every character gets an unarmed strike, vesk also gets natural weapons', (
   const lines = gear.attackLines(c, data, rules.derive(c, data));
   assert.strictEqual(lines.find((l) => l.name === 'Unarmed strike').damage, '1d3+4');
   assert.match(lines.find((l) => l.name === 'Unarmed strike').notes, /nonlethal/);
-  assert.match(lines.find((l) => l.name === 'Natural weapons (vesk)').notes, /Lethal/);
+  assert.match(lines.find((l) => l.name === 'Natural weapons (vesk)').notes, /lethal/);
   const human = clone(c);
   human.race = 'human';
   assert.strictEqual(gear.attackLines(human, data, rules.derive(human, data)).some((l) => /Natural/.test(l.name)), false);
@@ -186,4 +186,107 @@ test('missing items are skipped by blockers and lines', () => {
   const c = withGear([{ id: 'a', item: 'gone', qty: 1 }]);
   assert.deepStrictEqual(codes(c), []);
   assert.ok(gear.attackLines(c, data, rules.derive(c, data)).length >= 1);
+});
+
+test('fusion seals are priced by seal level and counted by seal level', () => {
+  const fusion = find((i) => i.type === 'fusion' && i.fusionLevel === 1);
+  gear.FUSION_SEAL_PRICE[1] = 111;
+  gear.FUSION_SEAL_PRICE[3] = 333;
+  try {
+    const c = withGear([{ id: 'a', item: 'baton_tactical', fusions: [{ item: fusion, level: 1 }] }]);
+    assert.strictEqual(gear.budget(c, data).spent, 90 + 111);
+    const up = withGear([{ id: 'a', item: 'baton_tactical', fusions: [{ item: fusion, level: 3 }] }]);
+    assert.strictEqual(gear.budget(up, data).spent, 90 + 333);
+    assert.ok(codes(up).indexOf('fusion-level') !== -1);
+    assert.ok(codes(c).indexOf('fusion-level') === -1);
+    const low = withGear([{ id: 'a', item: 'baton_tactical', fusions: [{ item: find((i) => i.type === 'fusion' && i.fusionLevel === 5), level: 1 }] }], 8);
+    assert.ok(codes(low).indexOf('fusion-seal-level') !== -1);
+  } finally {
+    delete gear.FUSION_SEAL_PRICE[1];
+    delete gear.FUSION_SEAL_PRICE[3];
+  }
+});
+
+test('attachments must fit the parent kind', () => {
+  const upg = find((i) => i.type === 'upgrade' && i.slotCost === 1);
+  const fusion = find((i) => i.type === 'fusion' && i.fusionLevel === 1);
+  const upgInWeapon = withGear([{ id: 'w', item: 'baton_tactical', slots: [{ item: upg }] }], 20);
+  assert.ok(codes(upgInWeapon).indexOf('attachment-kind') !== -1);
+  const fusionInArmor = withGear([{ id: 'a', item: 'second_skin', fusions: [{ item: fusion, level: 1 }] }], 20);
+  assert.ok(codes(fusionInArmor).indexOf('attachment-kind') !== -1);
+  const fine = withGear([{ id: 'w', item: 'baton_tactical', fusions: [{ item: fusion, level: 1 }] }, { id: 'a', item: 'second_skin', slots: [{ item: upg }] }], 20);
+  assert.ok(codes(fine).indexOf('attachment-kind') === -1);
+  const base = withGear([{ id: 'w', item: 'baton_tactical' }, { id: 'a', item: 'second_skin' }], 20);
+  assert.strictEqual(validate.allowed('item', upg, 0, base, data, { into: 'w' }).ok, false);
+  assert.strictEqual(validate.allowed('item', fusion, 0, base, data, { into: 'a' }).ok, false);
+  assert.strictEqual(validate.allowed('item', fusion, 0, base, data, { into: 'w' }).ok, true);
+});
+
+test('ammo is priced and weighed per pack and quantity must be a positive whole number', () => {
+  const arrows = find((i) => i.perPack === 20);
+  const rec = data.items[arrows];
+  const spent = (qty) => gear.budget(withGear([{ id: 'a', item: arrows, qty }], 20), data).spent;
+  assert.strictEqual(spent(20), rec.price);
+  assert.strictEqual(spent(21), rec.price * 2);
+  assert.strictEqual(spent(40), rec.price * 2);
+  [0, 1.5, -2].forEach((qty) => assert.ok(codes(withGear([{ id: 'a', item: arrows, qty }], 20)).indexOf('qty') !== -1, String(qty)));
+  assert.ok(codes(withGear([{ id: 'a', item: arrows, qty: 40 }], 20)).indexOf('qty') === -1);
+  const heavy = find((i) => i.perPack > 1 && i.bulk === '1');
+  if (heavy) {
+    const perPack = data.items[heavy].perPack;
+    assert.strictEqual(gear.bulkState(withGear([{ id: 'a', item: heavy, qty: perPack + 1 }]), data, 18).carried, 2);
+  }
+});
+
+test('weapon focus and specialization need a proficient weapon type', () => {
+  const focused = (choice, cls) => {
+    const c = withGear([], 1, cls);
+    c.levels[0].feats = ['weapon_focus_(combat)'];
+    if (choice !== undefined) c.levels[0].choices['weapon_focus_(combat)'] = choice;
+    return c;
+  };
+  const feats = (c) => validate.validate(c, data).filter((b) => b.tab === 'feats' && b.ref === 'weapon_focus_(combat)');
+  assert.deepStrictEqual(feats(focused(undefined)).map((b) => [b.code, b.msg]), [['unspent', 'Choose a weapon type for Weapon Focus']]);
+  assert.deepStrictEqual(feats(focused('smallA')), []);
+  assert.deepStrictEqual(feats(focused('smallA')).length, 0);
+  assert.deepStrictEqual(feats(focused('sniper', 'envoy')).map((b) => b.code), ['invalid-choice']);
+  assert.deepStrictEqual(feats(focused('bogus')).map((b) => b.code), ['invalid-choice']);
+  assert.strictEqual(validate.allowed('choice', 'smallA', 0, focused(undefined), data, { id: 'weapon_focus_(combat)' }).ok, true);
+  const refused = validate.allowed('choice', 'sniper', 0, focused(undefined, 'envoy'), data, { id: 'weapon_focus_(combat)' });
+  assert.strictEqual(refused.ok, false);
+  assert.match(refused.why, /Not proficient/);
+});
+
+test('special weapon proficiency is per chosen weapon', () => {
+  const special = find((i) => i.weapon && i.weapon.type === 'special' && i.level <= 1);
+  const c = withGear([{ id: 's', item: special }], 1, 'envoy');
+  c.levels[0].feats = ['special_weapon_proficiency_(combat)'];
+  const name = data.items[special].name;
+  const without = line(c, name).attack;
+  c.levels[0].choices['special_weapon_proficiency_(combat)'] = special;
+  assert.strictEqual(line(c, name).attack - without, 4);
+  assert.strictEqual(validate.validate(c, data).some((b) => b.ref === 'special_weapon_proficiency_(combat)'), false);
+  c.levels[0].choices['special_weapon_proficiency_(combat)'] = 'baton_tactical';
+  assert.ok(validate.validate(c, data).some((b) => b.code === 'invalid-choice'));
+});
+
+test('weapon focus gives +1, or +2 when BAB trails level by 3', () => {
+  const small = find((i) => i.weapon && i.weapon.type === 'smallA');
+  const mk = (cls, n) => {
+    const c = withGear([{ id: 's', item: small }], n, cls);
+    const base = clone(c);
+    c.levels[0].feats = ['weapon_focus_(combat)'];
+    c.levels[0].choices['weapon_focus_(combat)'] = 'smallA';
+    const name = data.items[small].name;
+    return line(c, name).attack - line(base, name).attack;
+  };
+  assert.strictEqual(mk('soldier', 3), 1);
+  assert.strictEqual(mk('mystic', 12), 2);
+});
+
+test('derive populates attacks from the same lines', () => {
+  const c = withGear([{ id: 'b', item: 'baton_tactical' }]);
+  const sheet = rules.derive(c, data);
+  assert.deepStrictEqual(sheet.attacks, gear.attackLines(c, data, sheet));
+  assert.ok(sheet.attacks.some((l) => l.name === 'Baton, tactical'));
 });

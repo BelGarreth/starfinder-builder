@@ -685,6 +685,9 @@ def build_items(items):
         if kind == 'augmentation':
             rec['augSystem'] = s.get('system')
             rec['augType'] = s.get('type')
+        per_pack = number(s.get('quantityPerPack'))
+        if isinstance(per_pack, int) and per_pack > 1:
+            rec['perPack'] = per_pack
         rec['modifiers'] = modifiers(s)
         rec['summary'] = summarize(description(item), ITEM_SUMMARY_LIMIT)
         out[slug] = rec

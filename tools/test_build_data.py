@@ -144,6 +144,8 @@ class BuildDataTest(unittest.TestCase):
         )
         self.assertEqual((items['second_skin']['level'], items['second_skin']['price'], items['second_skin']['bulk']), (1, 250, 'L'))
         self.assertEqual(items['second_skin']['slots'], 1)
+        self.assertEqual(items['arrows']['perPack'], 20)
+        self.assertNotIn('perPack', items['baton_tactical'])
         baton = items['baton_tactical']
         self.assertEqual((baton['price'], baton['level']), (90, 1))
         self.assertEqual(baton['weapon']['damage'], [{'formula': '1d4 + @abilities.str.mod', 'types': ['bludgeoning']}])
