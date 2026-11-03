@@ -5,17 +5,16 @@ const fs = require('fs');
 const path = require('path');
 
 const root = path.join(__dirname, '..');
-const NOT_YET_CREATED = ['js/character.js'];
 const listed = fs.readFileSync(path.join(root, 'index.html'), 'utf8')
   .split('\n')
   .map((line) => /<script src="([^"]+)"><\/script>/.exec(line))
   .filter(Boolean)
   .map((m) => m[1]);
-const scripts = listed.filter((src) => fs.existsSync(path.join(root, src)));
+const scripts = listed;
 
-test('every script listed in index.html exists, apart from the not-yet-created allowlist', () => {
+test('every script listed in index.html exists', () => {
   const missing = listed.filter((src) => !fs.existsSync(path.join(root, src)));
-  assert.deepStrictEqual(missing.filter((src) => NOT_YET_CREATED.indexOf(src) === -1), []);
+  assert.deepStrictEqual(missing, []);
 });
 
 test('every script loads in index.html order with no require or module', () => {

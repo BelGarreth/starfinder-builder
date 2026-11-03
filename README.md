@@ -136,7 +136,7 @@ Gear (`js/gear.js`): `char.gear = [{id, item, qty, equipped, slots?: [{item}], f
 ## Tests
 
 ```
-node --test
+node --test 'tests/*.test.js'
 python3 -m unittest discover -s tools -p 'test_*.py'
 ```
 
