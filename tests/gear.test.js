@@ -188,23 +188,42 @@ test('missing items are skipped by blockers and lines', () => {
   assert.ok(gear.attackLines(c, data, rules.derive(c, data)).length >= 1);
 });
 
-test('fusion seals are priced by seal level and counted by seal level', () => {
+test('fusion prices come from the weapon level table, seals cost 110 percent at their own level, consumables pay half', () => {
   const fusion = find((i) => i.type === 'fusion' && i.fusionLevel === 1);
-  gear.FUSION_SEAL_PRICE[1] = 111;
-  gear.FUSION_SEAL_PRICE[3] = 333;
+  gear.FUSION_PRICE[1] = 100;
+  gear.FUSION_PRICE[3] = 400;
   try {
-    const c = withGear([{ id: 'a', item: 'baton_tactical', fusions: [{ item: fusion, level: 1 }] }]);
-    assert.strictEqual(gear.budget(c, data).spent, 90 + 111);
-    const up = withGear([{ id: 'a', item: 'baton_tactical', fusions: [{ item: fusion, level: 3 }] }]);
-    assert.strictEqual(gear.budget(up, data).spent, 90 + 333);
-    assert.ok(codes(up).indexOf('fusion-level') !== -1);
-    assert.ok(codes(c).indexOf('fusion-level') === -1);
-    const low = withGear([{ id: 'a', item: 'baton_tactical', fusions: [{ item: find((i) => i.type === 'fusion' && i.fusionLevel === 5), level: 1 }] }], 8);
+    const installed = withGear([{ id: 'a', item: 'baton_tactical', fusions: [{ item: fusion }] }]);
+    assert.strictEqual(gear.budget(installed, data).spent, 90 + 100);
+    const seal = withGear([{ id: 'a', item: 'baton_tactical', fusions: [{ item: fusion, level: 1, seal: true }] }]);
+    assert.strictEqual(gear.budget(seal, data).spent, 90 + 110);
+    const sealUp = withGear([{ id: 'a', item: 'baton_tactical', fusions: [{ item: fusion, level: 3, seal: true }] }]);
+    assert.strictEqual(gear.budget(sealUp, data).spent, 90 + 440);
+    assert.ok(codes(sealUp).indexOf('fusion-level') !== -1);
+    assert.ok(codes(seal).indexOf('fusion-level') === -1);
+    assert.ok(codes(seal).indexOf('price-unknown') === -1);
+    const grenade = find((i) => i.weapon && i.weapon.type === 'grenade' && i.level === 1);
+    const gren = withGear([{ id: 'g', item: grenade, fusions: [{ item: fusion }] }]);
+    assert.strictEqual(gear.budget(gren, data).spent, data.items[grenade].price + 50);
+    const low = withGear([{ id: 'a', item: 'baton_tactical', fusions: [{ item: find((i) => i.type === 'fusion' && i.fusionLevel === 5), level: 1, seal: true }] }], 8);
     assert.ok(codes(low).indexOf('fusion-seal-level') !== -1);
+    assert.strictEqual(validate.allowed('item', fusion, 0, withGear([{ id: 'a', item: 'baton_tactical' }]), data, { into: 'a' }).ok, true);
   } finally {
-    delete gear.FUSION_SEAL_PRICE[1];
-    delete gear.FUSION_SEAL_PRICE[3];
+    delete gear.FUSION_PRICE[1];
+    delete gear.FUSION_PRICE[3];
   }
+});
+
+test('fusions fail closed while the price table has no entry', () => {
+  const fusion = find((i) => i.type === 'fusion' && i.fusionLevel === 1);
+  const base = withGear([{ id: 'a', item: 'baton_tactical' }]);
+  const refused = validate.allowed('item', fusion, 0, base, data, { into: 'a' });
+  assert.deepStrictEqual(refused, { ok: false, why: 'Fusion pricing not available yet' });
+  assert.strictEqual(validate.allowed('item', fusion, 0, base, data).ok, false);
+  const saved = withGear([{ id: 'a', item: 'baton_tactical', fusions: [{ item: fusion }] }]);
+  assert.ok(codes(saved).indexOf('price-unknown') !== -1);
+  const sealed = withGear([{ id: 'a', item: 'baton_tactical', fusions: [{ item: fusion, level: 1, seal: true }] }]);
+  assert.ok(codes(sealed).indexOf('price-unknown') !== -1);
 });
 
 test('attachments must fit the parent kind', () => {
@@ -214,12 +233,17 @@ test('attachments must fit the parent kind', () => {
   assert.ok(codes(upgInWeapon).indexOf('attachment-kind') !== -1);
   const fusionInArmor = withGear([{ id: 'a', item: 'second_skin', fusions: [{ item: fusion, level: 1 }] }], 20);
   assert.ok(codes(fusionInArmor).indexOf('attachment-kind') !== -1);
-  const fine = withGear([{ id: 'w', item: 'baton_tactical', fusions: [{ item: fusion, level: 1 }] }, { id: 'a', item: 'second_skin', slots: [{ item: upg }] }], 20);
+  const fine = withGear([{ id: 'w', item: 'baton_tactical', fusions: [{ item: fusion, level: 1, seal: true }] }, { id: 'a', item: 'second_skin', slots: [{ item: upg }] }], 20);
   assert.ok(codes(fine).indexOf('attachment-kind') === -1);
   const base = withGear([{ id: 'w', item: 'baton_tactical' }, { id: 'a', item: 'second_skin' }], 20);
   assert.strictEqual(validate.allowed('item', upg, 0, base, data, { into: 'w' }).ok, false);
   assert.strictEqual(validate.allowed('item', fusion, 0, base, data, { into: 'a' }).ok, false);
-  assert.strictEqual(validate.allowed('item', fusion, 0, base, data, { into: 'w' }).ok, true);
+  gear.FUSION_PRICE[1] = 100;
+  try {
+    assert.strictEqual(validate.allowed('item', fusion, 0, base, data, { into: 'w' }).ok, true);
+  } finally {
+    delete gear.FUSION_PRICE[1];
+  }
 });
 
 test('ammo is priced and weighed per pack and quantity must be a positive whole number', () => {

@@ -13,7 +13,10 @@
   const WEAPON_PROFICIENCY = {
     basicM: 'bmelee', advancedM: 'amelee', smallA: 'sarms', longA: 'larms', heavy: 'hweap', sniper: 'snipe', grenade: 'gren', special: 'spec', solarian: 'solarian'
   };
-  const FUSION_SEAL_PRICE = {};
+  // CRB pp. 191-192 fusion price by weapon item level; AoN Rules ID=86 gives the formulas but not the table
+  const FUSION_PRICE = {};
+  const SEAL_MARKUP = 1.1;
+  const CONSUMABLE_DISCOUNT = 0.5;
   const ARMOR_PROFICIENCY = { light: 'lgt', heavy: 'hvy', power: 'pwr' };
   const FEAT_PROFICIENCY = {
     'basic_melee_weapon_proficiency_(combat)': { weapon: ['bmelee'] },
@@ -70,7 +73,19 @@
     const own = rec ? Number(rec.fusionLevel) || Number(rec.level) || 0 : 0;
     return f && typeof f === 'object' && Number.isFinite(f.level) ? f.level : own;
   };
-  const sealPrice = (level) => (has(FUSION_SEAL_PRICE, level) ? FUSION_SEAL_PRICE[level] : 0);
+  const fusionBase = (level) => (has(FUSION_PRICE, level) && Number.isFinite(FUSION_PRICE[level]) ? FUSION_PRICE[level] : null);
+  const isConsumableWeapon = (rec) => !!rec && (rec.type === 'ammunition' || (!!rec.weapon && rec.weapon.type === 'grenade'));
+  const isSeal = (f) => !!f && typeof f === 'object' && f.seal === true;
+  function fusionPrice(data, parent, f) {
+    if (isSeal(f)) {
+      const base = fusionBase(fusionLevelOf(data, f));
+      return base === null ? null : Math.round(base * SEAL_MARKUP);
+    }
+    const base = fusionBase(Number(parent && parent.level) || 0);
+    if (base === null) return null;
+    return isConsumableWeapon(parent) ? Math.round(base * CONSUMABLE_DISCOUNT) : base;
+  }
+  const fusionCounted = (data, f) => (isSeal(f) ? fusionLevelOf(data, f) : Number((itemOf(data, fusionSlug(f)) || {}).fusionLevel) || Number((itemOf(data, fusionSlug(f)) || {}).level) || 0);
   const level = (char) => Math.max(1, rules.charLevel(char));
   const fmt = (n) => n.toLocaleString('en-US');
 
@@ -82,7 +97,7 @@
       const main = itemOf(data, g.item);
       if (main) spent += (Number(main.price) || 0) * packsOf(main, g);
       asList(g.slots).forEach((s) => { const r = itemOf(data, s && s.item); if (r) spent += Number(r.price) || 0; });
-      asList(g.fusions).forEach((f) => { if (itemOf(data, fusionSlug(f))) spent += sealPrice(fusionLevelOf(data, f)); });
+      asList(g.fusions).forEach((f) => { if (itemOf(data, fusionSlug(f))) spent += fusionPrice(data, main, f) || 0; });
     });
     return { credits, spent, left: credits - spent };
   }
@@ -152,9 +167,10 @@
         const frec = itemOf(data, fusionSlug(f));
         checkLevel(fusionSlug(f));
         if (!rec.weapon || frec.type !== 'fusion') push('attachment-kind', frec.name + ' is a weapon fusion and only fits weapons', g.id + ':' + fusionSlug(f));
-        else if (fusionLevelOf(data, f) < (Number(frec.fusionLevel) || 0)) push('fusion-seal-level', frec.name + ' seal is level ' + fusionLevelOf(data, f) + ', below the fusion level ' + frec.fusionLevel, g.id + ':' + fusionSlug(f));
+        else if (fusionPrice(data, rec, f) === null) push('price-unknown', 'Fusion pricing not available yet for ' + frec.name, g.id + ':' + fusionSlug(f));
+        else if (isSeal(f) && fusionLevelOf(data, f) < (Number(frec.fusionLevel) || 0)) push('fusion-seal-level', frec.name + ' seal is level ' + fusionLevelOf(data, f) + ', below the fusion level ' + frec.fusionLevel, g.id + ':' + fusionSlug(f));
       });
-      const fusionTotal = fusions.reduce((n, f) => n + fusionLevelOf(data, f), 0);
+      const fusionTotal = fusions.reduce((n, f) => n + fusionCounted(data, f), 0);
       if (rec.weapon && fusions.length && fusionTotal > (Number(rec.level) || 0)) push('fusion-level', rec.name + ' (level ' + rec.level + ') holds fusions totalling level ' + fusionTotal, g.item);
       if (rec.type === 'augmentation' && g.equipped !== false) {
         systemsOf(rec, g).forEach((part) => {
@@ -176,15 +192,24 @@
     const cap = ITEM_LEVEL_CAP(level(char));
     if (Number(rec.level) > cap) return { ok: false, why: 'Item level ' + rec.level + ' is above the level ' + cap + ' limit' };
     const b = budget(char, data);
-    const price = rec.type === 'fusion'
-      ? sealPrice(Number.isFinite(o.level) ? o.level : fusionLevelOf(data, slug))
-      : (Number(rec.price) || 0) * packsOf(rec, { qty: Number.isInteger(o.qty) && o.qty >= 1 ? o.qty : 1 });
+    const sealed = o.into === undefined || o.seal === true;
+    const entry = { item: slug, level: Number.isFinite(o.level) ? o.level : fusionLevelOf(data, slug), seal: sealed };
+    const intoParent = o.into !== undefined ? gearOf(char).find((g) => g.id === o.into) : null;
+    const parentRec = intoParent ? itemOf(data, intoParent.item) : null;
+    let price;
+    if (rec.type === 'fusion') {
+      const priced = fusionPrice(data, parentRec, entry);
+      if (priced === null) return { ok: false, why: 'Fusion pricing not available yet' };
+      price = priced;
+    } else {
+      price = (Number(rec.price) || 0) * packsOf(rec, { qty: Number.isInteger(o.qty) && o.qty >= 1 ? o.qty : 1 });
+    }
     if (price > b.left) return { ok: false, why: 'Costs ' + fmt(price) + ' credits, ' + fmt(Math.max(0, b.left)) + ' left' };
     const copy = JSON.parse(JSON.stringify(Object.assign({}, char, { gear: gearOf(char) })));
     if (o.into !== undefined) {
       const parent = copy.gear.find((g) => g.id === o.into);
       if (!parent) return { ok: false, why: 'No such item to attach to' };
-      if (rec.type === 'fusion') parent.fusions = asList(parent.fusions).concat([{ item: slug, level: Number.isFinite(o.level) ? o.level : fusionLevelOf(data, slug) }]);
+      if (rec.type === 'fusion') parent.fusions = asList(parent.fusions).concat([entry]);
       else parent.slots = asList(parent.slots).concat([{ item: slug }]);
     } else if (rec.type === 'augmentation') {
       copy.gear.push({ id: '#candidate', item: slug, qty: 1, equipped: true });
@@ -406,6 +431,6 @@
     return lines;
   }
 
-  const api = { WEALTH, ITEM_LEVEL_CAP, WEAPON_PROFICIENCY, ARMOR_PROFICIENCY, FUSION_SEAL_PRICE, FEAT_CHOICE, TYPE_NAME, weaponTypeChoices, featChoiceProblem, budget, bulkState, gearBlockers: blockersFor, itemAllowed, proficiency, attackLines };
+  const api = { WEALTH, ITEM_LEVEL_CAP, WEAPON_PROFICIENCY, ARMOR_PROFICIENCY, FUSION_PRICE, FEAT_CHOICE, TYPE_NAME, weaponTypeChoices, featChoiceProblem, budget, bulkState, gearBlockers: blockersFor, itemAllowed, proficiency, attackLines };
   if (typeof module !== 'undefined') module.exports = api; else root.SF = Object.assign(root.SF || {}, api);
 })(this);
