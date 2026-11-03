@@ -149,7 +149,7 @@
 
   function formulaCtx(char, data, derived) {
     const d = derived || {};
-    const scores = rules.baseScores(char || {}, data);
+    const scores = rules.abilityScores(char || {}, data);
     const abilities = {};
     rules.ABILITIES.forEach((a) => { abilities[a] = { value: scores[a], mod: rules.mod(scores[a]) }; });
     const classes = {};

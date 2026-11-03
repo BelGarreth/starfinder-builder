@@ -415,7 +415,7 @@
     const items = UI().table(data, 'items');
     const nm = (slug) => (own(items, slug) ? items[slug].name : slug);
     const rows = asList(C.gear).filter(Boolean).map((g) => {
-      const parts = asList(g.slots).map((x) => nm(x && x.item)).concat(asList(g.fusions).map((x) => nm(typeof x === 'string' ? x : x && x.item)));
+      const parts = asList(g.slots).map((x) => nm(x && x.item)).concat(asList(g.fusions).map((x) => nm(typeof x === 'string' ? x : x && x.item)), g.ability ? ['raises ' + String(g.ability).toUpperCase()] : []);
       return '<tr><td>' + esc(nm(g.item)) + (parts.length ? '<div class="pp-note">' + esc(parts.join(', ')) + '</div>' : '') + '</td><td class="num">' + esc(g.qty) + '</td><td>' + (g.equipped ? 'equipped' : '') + '</td></tr>';
     });
     if (!rows.length) return '';

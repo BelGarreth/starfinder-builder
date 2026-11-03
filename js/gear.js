@@ -88,6 +88,54 @@
   }
   const fusionCounted = (data, f) => (isSeal(f) ? fusionLevelOf(data, f) : Number((itemOf(data, fusionSlug(f)) || {}).fusionLevel) || Number((itemOf(data, fusionSlug(f)) || {}).level) || 0);
   const level = (char) => Math.max(1, rules.charLevel(char));
+  const ABILITY_KEYS = ['str', 'dex', 'con', 'int', 'wis', 'cha'];
+  const PERSONAL_LIMIT = 3;
+  const PERSONAL_TYPE = 'personal-upgrade';
+  const isPersonal = (rec) => !!rec && rec.type === 'augmentation' && rec.augType === 'personal';
+  const personalAmount = (rec) => (asList(rec.modifiers).filter((m) => m && m.effectType === 'ability-score').map((m) => Number(m.modifier)).find((n) => Number.isFinite(n)) || 0);
+
+  function personalModifiers(rec, g) {
+    const own = asList(rec.modifiers);
+    if (!isPersonal(rec)) return own;
+    const ability = g && ABILITY_KEYS.indexOf(g.ability) !== -1 ? g.ability : null;
+    return own.filter((m) => m.effectType !== 'ability-score' || ability)
+      .map((m) => (m.effectType === 'ability-score' ? Object.assign({}, m, { valueAffected: ability, type: PERSONAL_TYPE }) : m));
+  }
+
+  function personalUpgrades(char, data, upToLevels) {
+    const cap = upToLevels === undefined ? Infinity : upToLevels;
+    return gearOf(char).map((g, index) => ({ g, index, rec: itemOf(data, g.item) }))
+      .filter((x) => x.g.equipped && isPersonal(x.rec) && !(Number(x.rec.level) > cap))
+      .map((x) => ({ index: x.index, id: x.g.id, item: x.g.item, rec: x.rec, ability: ABILITY_KEYS.indexOf(x.g.ability) !== -1 ? x.g.ability : null, amount: personalAmount(x.rec) }));
+  }
+
+  function upgradeBonuses(char, data, upToLevels) {
+    const out = {};
+    personalUpgrades(char, data, upToLevels).forEach((u) => {
+      if (u.ability) out[u.ability] = Math.max(out[u.ability] || 0, u.amount);
+    });
+    return out;
+  }
+
+  function personalProblem(char, data, gearIndex, ability) {
+    const g = gearOf(char)[gearIndex];
+    const rec = g ? itemOf(data, g.item) : null;
+    if (!isPersonal(rec)) return { code: 'invalid-choice', why: 'Only a personal upgrade raises an ability score' };
+    if (ability === undefined || ability === null || ability === '') return { code: 'unspent', why: 'Choose the ability ' + rec.name + ' raises' };
+    if (ABILITY_KEYS.indexOf(ability) === -1) return { code: 'invalid-choice', why: "Ability '" + ability + "' does not exist" };
+    const others = personalUpgrades(char, data).filter((u) => u.index !== gearIndex);
+    if (others.some((u) => u.ability === ability)) return { code: 'duplicate', why: 'Each personal upgrade must raise a different ability, and ' + ability.toUpperCase() + ' already has one' };
+    return null;
+  }
+
+  function personalAllowed(char, data, ability, opts) {
+    const gear = gearOf(char);
+    const o = opts || {};
+    const at = Number.isInteger(o.index) ? (o.index < gear.length ? o.index : -1) : o.gear !== undefined ? gear.findIndex((g) => g.id === o.gear) : -1;
+    if (at === -1) return { ok: false, why: 'No such item' };
+    const problem = personalProblem(char, data, at, ability);
+    return problem ? { ok: false, why: problem.why } : { ok: true };
+  }
   const fmt = (n) => n.toLocaleString('en-US');
 
   function budget(char, data) {
@@ -179,6 +227,15 @@
         });
       }
     });
+    const upgrades = personalUpgrades(char, data);
+    upgrades.forEach((u) => {
+      const problem = personalProblem(char, data, u.index, u.ability === null ? gearOf(char)[u.index].ability : u.ability);
+      if (problem && (problem.code !== 'duplicate' || upgrades.findIndex((x) => x.ability === u.ability) !== upgrades.indexOf(u))) push(problem.code, problem.why, u.id === undefined ? u.item : u.id);
+    });
+    if (upgrades.length > PERSONAL_LIMIT) push('personal-limit', 'You can have only ' + PERSONAL_LIMIT + ' personal upgrades, ' + upgrades.length + ' are equipped');
+    const models = {};
+    upgrades.forEach((u) => { (models[u.amount] = models[u.amount] || []).push(u.rec.name); });
+    Object.keys(models).forEach((n) => { if (models[n].length > 1) push('personal-model', 'Each personal upgrade must be a different model: ' + models[n].join(', ')); });
     Object.keys(systems).forEach((part) => {
       if (systems[part].length > 1) push('augmentation-system', 'Two augmentations share the ' + part + ' system: ' + systems[part].join(', '), part);
     });
@@ -221,7 +278,7 @@
     blockersFor(char, data, {}).forEach((x) => { const k = x.code + '|' + x.ref; held[k] = (held[k] || 0) + 1; });
     const added = blockersFor(copy, data, {}).filter((x) => {
       const k = x.code + '|' + x.ref;
-      if (x.code === 'over-budget') return false;
+      if (x.code === 'over-budget' || (x.code === 'unspent' && x.ref === '#candidate')) return false;
       if (held[k] > 0) { held[k]--; return false; }
       return true;
     });
@@ -432,6 +489,6 @@
     return lines;
   }
 
-  const api = { WEALTH, ITEM_LEVEL_CAP, WEAPON_PROFICIENCY, ARMOR_PROFICIENCY, FUSION_PRICE, FEAT_CHOICE, TYPE_NAME, weaponTypeChoices, featChoiceProblem, budget, bulkState, gearBlockers: blockersFor, itemAllowed, proficiency, attackLines };
+  const api = { WEALTH, ITEM_LEVEL_CAP, WEAPON_PROFICIENCY, ARMOR_PROFICIENCY, FUSION_PRICE, FEAT_CHOICE, TYPE_NAME, weaponTypeChoices, featChoiceProblem, budget, bulkState, isPersonal, personalModifiers, personalUpgrades, upgradeBonuses, personalAllowed, gearBlockers: blockersFor, itemAllowed, proficiency, attackLines };
   if (typeof module !== 'undefined') module.exports = api; else root.SF = Object.assign(root.SF || {}, api);
 })(this);

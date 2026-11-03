@@ -155,7 +155,7 @@ test('chosen class features accept slugs and arrays, and automatic features come
 });
 
 test('equipped gear, slotted upgrades and fusions contribute; unequipped gear does not', () => {
-  const key = Object.keys(data.items).find((k) => (data.items[k].modifiers || []).some((m) => m.modifierType === 'constant' && !m.when));
+  const key = Object.keys(data.items).find((k) => data.items[k].augType !== 'personal' && (data.items[k].modifiers || []).some((m) => m.modifierType === 'constant' && !m.when));
   const c = clone(vesk);
   c.gear = [{ item: key, equipped: false }];
   assert.ok(!bonus.collectModifiers(c, data).constants.some((m) => m.sourceKey === key));

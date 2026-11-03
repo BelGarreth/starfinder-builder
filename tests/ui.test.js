@@ -283,3 +283,20 @@ test('multi-skill picks disable the rest once full', () => {
   const html = U.tabClass(c, UI, data, U.ctxOf(c, data));
   assert.ok(/data-b2="blu" data-c="skillAdept" disabled/.test(html) && html.indexOf('Unpick one to choose another') !== -1);
 });
+
+test('a personal upgrade gets an ability picker on the gear tab that feeds the sheet', () => {
+  const c = vesk();
+  c.levels = [1, 2, 3].map(() => U.newLevel('soldier'));
+  c.gear.push({ id: 'g2', item: 'synaptic_accelerators_(technology)_mk_1', qty: 1, equipped: true });
+  const ctxOf = () => U.ctxOf(c, data);
+  const html = U.tabGear(c, ui({ tab: 'gear' }), data, ctxOf());
+  assert.ok(html.indexOf('data-sel="gearAbility"') !== -1);
+  assert.ok(ctxOf().blockers.some((b) => b.tab === 'gear' && b.code === 'unspent' && b.ref === 'g2'));
+  const dex = ctxOf().sheet.abilities.dex.score;
+  U.selects.gearAbility(c, ui(), data, 'dex', '1');
+  assert.strictEqual(c.gear[1].ability, 'dex');
+  assert.strictEqual(ctxOf().sheet.abilities.dex.score, dex + 2);
+  assert.ok(!ctxOf().blockers.some((b) => b.ref === 'g2'));
+  U.selects.gearAbility(c, ui(), data, '', '1');
+  assert.strictEqual(c.gear[1].ability, undefined);
+});

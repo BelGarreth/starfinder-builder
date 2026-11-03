@@ -211,6 +211,12 @@
       if (!clean.some(Boolean)) delete lvl.choices[slug];
       else lvl.choices[slug] = total > 1 ? clean : clean[0];
     },
+    gearAbility: (C, UI, data, value, a) => {
+      const g = C.gear[Number(a)];
+      if (!g) return;
+      if (SF().ABILITIES.indexOf(value) === -1) delete g.ability;
+      else g.ability = value;
+    },
     swapFrom: (C, UI, data, value, a) => {
       const i = Number(a);
       UI.swapFrom = Object.assign({}, UI.swapFrom, { [i]: value || undefined });

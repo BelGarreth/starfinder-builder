@@ -314,3 +314,90 @@ test('derive populates attacks from the same lines', () => {
   assert.deepStrictEqual(sheet.attacks, gear.attackLines(c, data, sheet));
   assert.ok(sheet.attacks.some((l) => l.name === 'Baton, tactical'));
 });
+
+const MK1 = 'synaptic_accelerators_(technology)_mk_1';
+const MK2 = 'synaptic_accelerators_(technology)_mk_2';
+function operative3(gearList) {
+  const c = withGear(gearList, 3, 'operative');
+  c.race = 'human';
+  c.theme = 'ace_pilot';
+  c.abilities = { pb: { str: 0, dex: 5, con: 2, int: 2, wis: 1, cha: 0 }, raceAny: 'dex' };
+  return c;
+}
+
+test('all nine personal upgrades are recognised', () => {
+  const personal = Object.keys(data.items).filter((k) => gear.isPersonal(data.items[k]));
+  assert.strictEqual(personal.length, 9);
+  personal.forEach((k) => assert.ok(data.items[k].modifiers.some((m) => m.effectType === 'ability-score' && m.valueAffected === 'str'), k));
+});
+
+test('a Dex mk 1 personal upgrade raises Dex and what derives from it, not Str', () => {
+  const plain = rules.derive(operative3([]), data);
+  const up = rules.derive(operative3([{ id: 'u', item: MK1, qty: 1, equipped: true, ability: 'dex' }]), data);
+  assert.strictEqual(up.abilities.dex.score, plain.abilities.dex.score + 2);
+  assert.strictEqual(up.abilities.str.score, plain.abilities.str.score);
+  assert.strictEqual(up.abilities.dex.mod, plain.abilities.dex.mod + 1);
+  assert.strictEqual(up.initiative, plain.initiative + 1);
+  assert.strictEqual(up.ref, plain.ref + 1);
+  assert.strictEqual(up.eac, plain.eac + 1);
+  assert.strictEqual(up.skills.ste.total, plain.skills.ste.total + 1);
+  assert.strictEqual(up.rp, plain.rp + 1);
+});
+
+test('a Con personal upgrade raises SP; an unequipped or unchosen one adds nothing', () => {
+  const plain = rules.derive(operative3([]), data);
+  const con = rules.derive(operative3([{ id: 'u', item: MK1, qty: 1, equipped: true, ability: 'con' }]), data);
+  assert.strictEqual(con.abilities.con.score, plain.abilities.con.score + 2);
+  assert.strictEqual(con.sp, plain.sp + 3);
+  assert.strictEqual(con.fort, plain.fort + 1);
+  const none = rules.derive(operative3([{ id: 'u', item: MK1, qty: 1, equipped: true }]), data);
+  const stored = rules.derive(operative3([{ id: 'u', item: MK1, qty: 1, equipped: false, ability: 'con' }]), data);
+  [none, stored].forEach((s) => {
+    assert.deepStrictEqual(JSON.stringify(s.abilities), JSON.stringify(plain.abilities));
+    assert.strictEqual(s.sp, plain.sp);
+  });
+});
+
+test('personal upgrade ability picks are blocked until valid', () => {
+  const blockers = (g) => gear.gearBlockers(operative3(g), data, {});
+  assert.ok(blockers([{ id: 'u', item: MK1, qty: 1, equipped: true }]).some((b) => b.code === 'unspent' && b.ref === 'u'));
+  assert.ok(blockers([{ id: 'u', item: MK1, qty: 1, equipped: true, ability: 'luck' }]).some((b) => b.code === 'invalid-choice'));
+  assert.deepStrictEqual(blockers([{ id: 'u', item: MK1, qty: 1, equipped: true, ability: 'dex' }]).filter((b) => /personal|unspent|invalid|duplicate/.test(b.code)), []);
+  const two = [{ id: 'u', item: MK1, qty: 1, equipped: true, ability: 'dex' }, { id: 'v', item: 'ability_crystal_(magic)_mk_1', qty: 1, equipped: true, ability: 'dex' }];
+  const c = withGear(two, 3, 'operative');
+  const codes2 = gear.gearBlockers(c, data, {}).map((b) => b.code);
+  assert.strictEqual(codes2.filter((x) => x === 'duplicate').length, 1);
+  assert.ok(codes2.indexOf('personal-model') !== -1);
+  assert.ok(validate.allowed('ability', 'dex', 2, operative3([{ id: 'u', item: MK1, qty: 1, equipped: true }]), data, { gear: 'u' }).ok);
+  const taken = validate.allowed('ability', 'dex', 2, c, data, { index: 1 });
+  assert.strictEqual(taken.ok, false);
+  assert.ok(/different ability/.test(taken.why), taken.why);
+  assert.strictEqual(validate.allowed('ability', 'dex', 2, c, data, { gear: 'nope' }).ok, false);
+  assert.strictEqual(validate.allowed('ability', 'dex', 2, withGear([{ id: 's', item: 'second_skin', qty: 1, equipped: true }], 3), data, { gear: 's' }).ok, false);
+});
+
+test('a personal upgrade counts toward feat prerequisites and spell ability, from its item level on', () => {
+  const c = operative3([{ id: 'u', item: MK2, qty: 1, equipped: true, ability: 'con' }]);
+  for (let i = 3; i < 7; i++) c.levels.push(lvl('operative'));
+  assert.strictEqual(rules.abilityScores(c, data).con, rules.baseScores(c, data).con + 4);
+  assert.strictEqual(rules.abilityScores(c, data, 6).con, rules.baseScores(c, data, 6).con);
+  assert.strictEqual(rules.abilityScores(c, data, 7).con, rules.baseScores(c, data, 7).con + 4);
+  const at = (n) => { const x = clone(c); x.levels = x.levels.slice(0, n); return x; };
+  const conFeat = Object.keys(data.feats).find((k) => { const all = (data.feats[k].prereq || {}).all || []; return all.length === 1 && all[0].k === 'ability' && all[0].a === 'con' && all[0].min === 15; });
+  assert.ok(conFeat);
+  assert.ok(rules.baseScores(c, data).con < 15 && rules.abilityScores(c, data).con >= 15, 'fixture con');
+  assert.ok(validate.allowed('feat', conFeat, 6, at(7), data).ok);
+  assert.strictEqual(validate.allowed('feat', conFeat, 4, at(5), data).ok, false);
+});
+
+test('personal upgrade raises a caster spell ability for bonus spells', () => {
+  const c = withGear([], 4, 'technomancer');
+  c.race = 'human';
+  c.theme = 'spacefarer';
+  c.abilities = { pb: { str: 0, dex: 3, con: 2, int: 3, wis: 0, cha: 0 }, raceAny: 'con' };
+  const before = rules.spellSlots(c, data).technomancer.perDay;
+  c.gear = [{ id: 'u', item: MK1, qty: 1, equipped: true, ability: 'int' }];
+  const after = rules.spellSlots(c, data).technomancer.perDay;
+  assert.ok(rules.abilityScores(c, data).int === rules.baseScores(c, data).int + 2);
+  assert.notDeepStrictEqual(JSON.stringify(after), JSON.stringify(before));
+});

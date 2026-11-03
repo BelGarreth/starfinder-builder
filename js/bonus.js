@@ -2,6 +2,7 @@
   const rules = new Proxy({}, { get: (_, k) => (typeof module !== 'undefined' ? require('./rules.js') : root.SF)[k] });
   const formula = new Proxy({}, { get: (_, k) => (typeof module !== 'undefined' ? require('./formula.js') : root.SF)[k] });
   const params = new Proxy({}, { get: (_, k) => (typeof module !== 'undefined' ? require('./params.js') : root.SF)[k] });
+  const gearLib = new Proxy({}, { get: (_, k) => (typeof module !== 'undefined' ? require('./gear.js') : root.SF)[k] });
 
   const UNTYPED = 'untyped';
   const CIRCUMSTANCE = 'circumstance';
@@ -116,13 +117,15 @@
     const seen = {};
     const feats = table(data, 'feats');
     const features = table(data, 'features');
-    const add = (kind, key, rec, levelIndex, k, cls) => {
+    const add = (kind, key, rec, levelIndex, k, cls, gear) => {
       const id = kind + ':' + key;
       if (!rec) return;
-      const repeats = !!(rec.param && rec.param.perInstance);
+      const repeats = !!(rec.param && rec.param.perInstance) || !!gear;
       if (seen[id] && !repeats) return;
       seen[id] = true;
-      out.push({ kind, key, rec, levelIndex, k: k || 0, cls });
+      const entry = { kind, key, rec, levelIndex, k: k || 0, cls };
+      if (gear) entry.gear = gear;
+      out.push(entry);
     };
     const total = rules.charLevel(char || {});
 
@@ -164,7 +167,8 @@
     gear.forEach((g) => {
       if (!g || !g.equipped) return;
       const addItem = (k) => { if (typeof k === 'string' && has(items, k)) add('item', k, items[k]); };
-      addItem(g.item);
+      if (typeof g.item === 'string' && has(items, g.item) && gearLib.isPersonal(items[g.item])) add('item', g.item, items[g.item], undefined, 0, undefined, g);
+      else addItem(g.item);
       asList(g.slots).forEach((s) => addItem(s && s.item));
       asList(g.fusions).forEach((f) => addItem(f && typeof f === 'object' ? f.item : f));
     });
@@ -174,7 +178,7 @@
   function modifiersOf(entry, data) {
     const effects = (data && data.overrides && data.overrides.effects) || {};
     const own = asList(entry.rec.modifiers);
-    if (entry.kind === 'item') return own;
+    if (entry.kind === 'item') return entry.gear ? gearLib.personalModifiers(entry.rec, entry.gear) : own;
     const key = overrideKeys(entry.key, entry.kind, data).find((k) => has(effects, k));
     const extra = key && Array.isArray(effects[key]) ? effects[key] : [];
     return own.concat(extra);

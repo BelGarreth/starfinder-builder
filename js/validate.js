@@ -78,7 +78,7 @@
     return {
       char,
       data,
-      scores: rules.baseScores(char, data),
+      scores: rules.abilityScores(char, data),
       bab: rules.bab(char, data),
       level: rules.charLevel(char),
       classLevels: rules.classLevels(char),
@@ -290,6 +290,7 @@
       return text.length ? { ok: true, why: 'Not checked: ' + text.join(' ') } : { ok: true };
     }
     if (kind === 'item') return gear.itemAllowed(char, data, slug, slot);
+    if (kind === 'ability') return gear.personalAllowed(char, data, slug, slot);
     if (kind === 'spell') return spellAllowed(slug, levelIndex, char, data, slot);
     if (kind !== 'feat') return { ok: true };
     const here = asList((levelsOf(char)[levelIndex] || {}).feats);
@@ -308,7 +309,7 @@
     const lvl = levelsOf(char)[levelIndex];
     if (!here || !lvl || !rules.spellListOf(here.cls, data)) return null;
     const rec = own(table(data, 'classes'), here.cls);
-    const score = rules.baseScores(char, data, levelIndex + 1)[rec.spellAbility] || 0;
+    const score = rules.abilityScores(char, data, levelIndex + 1)[rec.spellAbility] || 0;
     const slots = rules.spellSlotsFor(char, data, here.cls, here.classLevel, score);
     return { cls: here.cls, key: rules.spellListOf(here.cls, data), classLevel: here.classLevel, ability: rec.spellAbility, score, known: slots.known };
   }

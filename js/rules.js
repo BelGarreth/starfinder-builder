@@ -54,6 +54,16 @@
     return scores;
   }
 
+  const gearLib = () => (typeof module !== 'undefined' ? require('./gear.js') : root.SF);
+
+  function abilityScores(char, data, upToLevels) {
+    const scores = baseScores(char, data, upToLevels);
+    const levels = upToLevels === undefined ? levelsOf(char).length : Math.min(upToLevels, levelsOf(char).length);
+    const bonus = gearLib().upgradeBonuses(char, data, levels);
+    Object.keys(bonus).forEach((a) => { scores[a] += bonus[a]; });
+    return scores;
+  }
+
   function pointBuyErrors(char, data) {
     const errors = [];
     const pb = pbOf(char);
@@ -104,12 +114,12 @@
   }
 
   function sp(char, data) {
-    const conMod = mod(baseScores(char, data).con);
+    const conMod = mod(abilityScores(char, data).con);
     return sumClasses(char, data, (c, n) => (c.sp + conMod) * n);
   }
 
   function rp(char, data) {
-    const scores = baseScores(char, data);
+    const scores = abilityScores(char, data);
     const keyMods = Object.keys(classLevels(char))
       .map((slug) => classRec(data, slug))
       .filter((c) => c && isAbility(c.kas))
@@ -316,7 +326,7 @@
   function spellSlots(char, data) {
     const out = {};
     const levels = classLevels(char);
-    const scores = baseScores(char, data);
+    const scores = abilityScores(char, data);
     Object.keys(levels).forEach((cls) => {
       const rec = classRec(data, cls);
       if (!spellListOf(cls, data) || !isAbility(rec.spellAbility)) return;
@@ -488,7 +498,7 @@
   const api = {
     version: 1,
     ABILITIES, POINT_BUY, increaseAt, INCREASE_COUNT,
-    mod, baseScores, pointBuyErrors, pointBuyMax, rankMax, classLevels, charLevel,
+    mod, baseScores, abilityScores, pointBuyErrors, pointBuyMax, rankMax, classLevels, charLevel,
     bab, baseSave, hp, sp, rp, featSlots, rankBudget,
     spellSlots, connectionSpells, spellListOf, spellSlotsFor, progressionOf, progressionEntries, levelPlan, choiceEntry, poolOf, pickedFor, classFeatures, skillPicks, skillFocusSkills, freeRanks,
     SKILLS, ACP_SKILLS, charAt, classSkillSet, equippedArmor, skillRanksOf, derive
