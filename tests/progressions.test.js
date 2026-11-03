@@ -249,3 +249,23 @@ test('solarian level 1 has stellar mode, and pool messages read naturally', () =
   const c = build('envoy', 1, { 1: { improvisation: 'quick_movement_(ex)' } });
   assert.ok(blockersAt(c, 1).some((b) => b.msg === 'Quick Movement (Ex) is not an option for Envoy improvisation'));
 });
+
+test('specialization free ranks count once: in the sheet and prerequisites, not against the rank budget', () => {
+  const plain = build('operative', 3);
+  const c = build('operative', 3, { 1: { specialization: 'class-daredevil' } });
+  assert.deepStrictEqual(rules.freeRanks(c, data), { acr: 3, ath: 3 });
+  assert.strictEqual(rules.derive(c, data).skills.acr.ranks, 3);
+  assert.strictEqual(rules.derive(plain, data).skills.acr.ranks, 0);
+  [0, 1, 2].forEach((i) => assert.strictEqual(rules.rankBudget(i, c, data), rules.rankBudget(i, plain, data)));
+  assert.ok(!validate(c, data).some((b) => b.code === 'rank-cap'));
+  c.levels[1].skills = { acr: 1 };
+  assert.ok(validate(c, data).some((b) => b.code === 'rank-cap' && b.level === 2 && b.ref === 'acr'));
+  assert.strictEqual(rules.derive(c, data).skills.acr.ranks, 3);
+  const disciple = build('operative', 2, { 1: { specialization: 'disciple' } });
+  assert.deepStrictEqual(rules.freeRanks(disciple, data), { mys: 2, per: 2 });
+  const feat = Object.keys(data.feats).find((k) => { const a = data.feats[k].prereq.all; return a.length === 1 && a[0].k === 'ranks' && a[0].skill === 'acr' && a[0].min <= 3; });
+  if (feat) {
+    assert.strictEqual(allowed('feat', feat, 2, c, data).ok, true);
+    assert.strictEqual(allowed('feat', feat, 2, plain, data).ok, false);
+  }
+});

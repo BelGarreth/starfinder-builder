@@ -2985,5 +2985,9 @@
     "notes": ""
    }
   ]
+ },
+ "explorer": {
+  "_why": "The +4 Culture and Survival bonus is the 11th-level specialization power and the +4 Survival is only for trick attacks; the free skill ranks are computed from skillFocus by the engine.",
+  "effects": "none"
  }
 }

@@ -52,6 +52,14 @@
     return set;
   }
 
+  function ranksWithFree(char, data) {
+    const ranks = rules.skillRanksOf(char);
+    const free = rules.freeRanks(char, data);
+    const cap = rules.charLevel(char);
+    Object.keys(free).forEach((k) => { ranks[k] = Math.min(cap, (ranks[k] || 0) + free[k]); });
+    return ranks;
+  }
+
   function hasProficiency(group, char, data, feats) {
     const p = PROFICIENCY[group];
     if (!p) return true;
@@ -71,7 +79,7 @@
       level: rules.charLevel(char),
       classLevels: rules.classLevels(char),
       feats: featsOf(char),
-      ranks: rules.skillRanksOf(char),
+      ranks: ranksWithFree(char, data),
       features: featureSet(char, data)
     };
   }
@@ -368,12 +376,17 @@
       const picked = lv.skills || {};
       let spent = 0;
       const through = rules.skillRanksOf(rules.charAt(char, n));
+      const free = rules.freeRanks(rules.charAt(char, n), data);
       Object.keys(picked).forEach((k) => {
         const r = Number(picked[k]);
         if (!has(rules.SKILLS, k)) { push(n, 'skills', 'missing', "Skill '" + k + "' does not exist", k); return; }
         if (!Number.isInteger(r) || r < 0) { push(n, 'skills', 'invalid', 'Ranks in ' + rules.SKILLS[k].name + ' must be a whole number of 0 or more', k); return; }
         spent += r;
-        if (through[k] > n) push(n, 'skills', 'rank-cap', rules.SKILLS[k].name + ' has ' + through[k] + ' ranks at level ' + n, k);
+        const held = through[k] + (free[k] || 0);
+        if (held > n) {
+          const extra = free[k] ? ' (' + free[k] + ' free from your specialization)' : '';
+          push(n, 'skills', 'rank-cap', rules.SKILLS[k].name + ' has ' + held + ' ranks' + extra + ' at level ' + n, k);
+        }
       });
       const budget = rules.rankBudget(i, char, data);
       if (spent > budget) push(n, 'skills', 'overspent', 'Level ' + n + ' spends ' + spent + ' of ' + budget + ' skill ranks');

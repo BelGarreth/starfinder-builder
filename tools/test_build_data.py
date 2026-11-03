@@ -454,5 +454,22 @@ class PrereqIntegrationTest(unittest.TestCase):
             build_data.build_progressions(source, features, self.d['feats'])
 
 
+    def test_requirement_sentences_are_always_parsed(self):
+        f = self.d['features']
+        self.assertEqual(f['quick_shoo!_(ex)']['needs'], ['shoo!_(ex)'])
+        self.assertTrue(f['energy_reflection_(ex)'].get('needs') or f['energy_reflection_(ex)'].get('needsText'))
+        self.assertFalse([k for k, v in f.items() if any(key.startswith('_') for key in v)])
+        fake = {'x': {'_needDetected': True}, 'y': {'_needDetected': True, '_needLevel': True}}
+        with self.assertRaisesRegex(ValueError, 'not parsed for pool options: x'):
+            build_data.check_needs_parsed({'c': {'levels': {'1': [{'choice': 'a', 'pool': ['x', 'y']}]}}}, fake)
+
+    def test_specializations_use_their_associated_skills_for_free_ranks(self):
+        for slug, rec in self.d['features'].items():
+            if rec.get('category') == 'specialization':
+                self.assertTrue(rec['freeRanks'], slug)
+                self.assertFalse([m for m in rec['modifiers'] if m['effectType'] == 'skill-ranks'], slug)
+        self.assertEqual(self.d['features']['disciple']['skillFocus'], ['mys', 'per'])
+
+
 if __name__ == '__main__':
     unittest.main()

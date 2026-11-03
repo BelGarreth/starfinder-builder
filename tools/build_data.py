@@ -203,7 +203,8 @@ STRONG_LINK = re.compile(r'<strong>\s*@UUID\[Compendium\.sfrpg\.class-features\.
 SPEC_EXPLOIT = re.compile(r'Specialization Exploit(?:\s|:|</?strong>)*@UUID\[Compendium\.sfrpg\.class-features\.Item\.(\w+)\]')
 ASSOCIATED = re.compile(r'Associated Skills?(?:\s|:|</?strong>)*(.*?)(?:\.(?=\s|<)|</p>)', re.S)
 NEED_LINK = re.compile(r'@UUID\[Compendium\.sfrpg\.([\w-]+)\.(?:Item\.)?(?:JournalEntry\.)?(?:[\w]+\.JournalEntryPage\.)?([\w#-]+)\]\{([^}]*)\}')
-NEED_SENTENCE = re.compile(r'\b(?:you|your exocortex) must (?:have|be|know)\b(.*?)\bto (?:choose|learn|select|take)(?: or use)? (?:this|it)\b', re.I)
+NEED_SENTENCE = re.compile(r'\bmust (?:have|be|know)\b((?:(?!\.\s).)*?)\bto (?:choose|learn|select|take)(?: or use)? (?:this|it)\b', re.I)
+NEED_DETECT = re.compile(r'\bmust (?:have|be|know)\b[^.]*?\bto (?:choose|learn|select|take)\b', re.I)
 NEED_LEVEL = re.compile(r'(?:at least )?(\d+)(?:st|nd|rd|th) level', re.I)
 NEED_CLASS_SKILL = re.compile(r'^(.+?) as a class skill$', re.I)
 NEED_NOISE = re.compile(
@@ -272,6 +273,8 @@ def class_feature_record(item, cls, lineage):
         rec['repeatable'] = True
     if rec['category'] == 'specialization':
         rec['skillFocus'] = associated_skills(markup)
+        rec['freeRanks'] = True
+        rec['modifiers'] = [m for m in rec['modifiers'] if m['effectType'] != 'skill-ranks']
     stellar = STELLAR_TYPE.search(markup)
     if stellar and rec['category'] in ('revelation', 'zenithRevelation'):
         rec['stellarType'] = stellar.group(1) or stellar.group(2)
@@ -323,6 +326,27 @@ def build_class_features(class_features, features, classes=None):
     return out
 
 
+def pool_options(progressions):
+    out = set()
+    for prog in progressions.values():
+        for block in [prog['levels']] + ([prog['enhanced']['levels']] if 'enhanced' in prog else []):
+            for entries in block.values():
+                for e in entries:
+                    if 'choice' in e and isinstance(e['pool'], list):
+                        out.update(e['pool'])
+    return out
+
+
+def check_needs_parsed(progressions, features):
+    missed = sorted(k for k in pool_options(progressions) if features[k].get('_needDetected')
+                    and not any(features[k].get(f) for f in ('needs', 'needsText', 'needsClassSkill', '_needLevel')))
+    for rec in features.values():
+        rec.pop('_needDetected', None)
+        rec.pop('_needLevel', None)
+    if missed:
+        raise ValueError(f'requirement text not parsed for pool options: {", ".join(missed)}')
+
+
 def prune_needs(features):
     for rec in features.values():
         if 'needs' not in rec:
@@ -369,14 +393,20 @@ def attach_needs(rec, markup, ids, index):
     marked = NEED_LINK.sub(lambda m: f'\x00{m.group(2)}\x00\x01{m.group(3)}\x01', markup)
     text = re.sub(r'\s+', ' ', html.unescape(TAG.sub(' ', marked)))
     needs, texts = [], []
-    for sentence in re.split(r'(?<=[.!?])\s+', text):
-        match = NEED_SENTENCE.search(sentence)
-        if not match or re.search(r'\brank', match.group(1)):
+    plain_text = re.sub(r'\x00[\w#-]+\x00\x01([^\x01]*)\x01', r'\1', text)
+    if any(not re.search(r'\brank', m.group(0)) for m in NEED_DETECT.finditer(plain_text.replace('!', ''))):
+        rec['_needDetected'] = True
+    for match in NEED_SENTENCE.finditer(text):
+        if re.search(r'\brank', match.group(1)):
             continue
+        start = max(text.rfind('. ', 0, match.start()) + 2, 0) if text.rfind('. ', 0, match.start()) != -1 else 0
+        end = text.find('.', match.end())
+        sentence = text[start:end + 1 if end != -1 else len(text)]
         shown = re.sub(r'\x00[\w#-]+\x00\x01([^\x01]*)\x01', r'\1', sentence).strip()
         phrase = re.sub(r'\([^()\x00]*\)', ' ', match.group(1)).strip()
         level = NEED_LEVEL.search(phrase)
         if level:
+            rec['_needLevel'] = True
             rec['minLevel'] = max(rec['minLevel'] or 0, int(level.group(1)))
             phrase = NEED_LEVEL.sub('', phrase).strip()
             phrase = re.sub(r'^(?:and\s+)?(?:have\s+)?', '', phrase).strip()
@@ -757,6 +787,7 @@ def build(src, sha=None, built=None, core_path=ROOT / 'tools' / 'race_traits.jso
     effect_overrides = load_json(effects_path)
     apply_replacements(feats, emitted, effect_overrides)
     progressions = build_progressions(load_json(progressions_path), emitted, feats)
+    check_needs_parsed(progressions, emitted)
     return {
         'meta': {'foundrySha': sha, 'built': built},
         'races': races,

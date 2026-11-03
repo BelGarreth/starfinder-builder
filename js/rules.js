@@ -220,6 +220,20 @@
     return out;
   }
 
+  function freeRanks(char, data) {
+    const features = (data && data.features) || {};
+    const levels = classLevels(char);
+    const out = {};
+    const seen = {};
+    classFeatures(char, data).forEach((f) => {
+      const rec = features[f.slug];
+      if (!rec.freeRanks || seen[f.slug]) return;
+      seen[f.slug] = true;
+      listOf(rec.skillFocus).forEach((k) => { out[k] = (out[k] || 0) + (levels[f.cls] || 0); });
+    });
+    return out;
+  }
+
   function featSlots(char, data) {
     const slots = [];
     const total = charLevel(char);
@@ -356,10 +370,11 @@
     const theme = themeRec(c, data);
     const themeSkill = theme && SKILLS[theme.skill] ? theme.skill : null;
     const focused = skillFocusSkills(c, data);
+    const free = freeRanks(c, data);
     const skills = {};
     Object.keys(SKILLS).forEach((k) => {
       const def = SKILLS[k];
-      const n = Math.min(charLevel(c), (ranks[k] || 0) + total(['ranks.' + k]));
+      const n = Math.min(charLevel(c), (ranks[k] || 0) + (free[k] || 0) + total(['ranks.' + k]));
       const ability = k === 'pro' && def.variable.indexOf(c.proAbility) !== -1 ? c.proAbility : def.ability;
       const classSkill = !!classSkills[k] || k === themeSkill;
       const themeExtra = (k === themeSkill && classSkills[k] ? [{ type: 'untyped', value: 1 }] : [])
@@ -401,7 +416,7 @@
     ABILITIES, POINT_BUY, increaseAt,
     mod, baseScores, pointBuyErrors, classLevels, charLevel,
     bab, baseSave, hp, sp, rp, featSlots, rankBudget,
-    progressionOf, entriesAt, levelPlan, choiceEntry, poolOf, pickedFor, classFeatures, skillPicks, skillFocusSkills,
+    progressionOf, entriesAt, levelPlan, choiceEntry, poolOf, pickedFor, classFeatures, skillPicks, skillFocusSkills, freeRanks,
     SKILLS, ACP_SKILLS, charAt, classSkillSet, equippedArmor, skillRanksOf, bulkState, derive
   };
   if (typeof module !== 'undefined') module.exports = api; else root.SF = Object.assign(root.SF || {}, api);
