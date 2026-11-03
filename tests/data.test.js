@@ -8,7 +8,7 @@ test('data.js exposes the SFDATA shape', () => {
     assert.ok(key in data, key);
   }
   assert.match(data.meta.foundrySha, /^[0-9a-f]{40}$/);
-  assert.deepStrictEqual(data.overrides, { effects: {} });
+  assert.deepStrictEqual(Object.keys(data.overrides), ['effects']);
 });
 
 test('known records are present', () => {

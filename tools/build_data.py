@@ -3,9 +3,12 @@ import html
 import json
 import re
 import subprocess
+import sys
 from datetime import date
 from pathlib import Path
 from urllib.parse import quote
+
+import prereq
 
 ROOT = Path(__file__).resolve().parent.parent
 REPO_URL = 'https://github.com/foundryvtt-starfinder/foundryvtt-starfinder.git'
@@ -35,6 +38,7 @@ RACIAL_LINK = re.compile(r'@UUID\[Compendium\.sfrpg\.racial-features\.Item\.(\w+
 THEME_LINK = re.compile(r'@UUID\[Compendium\.sfrpg\.theme-features\.Item\.(\w+)\]')
 LEVEL_REQ = re.compile(r'^(\d+)(?:st|nd|rd|th) Level')
 PREREQ = re.compile(r'Prerequisites?\s*(?:</\w+>)*\s*:?\s*(?:</\w+>)*\s*(.*?)(?:</p>|<br|<strong>|<hr)', re.S)
+TYPE_PAREN = re.compile(r'\s*\((?:combat|teamwork|combat teamwork)\)', re.I)
 BENEFIT = re.compile(r'Benefits?\s*(?:</\w+>)*\s*:?\s*(?:</\w+>)*\s*')
 
 
@@ -270,15 +274,20 @@ def prereq_text(item):
     return plain(text)
 
 
-def build_feats(items):
+def build_feats(items, features=None, prereq_overrides=None):
+    feat_slugs = {TYPE_PAREN.sub('', i['name']).strip().casefold(): s for s, i in items.items()}
+    feature_slugs = {f['name'].casefold(): k for k, f in (features or {}).items()}
+    overrides = prereq_overrides or {}
     feats = {}
     for slug, item in items.items():
         s = item['system']
         markup = description(item)
         benefit = BENEFIT.search(markup)
+        text = prereq_text(item)
+        parsed = overrides[slug]['prereq'] if slug in overrides else prereq.parse_prereq(text, feat_slugs, prereq.SKILL_KEYS, feature_slugs)
         feats[slug] = {
-            'name': item['name'], 'combat': bool(s.get('details', {}).get('combat')), 'prereqText': prereq_text(item),
-            'prereq': None, 'modifiers': modifiers(s), 'aon': aon('Feats', item['name']), 'src': s.get('source', ''),
+            'name': item['name'], 'combat': bool(s.get('details', {}).get('combat')), 'prereqText': text,
+            'prereq': parsed, 'modifiers': modifiers(s), 'aon': aon('Feats', item['name']), 'src': s.get('source', ''),
             'summary': summarize(markup[benefit.end():] if benefit else markup),
         }
     return feats
@@ -357,7 +366,16 @@ def build_items(items):
     return out
 
 
-def build(src, sha=None, built=None, core_path=ROOT / 'tools' / 'race_traits.json'):
+def load_json(path):
+    return json.loads(Path(path).read_text(encoding='utf-8'))
+
+
+def effect_values(overrides):
+    return {slug: entry['effects'] for slug, entry in overrides.items() if not slug.startswith('_')}
+
+
+def build(src, sha=None, built=None, core_path=ROOT / 'tools' / 'race_traits.json',
+          prereq_path=ROOT / 'tools' / 'prereq_overrides.json', effects_path=ROOT / 'tools' / 'effect_overrides.json'):
     src = Path(src)
     racial = load_dir(src / 'racial-features')
     theme = load_dir(src / 'theme-features')
@@ -370,12 +388,12 @@ def build(src, sha=None, built=None, core_path=ROOT / 'tools' / 'race_traits.jso
         'races': races,
         'themes': themes,
         'classes': build_classes(load_dir(src / 'classes')),
-        'feats': build_feats(load_dir(src / 'feats')),
+        'feats': build_feats(load_dir(src / 'feats'), features, load_json(prereq_path)),
         'features': {k: v for k, v in features.items() if k in used},
         'spells': build_spells(load_dir(src / 'spells')),
         'items': build_items(load_dir(src / 'equipment')),
         'progressions': {},
-        'overrides': {'effects': {}},
+        'overrides': {'effects': effect_values(load_json(effects_path))},
     }
 
 
@@ -396,7 +414,14 @@ def main():
     parser.add_argument('--out', default=str(ROOT / 'data.js'))
     args = parser.parse_args()
     src = fetch_foundry(args.sha, ROOT / '.cache' / 'foundry')
-    write_data_js(build(src, sha=args.sha, built=date.today().isoformat()), Path(args.out))
+    data = build(src, sha=args.sha, built=date.today().isoformat())
+    failed = prereq.check_coverage(data)
+    if failed:
+        print(f'coverage gate failed for {len(failed)} entries:', file=sys.stderr)
+        for slug in failed:
+            print(f'  {slug}', file=sys.stderr)
+        sys.exit(1)
+    write_data_js(data, Path(args.out))
 
 
 if __name__ == '__main__':

@@ -1,0 +1,411 @@
+{
+ "back_to_back_(combat_teamwork)": {
+  "_why": "Conditional: +1 circumstance KAC only against foes that flank you, and not if either has CR >= your level.",
+  "effects": [
+   {
+    "name": "Back to Back",
+    "type": "circumstance",
+    "effectType": "ac",
+    "valueAffected": "kac",
+    "modifier": "1",
+    "modifierType": "formula",
+    "condition": "Against attacks from foes that flank you (no bonus if either foe has CR equal to or higher than your level)",
+    "notes": ""
+   }
+  ]
+ },
+ "chitinous_wall": {
+  "_why": "Bonuses are granted to allies when using bulwark; nothing changes on the owner sheet.",
+  "effects": "none"
+ },
+ "disease_adaptation": {
+  "_why": "Conditional: +2 enhancement to saves only against Disease.",
+  "effects": [
+   {
+    "name": "Disease Adaptation",
+    "type": "enhancement",
+    "effectType": "saves",
+    "valueAffected": "",
+    "modifier": "2",
+    "modifierType": "formula",
+    "condition": "Against Disease",
+    "notes": ""
+   }
+  ]
+ },
+ "laugh_at_danger_(combat)": {
+  "_why": "Reaction that grants allies a morale bonus to AC; no effect on own sheet.",
+  "effects": "none"
+ },
+ "mounted_expert": {
+  "_why": "The +2 KAC applies to the mount, not the character.",
+  "effects": "none"
+ },
+ "muscular_retort_(combat)": {
+  "_why": "Conditional: +2 KAC against combat maneuvers of the one chosen type (bull rush, grapple or trip).",
+  "effects": [
+   {
+    "name": "Muscular Retort",
+    "type": "untyped",
+    "effectType": "ac",
+    "valueAffected": "kac",
+    "modifier": "2",
+    "modifierType": "formula",
+    "condition": "Against combat maneuvers of the chosen type (bull rush, grapple or trip)",
+    "notes": ""
+   }
+  ]
+ },
+ "poison_adaptation": {
+  "_why": "Conditional: +2 enhancement to saves only against Poison.",
+  "effects": [
+   {
+    "name": "Poison Adaptation",
+    "type": "enhancement",
+    "effectType": "saves",
+    "valueAffected": "",
+    "modifier": "2",
+    "modifierType": "formula",
+    "condition": "Against Poison",
+    "notes": ""
+   }
+  ]
+ },
+ "protective_fur": {
+  "_why": "Conditional circumstance bonuses to Fortitude saves, two different scopes.",
+  "effects": [
+   {
+    "name": "Protective Fur (cold and heat)",
+    "type": "circumstance",
+    "effectType": "save",
+    "valueAffected": "fort",
+    "modifier": "2",
+    "modifierType": "formula",
+    "condition": "Against cold and heat dangers",
+    "notes": ""
+   },
+   {
+    "name": "Protective Fur (contact disease and poison)",
+    "type": "circumstance",
+    "effectType": "save",
+    "valueAffected": "fort",
+    "modifier": "4",
+    "modifierType": "formula",
+    "condition": "Made to avoid contracting contact Diseases and Poisons",
+    "notes": ""
+   }
+  ]
+ },
+ "psychic_insight": {
+  "_why": "Conditional: +2 insight to four skills only against creatures you are communicating with via telepathy.",
+  "effects": [
+   {
+    "name": "Psychic Insight",
+    "type": "insight",
+    "effectType": "skill",
+    "valueAffected": "blu",
+    "modifier": "2",
+    "modifierType": "formula",
+    "condition": "Against creatures you are successfully communicating with using limited telepathy or telepathy",
+    "notes": ""
+   },
+   {
+    "name": "Psychic Insight",
+    "type": "insight",
+    "effectType": "skill",
+    "valueAffected": "dip",
+    "modifier": "2",
+    "modifierType": "formula",
+    "condition": "Against creatures you are successfully communicating with using limited telepathy or telepathy",
+    "notes": ""
+   },
+   {
+    "name": "Psychic Insight",
+    "type": "insight",
+    "effectType": "skill",
+    "valueAffected": "int",
+    "modifier": "2",
+    "modifierType": "formula",
+    "condition": "Against creatures you are successfully communicating with using limited telepathy or telepathy",
+    "notes": ""
+   },
+   {
+    "name": "Psychic Insight",
+    "type": "insight",
+    "effectType": "skill",
+    "valueAffected": "sen",
+    "modifier": "2",
+    "modifierType": "formula",
+    "condition": "Against creatures you are successfully communicating with using limited telepathy or telepathy",
+    "notes": ""
+   }
+  ]
+ },
+ "rallying_roar": {
+  "_why": "Bonus goes to affected allies (and a penalty to enemies); no effect on own sheet.",
+  "effects": "none"
+ },
+ "reject_chains": {
+  "_why": "Conditional: +2 insight to saves only against charm and compulsion effects.",
+  "effects": [
+   {
+    "name": "Reject Chains",
+    "type": "insight",
+    "effectType": "saves",
+    "valueAffected": "",
+    "modifier": "2",
+    "modifierType": "formula",
+    "condition": "Against charm and compulsion effects",
+    "notes": ""
+   }
+  ]
+ },
+ "shifter's_eye": {
+  "_why": "The +10 mentioned is the disguised target's bonus, which this feat reduces; there is no bonus to the character.",
+  "effects": "none"
+ },
+ "soothing_telepathy": {
+  "_why": "Conditional: +2 insight to saves only against mind-affecting effects (the ally-granting reaction is not modelled).",
+  "effects": [
+   {
+    "name": "Soothing Telepathy",
+    "type": "insight",
+    "effectType": "saves",
+    "valueAffected": "",
+    "modifier": "2",
+    "modifierType": "formula",
+    "condition": "Against mind-affecting effects",
+    "notes": ""
+   }
+  ]
+ },
+ "spellbane": {
+  "_why": "Conditional: +2 insight to saves only against spells and spell-like abilities.",
+  "effects": [
+   {
+    "name": "Spellbane",
+    "type": "insight",
+    "effectType": "saves",
+    "valueAffected": "",
+    "modifier": "2",
+    "modifierType": "formula",
+    "condition": "Against spells and spell-like abilities",
+    "notes": ""
+   }
+  ]
+ },
+ "startled_scream": {
+  "_why": "Bonus goes to allies; no effect on own sheet.",
+  "effects": "none"
+ },
+ "steady_footing": {
+  "_why": "Conditional: KAC and saves bonuses apply only to specific effects.",
+  "effects": [
+   {
+    "name": "Steady Footing (KAC)",
+    "type": "untyped",
+    "effectType": "ac",
+    "valueAffected": "kac",
+    "modifier": "2",
+    "modifierType": "formula",
+    "condition": "Against the bull rush, reposition and trip combat maneuvers",
+    "notes": ""
+   },
+   {
+    "name": "Steady Footing (saves)",
+    "type": "untyped",
+    "effectType": "saves",
+    "valueAffected": "",
+    "modifier": "2",
+    "modifierType": "formula",
+    "condition": "Against effects that would knock you prone",
+    "notes": ""
+   }
+  ]
+ },
+ "timely_coordination_(teamwork)": {
+  "_why": "Conditional: bonuses only apply to readied actions triggered by allies (attack bonus only with teamwork partners).",
+  "effects": [
+   {
+    "name": "Timely Coordination (skills)",
+    "type": "circumstance",
+    "effectType": "skill",
+    "valueAffected": "",
+    "modifier": "1",
+    "modifierType": "formula",
+    "condition": "On skill checks made as part of readied actions triggered by your allies",
+    "notes": ""
+   },
+   {
+    "name": "Timely Coordination (attacks)",
+    "type": "circumstance",
+    "effectType": "all-attacks",
+    "valueAffected": "",
+    "modifier": "1",
+    "modifierType": "formula",
+    "condition": "Teamwork: on attack rolls made as part of readied actions triggered by allies who also have this feat",
+    "notes": ""
+   }
+  ]
+ },
+ "armor_savant_(vesk)": {
+  "_why": "Conditional: +1 species bonus to AC only while wearing armor (ACP reduction in heavy armor is not modelled).",
+  "effects": [
+   {
+    "name": "Armor Savant",
+    "type": "racial",
+    "effectType": "ac",
+    "valueAffected": "both",
+    "modifier": "1",
+    "modifierType": "formula",
+    "condition": "While wearing armor",
+    "notes": ""
+   }
+  ]
+ },
+ "elven_blood": {
+  "_why": "Conditional: +2 species bonus to saves only against enchantment spells and effects (sleep immunity is text-only).",
+  "effects": [
+   {
+    "name": "Elven Blood",
+    "type": "racial",
+    "effectType": "saves",
+    "valueAffected": "",
+    "modifier": "2",
+    "modifierType": "formula",
+    "condition": "Against enchantment spells and effects",
+    "notes": ""
+   }
+  ]
+ },
+ "elven_immunities": {
+  "_why": "Conditional: +2 species bonus to saves only against enchantment spells and effects (sleep immunity is text-only).",
+  "effects": [
+   {
+    "name": "Elven Immunities",
+    "type": "racial",
+    "effectType": "saves",
+    "valueAffected": "",
+    "modifier": "2",
+    "modifierType": "formula",
+    "condition": "Against enchantment spells and effects",
+    "notes": ""
+   }
+  ]
+ },
+ "eternal_hope": {
+  "_why": "Conditional: +2 species bonus to saves only against fear effects.",
+  "effects": [
+   {
+    "name": "Eternal Hope",
+    "type": "racial",
+    "effectType": "saves",
+    "valueAffected": "",
+    "modifier": "2",
+    "modifierType": "formula",
+    "condition": "Against fear effects",
+    "notes": ""
+   }
+  ]
+ },
+ "fearless": {
+  "_why": "Conditional: +2 species bonus to saves only against fear effects.",
+  "effects": [
+   {
+    "name": "Fearless",
+    "type": "racial",
+    "effectType": "saves",
+    "valueAffected": "",
+    "modifier": "2",
+    "modifierType": "formula",
+    "condition": "Against fear effects",
+    "notes": ""
+   }
+  ]
+ },
+ "stonecunning": {
+  "_why": "Conditional: +2 to Perception only to notice unusual stonework.",
+  "effects": [
+   {
+    "name": "Stonecunning",
+    "type": "untyped",
+    "effectType": "skill",
+    "valueAffected": "per",
+    "modifier": "2",
+    "modifierType": "formula",
+    "condition": "To notice unusual stonework such as traps and hidden doors in stone walls or floors",
+    "notes": ""
+   }
+  ]
+ },
+ "traditional_enemies": {
+  "_why": "Conditional: attack and AC bonuses apply only against specific creature subtypes.",
+  "effects": [
+   {
+    "name": "Traditional Enemies (attack)",
+    "type": "racial",
+    "effectType": "all-attacks",
+    "valueAffected": "",
+    "modifier": "1",
+    "modifierType": "formula",
+    "condition": "Against a creature with the goblinoid or Orc subtype",
+    "notes": ""
+   },
+   {
+    "name": "Traditional Enemies (AC)",
+    "type": "racial",
+    "effectType": "ac",
+    "valueAffected": "both",
+    "modifier": "4",
+    "modifierType": "formula",
+    "condition": "Against an attack from a creature with the giant subtype",
+    "notes": ""
+   }
+  ]
+ },
+ "dread_vitality": {
+  "_why": "Conditional: +1 to saves only against listed effects.",
+  "effects": [
+   {
+    "name": "Dread Vitality",
+    "type": "untyped",
+    "effectType": "saves",
+    "valueAffected": "",
+    "modifier": "1",
+    "modifierType": "formula",
+    "condition": "Against disease, exhaustion, fatigue, mind-affecting effects, paralysis, poison, sleep effects and stunning",
+    "notes": ""
+   }
+  ]
+ },
+ "mental_gravity": {
+  "_why": "Conditional: +1 to Will saves only against compulsion effects.",
+  "effects": [
+   {
+    "name": "Mental Gravity",
+    "type": "untyped",
+    "effectType": "save",
+    "valueAffected": "will",
+    "modifier": "1",
+    "modifierType": "formula",
+    "condition": "Against compulsion effects",
+    "notes": ""
+   }
+  ]
+ },
+ "size_advantage": {
+  "_why": "Conditional: +2 to Intimidate only against creatures at least one size smaller.",
+  "effects": [
+   {
+    "name": "Size Advantage",
+    "type": "untyped",
+    "effectType": "skill",
+    "valueAffected": "int",
+    "modifier": "2",
+    "modifierType": "formula",
+    "condition": "Against creatures at least one size category smaller than you",
+    "notes": ""
+   }
+  ]
+ }
+}

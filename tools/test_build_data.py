@@ -22,7 +22,7 @@ class BuildDataTest(unittest.TestCase):
             set(self.d),
             {'meta', 'races', 'themes', 'classes', 'feats', 'features', 'spells', 'items', 'progressions', 'overrides'},
         )
-        self.assertEqual(self.d['overrides'], {'effects': {}})
+        self.assertEqual(set(self.d['overrides']), {'effects'})
         self.assertEqual(self.d['progressions'], {})
 
     def test_races(self):
@@ -120,7 +120,7 @@ class BuildDataTest(unittest.TestCase):
         self.assertEqual(sp[0]['effectType'], 'stamina-points')
         self.assertTrue(all(m for f in feats.values() for m in f['modifiers']))
         self.assertEqual(len(feats), 431)
-        self.assertIsNone(feats['toughness']['prereq'])
+        self.assertEqual(feats['toughness']['prereq'], {'all': []})
         self.assertGreater(sum(1 for f in feats.values() if f['prereqText']), 300)
         self.assertEqual(feats['great_fortitude']['prereqText'], '')
 
@@ -217,6 +217,66 @@ class SummarizeTest(unittest.TestCase):
 
     def test_no_angle_bracket_survives(self):
         self.assertNotIn('<', build_data.summarize('<p>Less than &lt;5 ft.</p>'))
+
+
+class PrereqIntegrationTest(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        cls.d = build_data.build(build_data.fetch_foundry(SHA, ROOT / 'tools' / '..' / '.cache' / 'foundry'))
+
+    def checks(self, node):
+        for check in node.get('all', []) + node.get('of', []):
+            yield check
+            if check['k'] == 'any':
+                yield from self.checks(check)
+
+    def test_coverage_gate_is_empty(self):
+        import prereq
+        self.assertEqual(prereq.check_coverage(self.d), [])
+
+    def test_every_feat_has_a_prereq(self):
+        for slug, feat in self.d['feats'].items():
+            self.assertIsNotNone(feat['prereq'], slug)
+
+    def test_prereq_references_resolve(self):
+        for slug, feat in self.d['feats'].items():
+            for check in self.checks(feat['prereq']):
+                if check['k'] == 'feat':
+                    self.assertIn(check['feat'], self.d['feats'], slug)
+                if check['k'] == 'classLevel':
+                    self.assertIn(check['cls'], build_data.CLASSES, slug)
+
+    def test_uuid_in_prereq_resolved_before_parsing(self):
+        rending = self.d['feats']['rending_slash']
+        self.assertNotIn('@UUID', rending['prereqText'])
+        self.assertEqual([c['k'] for c in rending['prereq']['all']], ['ability', 'ability', 'text'])
+
+    def test_parsed_examples(self):
+        feats = self.d['feats']
+        self.assertEqual(feats['creature_companion_expert']['prereq']['all'][0], {'k': 'feat', 'feat': 'creature_companion_adept'})
+        self.assertEqual(feats['cleave_(combat)']['prereq']['all'][0], {'k': 'ability', 'a': 'str', 'min': 13})
+
+    def test_effect_overrides_land_in_data_without_notes(self):
+        effects = self.d['overrides']['effects']
+        self.assertEqual(effects['chitinous_wall'], 'none')
+        for slug, value in effects.items():
+            if value != 'none':
+                self.assertTrue(all(m['modifierType'] in ('formula', 'constant') for m in value), slug)
+
+    def test_every_override_has_why_and_known_target(self):
+        import json
+        names = set(self.d['feats']) | set(self.d['features'])
+        for file in ('prereq_overrides.json', 'effect_overrides.json'):
+            for slug, entry in json.loads((ROOT / 'tools' / file).read_text()).items():
+                self.assertTrue(entry['_why'], slug)
+                self.assertIn(slug.removeprefix('feature:'), names)
+
+    def test_conditional_bonuses_are_never_constant(self):
+        for slug, value in self.d['overrides']['effects'].items():
+            if value != 'none':
+                for m in value:
+                    self.assertEqual(m['modifierType'], 'formula', slug)
+                    self.assertTrue(m['condition'], slug)
 
 
 if __name__ == '__main__':

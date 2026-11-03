@@ -1,0 +1,1949 @@
+{
+ "adaptive_casting": {
+  "_why": "Prerequisite not machine-checkable (GM-judgment, class/species feature or choice-specific); unmodelled clauses kept as text: Key ability score 19; caster level 7",
+  "prereq": {
+   "all": [
+    {
+     "k": "text",
+     "text": "Key ability score 19"
+    },
+    {
+     "k": "text",
+     "text": "caster level 7"
+    }
+   ]
+  }
+ },
+ "adaptive_fighting_(combat)": {
+  "_why": "Prerequisite not machine-checkable (GM-judgment, class/species feature or choice-specific); unmodelled clauses kept as text: Three or more combat feats",
+  "prereq": {
+   "all": [
+    {
+     "k": "text",
+     "text": "Three or more combat feats"
+    }
+   ]
+  }
+ },
+ "aerial_evasion_(combat)": {
+  "_why": "Prerequisite not machine-checkable (GM-judgment, class/species feature or choice-specific); unmodelled clauses kept as text: Fly speed with average maneuverability or better",
+  "prereq": {
+   "all": [
+    {
+     "k": "text",
+     "text": "Fly speed with average maneuverability or better"
+    }
+   ]
+  }
+ },
+ "agile_casting": {
+  "_why": "Prerequisite not machine-checkable (GM-judgment, class/species feature or choice-specific); unmodelled clauses kept as text: Key ability score 15; caster level 4th",
+  "prereq": {
+   "all": [
+    {
+     "k": "text",
+     "text": "Key ability score 15"
+    },
+    {
+     "k": "ability",
+     "a": "dex",
+     "min": 15
+    },
+    {
+     "k": "feat",
+     "feat": "mobility_(combat)"
+    },
+    {
+     "k": "text",
+     "text": "caster level 4th"
+    }
+   ]
+  }
+ },
+ "agile_swimmer": {
+  "_why": "Prerequisite not machine-checkable (GM-judgment, class/species feature or choice-specific); unmodelled clauses kept as text: Racial swim speed",
+  "prereq": {
+   "all": [
+    {
+     "k": "text",
+     "text": "Racial swim speed"
+    }
+   ]
+  }
+ },
+ "all_hands_on_deck": {
+  "_why": "Prerequisite not machine-checkable (GM-judgment, class/species feature or choice-specific); unmodelled clauses kept as text: Four or more arms",
+  "prereq": {
+   "all": [
+    {
+     "k": "text",
+     "text": "Four or more arms"
+    }
+   ]
+  }
+ },
+ "arm_extensions": {
+  "_why": "Prerequisite not machine-checkable (GM-judgment, class/species feature or choice-specific); unmodelled clauses kept as text: Constructed species trait or construct type",
+  "prereq": {
+   "all": [
+    {
+     "k": "text",
+     "text": "Constructed species trait or construct type"
+    }
+   ]
+  }
+ },
+ "bear_down": {
+  "_why": "Prerequisite not machine-checkable (GM-judgment, class/species feature or choice-specific); unmodelled clauses kept as text: Spellcaster",
+  "prereq": {
+   "all": [
+    {
+     "k": "text",
+     "text": "Spellcaster"
+    }
+   ]
+  }
+ },
+ "bear_hug": {
+  "_why": "Prerequisite not machine-checkable (GM-judgment, class/species feature or choice-specific); unmodelled clauses kept as text: Improved Combat Maneuver (grapple)",
+  "prereq": {
+   "all": [
+    {
+     "k": "feat",
+     "feat": "improved_combat_maneuver_(combat)"
+    },
+    {
+     "k": "text",
+     "text": "Improved Combat Maneuver specialised in grapple"
+    }
+   ]
+  }
+ },
+ "blood_of_the_spider": {
+  "_why": "Prerequisite not machine-checkable (GM-judgment, class/species feature or choice-specific); unmodelled clauses kept as text: species trait that grants a spell-like ability",
+  "prereq": {
+   "all": [
+    {
+     "k": "text",
+     "text": "species trait that grants a spell-like ability"
+    }
+   ]
+  }
+ },
+ "bud_drone": {
+  "_why": "Prerequisite not machine-checkable (GM-judgment, class/species feature or choice-specific); unmodelled clauses kept as text: Drone class feature; adaptation or early stage adaptation species trait",
+  "prereq": {
+   "all": [
+    {
+     "k": "text",
+     "text": "Drone class feature"
+    },
+    {
+     "k": "text",
+     "text": "adaptation or early stage adaptation species trait"
+    }
+   ]
+  }
+ },
+ "chemical_trail": {
+  "_why": "Prerequisite not machine-checkable (GM-judgment, class/species feature or choice-specific); unmodelled clauses kept as text: Blindsense (scent); blindsight (scent); or Survival 5 ranks",
+  "prereq": {
+   "all": [
+    {
+     "k": "text",
+     "text": "Blindsense (scent)"
+    },
+    {
+     "k": "text",
+     "text": "blindsight (scent)"
+    },
+    {
+     "k": "text",
+     "text": "or Survival 5 ranks"
+    }
+   ]
+  }
+ },
+ "combat_casting_(combat)": {
+  "_why": "Prerequisite not machine-checkable (GM-judgment, class/species feature or choice-specific); unmodelled clauses kept as text: Ability to cast 2nd-level spells",
+  "prereq": {
+   "all": [
+    {
+     "k": "text",
+     "text": "Ability to cast 2nd-level spells"
+    }
+   ]
+  }
+ },
+ "community_leader": {
+  "_why": "Prerequisite not machine-checkable (GM-judgment, class/species feature or choice-specific); unmodelled clauses kept as text: Manager of an organization using the leadership system (Starfinder Galaxy Exploration Manual 100)",
+  "prereq": {
+   "all": [
+    {
+     "k": "text",
+     "text": "Manager of an organization using the leadership system (Starfinder Galaxy Exploration Manual 100)"
+    }
+   ]
+  }
+ },
+ "connection_inkling": {
+  "_why": "Prerequisite not machine-checkable (GM-judgment, class/species feature or choice-specific); unmodelled clauses kept as text: no levels in Mystic",
+  "prereq": {
+   "all": [
+    {
+     "k": "ability",
+     "a": "wis",
+     "min": 15
+    },
+    {
+     "k": "level",
+     "min": 5
+    },
+    {
+     "k": "text",
+     "text": "no levels in Mystic"
+    }
+   ]
+  }
+ },
+ "corruption's_gift": {
+  "_why": "Prerequisite not machine-checkable (GM-judgment, class/species feature or choice-specific); unmodelled clauses kept as text: One or more corruption manifestations",
+  "prereq": {
+   "all": [
+    {
+     "k": "text",
+     "text": "One or more corruption manifestations"
+    }
+   ]
+  }
+ },
+ "counter_grapple_(combat)": {
+  "_why": "Prerequisite not machine-checkable (GM-judgment, class/species feature or choice-specific); unmodelled clauses kept as text: Improved Combat Maneuver (grapple)",
+  "prereq": {
+   "all": [
+    {
+     "k": "feat",
+     "feat": "improved_combat_maneuver_(combat)"
+    },
+    {
+     "k": "text",
+     "text": "Improved Combat Maneuver specialised in grapple"
+    }
+   ]
+  }
+ },
+ "crescendo_of_violence_(combat)": {
+  "_why": "Prerequisite not machine-checkable (GM-judgment, class/species feature or choice-specific); unmodelled clauses kept as text: Charisma 15 or Profession (musician) 5 ranks",
+  "prereq": {
+   "all": [
+    {
+     "k": "text",
+     "text": "Charisma 15 or Profession (musician) 5 ranks"
+    }
+   ]
+  }
+ },
+ "defensive_striker_(combat)": {
+  "_why": "Prerequisite not machine-checkable (GM-judgment, class/species feature or choice-specific); unmodelled clauses kept as text: armor training trait",
+  "prereq": {
+   "all": [
+    {
+     "k": "ability",
+     "a": "dex",
+     "min": 13
+    },
+    {
+     "k": "bab",
+     "min": 1
+    },
+    {
+     "k": "text",
+     "text": "armor training trait"
+    }
+   ]
+  }
+ },
+ "determined_caster": {
+  "_why": "Prerequisite not machine-checkable (GM-judgment, class/species feature or choice-specific); unmodelled clauses kept as text: Spellcaster",
+  "prereq": {
+   "all": [
+    {
+     "k": "text",
+     "text": "Spellcaster"
+    },
+    {
+     "k": "level",
+     "min": 5
+    }
+   ]
+  }
+ },
+ "dive_for_cover_(combat)": {
+  "_why": "Prerequisite not machine-checkable (GM-judgment, class/species feature or choice-specific); unmodelled clauses kept as text: Base Reflex save bonus +2",
+  "prereq": {
+   "all": [
+    {
+     "k": "text",
+     "text": "Base Reflex save bonus +2"
+    }
+   ]
+  }
+ },
+ "diverse_conditioning": {
+  "_why": "Prerequisite not machine-checkable (GM-judgment, class/species feature or choice-specific); unmodelled clauses kept as text: Eternal hope or ecstatic joy species trait",
+  "prereq": {
+   "all": [
+    {
+     "k": "text",
+     "text": "Eternal hope or ecstatic joy species trait"
+    },
+    {
+     "k": "level",
+     "min": 5
+    }
+   ]
+  }
+ },
+ "divine_blessing": {
+  "_why": "Prerequisite not machine-checkable (GM-judgment, class/species feature or choice-specific); unmodelled clauses kept as text: Worship a deity of an alignment within one step of your own alignment",
+  "prereq": {
+   "all": [
+    {
+     "k": "text",
+     "text": "Worship a deity of an alignment within one step of your own alignment"
+    }
+   ]
+  }
+ },
+ "divine_weapon": {
+  "_why": "Prerequisite not machine-checkable (GM-judgment, class/species feature or choice-specific); unmodelled clauses kept as text: Worship a deity of an alignment within one step of your own alignment",
+  "prereq": {
+   "all": [
+    {
+     "k": "text",
+     "text": "Worship a deity of an alignment within one step of your own alignment"
+    }
+   ]
+  }
+ },
+ "double_draw_(combat)": {
+  "_why": "Prerequisite not machine-checkable (GM-judgment, class/species feature or choice-specific); unmodelled clauses kept as text: Four or more arms",
+  "prereq": {
+   "all": [
+    {
+     "k": "text",
+     "text": "Four or more arms"
+    }
+   ]
+  }
+ },
+ "double_tap_(combat)": {
+  "_why": "Prerequisite not machine-checkable (GM-judgment, class/species feature or choice-specific); unmodelled clauses kept as text: Weapon Focus (small arms)",
+  "prereq": {
+   "all": [
+    {
+     "k": "text",
+     "text": "Weapon Focus (small arms)"
+    },
+    {
+     "k": "proficiency",
+     "group": "small arms"
+    }
+   ]
+  }
+ },
+ "draconic_senses": {
+  "_why": "Prerequisite not machine-checkable (GM-judgment, class/species feature or choice-specific); unmodelled clauses kept as text: darkvision and low-light vision",
+  "prereq": {
+   "all": [
+    {
+     "k": "text",
+     "text": "darkvision and low-light vision"
+    }
+   ]
+  }
+ },
+ "echolocation_attack": {
+  "_why": "Prerequisite not machine-checkable (GM-judgment, class/species feature or choice-specific); unmodelled clauses kept as text: Perception as a class skill",
+  "prereq": {
+   "all": [
+    {
+     "k": "text",
+     "text": "Perception as a class skill"
+    }
+   ]
+  }
+ },
+ "eldritch_lore": {
+  "_why": "Prerequisite not machine-checkable (GM-judgment, class/species feature or choice-specific); unmodelled clauses kept as text: Key ability score 19; caster level 10th; 10 levels in a class with a class spell list",
+  "prereq": {
+   "all": [
+    {
+     "k": "text",
+     "text": "Key ability score 19"
+    },
+    {
+     "k": "feat",
+     "feat": "lesser_eldritch_lore"
+    },
+    {
+     "k": "feat",
+     "feat": "minor_eldritch_lore"
+    },
+    {
+     "k": "text",
+     "text": "caster level 10th"
+    },
+    {
+     "k": "text",
+     "text": "10 levels in a class with a class spell list"
+    }
+   ]
+  }
+ },
+ "enclose_serums": {
+  "_why": "Prerequisite not machine-checkable (GM-judgment, class/species feature or choice-specific); unmodelled clauses kept as text: Adaptation or early stage adaptation species trait; or ooze type",
+  "prereq": {
+   "all": [
+    {
+     "k": "text",
+     "text": "Adaptation or early stage adaptation species trait"
+    },
+    {
+     "k": "text",
+     "text": "or ooze type"
+    }
+   ]
+  }
+ },
+ "flashmorph": {
+  "_why": "Prerequisite not machine-checkable (GM-judgment, class/species feature or choice-specific); unmodelled clauses kept as text: Change form species trait; change shape universal monster rule; quick disguise operative exploit; or similar ability at the GM’s discretion",
+  "prereq": {
+   "all": [
+    {
+     "k": "text",
+     "text": "Change form species trait"
+    },
+    {
+     "k": "text",
+     "text": "change shape universal monster rule"
+    },
+    {
+     "k": "text",
+     "text": "quick disguise operative exploit"
+    },
+    {
+     "k": "text",
+     "text": "or similar ability at the GM’s discretion"
+    }
+   ]
+  }
+ },
+ "focused_sense": {
+  "_why": "Prerequisite not machine-checkable (GM-judgment, class/species feature or choice-specific); unmodelled clauses kept as text: Blindsense",
+  "prereq": {
+   "all": [
+    {
+     "k": "text",
+     "text": "Blindsense"
+    }
+   ]
+  }
+ },
+ "focused_spellcaster_(combat)": {
+  "_why": "Prerequisite not machine-checkable (GM-judgment, class/species feature or choice-specific); unmodelled clauses kept as text: ability to cast 4th-level spells",
+  "prereq": {
+   "all": [
+    {
+     "k": "feat",
+     "feat": "combat_casting_(combat)"
+    },
+    {
+     "k": "text",
+     "text": "ability to cast 4th-level spells"
+    }
+   ]
+  }
+ },
+ "fortified_mind": {
+  "_why": "Prerequisite not machine-checkable (GM-judgment, class/species feature or choice-specific); unmodelled clauses kept as text: telepathy or limited telepathy",
+  "prereq": {
+   "all": [
+    {
+     "k": "feat",
+     "feat": "iron_will"
+    },
+    {
+     "k": "text",
+     "text": "telepathy or limited telepathy"
+    }
+   ]
+  }
+ },
+ "fouling_reposition_(combat)": {
+  "_why": "Prerequisite not machine-checkable (GM-judgment, class/species feature or choice-specific); unmodelled clauses kept as text: Improved Combat Maneuver (reposition)",
+  "prereq": {
+   "all": [
+    {
+     "k": "feat",
+     "feat": "improved_combat_maneuver_(combat)"
+    },
+    {
+     "k": "text",
+     "text": "Improved Combat Maneuver specialised in reposition"
+    }
+   ]
+  }
+ },
+ "four-handed_hacker": {
+  "_why": "Prerequisite not machine-checkable (GM-judgment, class/species feature or choice-specific); unmodelled clauses kept as text: four or more hands",
+  "prereq": {
+   "all": [
+    {
+     "k": "ranks",
+     "skill": "com",
+     "min": 1
+    },
+    {
+     "k": "text",
+     "text": "four or more hands"
+    }
+   ]
+  }
+ },
+ "frightful_display": {
+  "_why": "Prerequisite not machine-checkable (GM-judgment, class/species feature or choice-specific); unmodelled clauses kept as text: ability to cast spells",
+  "prereq": {
+   "all": [
+    {
+     "k": "ability",
+     "a": "cha",
+     "min": 15
+    },
+    {
+     "k": "ranks",
+     "skill": "int",
+     "min": 5
+    },
+    {
+     "k": "text",
+     "text": "ability to cast spells"
+    }
+   ]
+  }
+ },
+ "fusillade_(combat)": {
+  "_why": "Prerequisite not machine-checkable (GM-judgment, class/species feature or choice-specific); unmodelled clauses kept as text: four or more arms",
+  "prereq": {
+   "all": [
+    {
+     "k": "bab",
+     "min": 1
+    },
+    {
+     "k": "text",
+     "text": "four or more arms"
+    }
+   ]
+  }
+ },
+ "gag_gift_(combat)": {
+  "_why": "Prerequisite not machine-checkable (GM-judgment, class/species feature or choice-specific); unmodelled clauses kept as text: Improved Combat Maneuver (dirty trick)",
+  "prereq": {
+   "all": [
+    {
+     "k": "ranks",
+     "skill": "sle",
+     "min": 5
+    },
+    {
+     "k": "feat",
+     "feat": "improved_combat_maneuver_(combat)"
+    },
+    {
+     "k": "text",
+     "text": "Improved Combat Maneuver specialised in dirty trick"
+    }
+   ]
+  }
+ },
+ "greater_eldritch_lore": {
+  "_why": "Prerequisite not machine-checkable (GM-judgment, class/species feature or choice-specific); unmodelled clauses kept as text: Key ability score 21; caster level 13th; 13 levels in a class with a class spell list",
+  "prereq": {
+   "all": [
+    {
+     "k": "text",
+     "text": "Key ability score 21"
+    },
+    {
+     "k": "feat",
+     "feat": "eldritch_lore"
+    },
+    {
+     "k": "feat",
+     "feat": "lesser_eldritch_lore"
+    },
+    {
+     "k": "feat",
+     "feat": "minor_eldritch_lore"
+    },
+    {
+     "k": "text",
+     "text": "caster level 13th"
+    },
+    {
+     "k": "text",
+     "text": "13 levels in a class with a class spell list"
+    }
+   ]
+  }
+ },
+ "harm_undead": {
+  "_why": "Prerequisite not machine-checkable (GM-judgment, class/species feature or choice-specific); unmodelled clauses kept as text: Healing Channel (Su) connection power",
+  "prereq": {
+   "all": [
+    {
+     "k": "text",
+     "text": "Healing Channel (Su) connection power"
+    },
+    {
+     "k": "classLevel",
+     "cls": "mystic",
+     "min": 1
+    }
+   ]
+  }
+ },
+ "heavy_weapon_proficiency_(combat)": {
+  "_why": "Prerequisite not machine-checkable (GM-judgment, class/species feature or choice-specific); unmodelled clauses kept as text: proficiency in small arms and longarms",
+  "prereq": {
+   "all": [
+    {
+     "k": "ability",
+     "a": "str",
+     "min": 13
+    },
+    {
+     "k": "text",
+     "text": "proficiency in small arms and longarms"
+    }
+   ]
+  }
+ },
+ "helpful_telepath": {
+  "_why": "Prerequisite not machine-checkable (GM-judgment, class/species feature or choice-specific); unmodelled clauses kept as text: Communalism or hive defense species trait; limited telepathy or telepathy species trait",
+  "prereq": {
+   "all": [
+    {
+     "k": "text",
+     "text": "Communalism or hive defense species trait"
+    },
+    {
+     "k": "text",
+     "text": "limited telepathy or telepathy species trait"
+    }
+   ]
+  }
+ },
+ "hibernate": {
+  "_why": "Prerequisite not machine-checkable (GM-judgment, class/species feature or choice-specific); unmodelled clauses kept as text: any species that grants at least 6 Hit Points at 1st level",
+  "prereq": {
+   "all": [
+    {
+     "k": "ability",
+     "a": "con",
+     "min": 13
+    },
+    {
+     "k": "text",
+     "text": "any species that grants at least 6 Hit Points at 1st level"
+    }
+   ]
+  }
+ },
+ "hurl_ally": {
+  "_why": "Prerequisite not machine-checkable (GM-judgment, class/species feature or choice-specific); unmodelled clauses kept as text: size Large",
+  "prereq": {
+   "all": [
+    {
+     "k": "text",
+     "text": "size Large"
+    },
+    {
+     "k": "ability",
+     "a": "str",
+     "min": 17
+    }
+   ]
+  }
+ },
+ "improved_energy_resistance": {
+  "_why": "Prerequisite not machine-checkable (GM-judgment, class/species feature or choice-specific); unmodelled clauses kept as text: energy resistance from a species trait",
+  "prereq": {
+   "all": [
+    {
+     "k": "ability",
+     "a": "con",
+     "min": 13
+    },
+    {
+     "k": "level",
+     "min": 10
+    },
+    {
+     "k": "text",
+     "text": "energy resistance from a species trait"
+    }
+   ]
+  }
+ },
+ "improved_kip-up": {
+  "_why": "Prerequisite not machine-checkable (GM-judgment, class/species feature or choice-specific); unmodelled clauses kept as text: Kip-Up feat or moxie species trait",
+  "prereq": {
+   "all": [
+    {
+     "k": "ranks",
+     "skill": "acr",
+     "min": 1
+    },
+    {
+     "k": "text",
+     "text": "Kip-Up feat or moxie species trait"
+    }
+   ]
+  }
+ },
+ "improved_sidestep_(combat)": {
+  "_why": "Prerequisite not machine-checkable (GM-judgment, class/species feature or choice-specific); unmodelled clauses kept as text: Mobility or trick attack class feature",
+  "prereq": {
+   "all": [
+    {
+     "k": "ability",
+     "a": "dex",
+     "min": 17
+    },
+    {
+     "k": "any",
+     "of": [
+      {
+       "k": "feat",
+       "feat": "mobility_(combat)"
+      },
+      {
+       "k": "text",
+       "text": "trick attack class feature"
+      }
+     ]
+    },
+    {
+     "k": "feat",
+     "feat": "sidestep_(combat)"
+    }
+   ]
+  }
+ },
+ "improved_spell-like_ability": {
+  "_why": "Prerequisite not machine-checkable (GM-judgment, class/species feature or choice-specific); unmodelled clauses kept as text: At least one spell-like ability that is a level-0 or 1st-level spell",
+  "prereq": {
+   "all": [
+    {
+     "k": "text",
+     "text": "At least one spell-like ability that is a level-0 or 1st-level spell"
+    },
+    {
+     "k": "level",
+     "min": 4
+    }
+   ]
+  }
+ },
+ "kasathan_battle_dance_(combat)": {
+  "_why": "Prerequisite not machine-checkable (GM-judgment, class/species feature or choice-specific); unmodelled clauses kept as text: Mobility or trick attack",
+  "prereq": {
+   "all": [
+    {
+     "k": "ability",
+     "a": "dex",
+     "min": 13
+    },
+    {
+     "k": "any",
+     "of": [
+      {
+       "k": "feat",
+       "feat": "mobility_(combat)"
+      },
+      {
+       "k": "text",
+       "text": "trick attack"
+      }
+     ]
+    }
+   ]
+  }
+ },
+ "knock_heads_(combat)": {
+  "_why": "Prerequisite not machine-checkable (GM-judgment, class/species feature or choice-specific); unmodelled clauses kept as text: Improved Combat Maneuver (bull rush)",
+  "prereq": {
+   "all": [
+    {
+     "k": "feat",
+     "feat": "improved_combat_maneuver_(combat)"
+    },
+    {
+     "k": "text",
+     "text": "Improved Combat Maneuver specialised in bull rush"
+    }
+   ]
+  }
+ },
+ "lesser_eldritch_lore": {
+  "_why": "Prerequisite not machine-checkable (GM-judgment, class/species feature or choice-specific); unmodelled clauses kept as text: Key ability score 17; caster level 7th; 7 levels in a class with a class spell list",
+  "prereq": {
+   "all": [
+    {
+     "k": "text",
+     "text": "Key ability score 17"
+    },
+    {
+     "k": "feat",
+     "feat": "minor_eldritch_lore"
+    },
+    {
+     "k": "text",
+     "text": "caster level 7th"
+    },
+    {
+     "k": "text",
+     "text": "7 levels in a class with a class spell list"
+    }
+   ]
+  }
+ },
+ "ley_leech": {
+  "_why": "Prerequisite not machine-checkable (GM-judgment, class/species feature or choice-specific); unmodelled clauses kept as text: Ability to cast spells",
+  "prereq": {
+   "all": [
+    {
+     "k": "text",
+     "text": "Ability to cast spells"
+    }
+   ]
+  }
+ },
+ "lucky_guess": {
+  "_why": "Prerequisite not machine-checkable (GM-judgment, class/species feature or choice-specific); unmodelled clauses kept as text: Any species trait or feat that allows you to reroll a d20",
+  "prereq": {
+   "all": [
+    {
+     "k": "text",
+     "text": "Any species trait or feat that allows you to reroll a d20"
+    }
+   ]
+  }
+ },
+ "maestro's_flourish_(combat)": {
+  "_why": "Prerequisite not machine-checkable (GM-judgment, class/species feature or choice-specific); unmodelled clauses kept as text: Profession (musician) 5 ranks",
+  "prereq": {
+   "all": [
+    {
+     "k": "text",
+     "text": "Profession (musician) 5 ranks"
+    }
+   ]
+  }
+ },
+ "major_eldritch_lore": {
+  "_why": "Prerequisite not machine-checkable (GM-judgment, class/species feature or choice-specific); unmodelled clauses kept as text: Key ability score 23; caster level 16th; 16 levels in a class with a class spell list",
+  "prereq": {
+   "all": [
+    {
+     "k": "text",
+     "text": "Key ability score 23"
+    },
+    {
+     "k": "feat",
+     "feat": "eldritch_lore"
+    },
+    {
+     "k": "feat",
+     "feat": "greater_eldritch_lore"
+    },
+    {
+     "k": "feat",
+     "feat": "lesser_eldritch_lore"
+    },
+    {
+     "k": "feat",
+     "feat": "minor_eldritch_lore"
+    },
+    {
+     "k": "text",
+     "text": "caster level 16th"
+    },
+    {
+     "k": "text",
+     "text": "16 levels in a class with a class spell list"
+    }
+   ]
+  }
+ },
+ "many-handed_master_(combat)": {
+  "_why": "Prerequisite not machine-checkable (GM-judgment, class/species feature or choice-specific); unmodelled clauses kept as text: Four or more arms",
+  "prereq": {
+   "all": [
+    {
+     "k": "text",
+     "text": "Four or more arms"
+    }
+   ]
+  }
+ },
+ "master_crafter": {
+  "_why": "Prerequisite not machine-checkable (GM-judgment, class/species feature or choice-specific); unmodelled clauses kept as text: Computers; Engineering; Life Science; Mysticism; Physical Science; or appropriate Profession 5 ranks",
+  "prereq": {
+   "all": [
+    {
+     "k": "text",
+     "text": "Computers"
+    },
+    {
+     "k": "text",
+     "text": "Engineering"
+    },
+    {
+     "k": "text",
+     "text": "Life Science"
+    },
+    {
+     "k": "text",
+     "text": "Mysticism"
+    },
+    {
+     "k": "text",
+     "text": "Physical Science"
+    },
+    {
+     "k": "text",
+     "text": "or appropriate Profession 5 ranks"
+    }
+   ]
+  }
+ },
+ "media_mogul_(profession_focus)": {
+  "_why": "Prerequisite not machine-checkable (GM-judgment, class/species feature or choice-specific); unmodelled clauses kept as text: Member of a charter that has completed the broadcast studio project",
+  "prereq": {
+   "all": [
+    {
+     "k": "text",
+     "text": "Member of a charter that has completed the broadcast studio project"
+    }
+   ]
+  }
+ },
+ "memory_access": {
+  "_why": "Prerequisite not machine-checkable (GM-judgment, class/species feature or choice-specific); unmodelled clauses kept as text: Construct type; exocortex; or head slot augmentation",
+  "prereq": {
+   "all": [
+    {
+     "k": "text",
+     "text": "Construct type"
+    },
+    {
+     "k": "feature",
+     "feature": "constructed"
+    },
+    {
+     "k": "text",
+     "text": "exocortex"
+    },
+    {
+     "k": "text",
+     "text": "or head slot augmentation"
+    }
+   ]
+  }
+ },
+ "minor_draconic_form": {
+  "_why": "Prerequisite not machine-checkable (GM-judgment, class/species feature or choice-specific); unmodelled clauses kept as text: dragon type; dragon-scaled species ability; or dragonblood theme",
+  "prereq": {
+   "all": [
+    {
+     "k": "ability",
+     "a": "cha",
+     "min": 13
+    },
+    {
+     "k": "text",
+     "text": "dragon type"
+    },
+    {
+     "k": "text",
+     "text": "dragon-scaled species ability"
+    },
+    {
+     "k": "text",
+     "text": "or dragonblood theme"
+    }
+   ]
+  }
+ },
+ "minor_eldritch_lore": {
+  "_why": "Prerequisite not machine-checkable (GM-judgment, class/species feature or choice-specific); unmodelled clauses kept as text: Key ability score 15; caster level 4th; 4 levels in a class with a class spell list",
+  "prereq": {
+   "all": [
+    {
+     "k": "text",
+     "text": "Key ability score 15"
+    },
+    {
+     "k": "text",
+     "text": "caster level 4th"
+    },
+    {
+     "k": "text",
+     "text": "4 levels in a class with a class spell list"
+    }
+   ]
+  }
+ },
+ "more_than_flesh_(life_science_focus)": {
+  "_why": "Prerequisite not machine-checkable (GM-judgment, class/species feature or choice-specific); unmodelled clauses kept as text: Member of a charter that has completed the augmentation clinic project",
+  "prereq": {
+   "all": [
+    {
+     "k": "text",
+     "text": "Member of a charter that has completed the augmentation clinic project"
+    }
+   ]
+  }
+ },
+ "multifaceted_nature": {
+  "_why": "Prerequisite not machine-checkable (GM-judgment, class/species feature or choice-specific); unmodelled clauses kept as text: Dimorphic species trait",
+  "prereq": {
+   "all": [
+    {
+     "k": "text",
+     "text": "Dimorphic species trait"
+    },
+    {
+     "k": "level",
+     "min": 9
+    }
+   ]
+  }
+ },
+ "multitudinous_lfan": {
+  "_why": "Prerequisite not machine-checkable (GM-judgment, class/species feature or choice-specific); unmodelled clauses kept as text: LFAN species trait",
+  "prereq": {
+   "all": [
+    {
+     "k": "ability",
+     "a": "str",
+     "min": 13
+    },
+    {
+     "k": "text",
+     "text": "LFAN species trait"
+    }
+   ]
+  }
+ },
+ "mystic_opportunist_(combat)": {
+  "_why": "Prerequisite not machine-checkable (GM-judgment, class/species feature or choice-specific); unmodelled clauses kept as text: Spellcaster",
+  "prereq": {
+   "all": [
+    {
+     "k": "text",
+     "text": "Spellcaster"
+    }
+   ]
+  }
+ },
+ "mystic_strike_(combat)": {
+  "_why": "Prerequisite not machine-checkable (GM-judgment, class/species feature or choice-specific); unmodelled clauses kept as text: Ability to cast spells",
+  "prereq": {
+   "all": [
+    {
+     "k": "text",
+     "text": "Ability to cast spells"
+    }
+   ]
+  }
+ },
+ "nanite_integration": {
+  "_why": "Prerequisite not machine-checkable (GM-judgment, class/species feature or choice-specific); unmodelled clauses kept as text: constructed species trait or construct type",
+  "prereq": {
+   "all": [
+    {
+     "k": "level",
+     "min": 3
+    },
+    {
+     "k": "text",
+     "text": "constructed species trait or construct type"
+    }
+   ]
+  }
+ },
+ "obnoxious_trickster": {
+  "_why": "Prerequisite not machine-checkable (GM-judgment, class/species feature or choice-specific); unmodelled clauses kept as text: Improved Combat Maneuver (Combat) (dirty trick)",
+  "prereq": {
+   "all": [
+    {
+     "k": "feat",
+     "feat": "improved_combat_maneuver_(combat)"
+    },
+    {
+     "k": "text",
+     "text": "Improved Combat Maneuver specialised in dirty trick"
+    }
+   ]
+  }
+ },
+ "old_growth": {
+  "_why": "Prerequisite not machine-checkable (GM-judgment, class/species feature or choice-specific); unmodelled clauses kept as text: evergreen or limited plant benefits species ability",
+  "prereq": {
+   "all": [
+    {
+     "k": "level",
+     "min": 10
+    },
+    {
+     "k": "text",
+     "text": "evergreen or limited plant benefits species ability"
+    }
+   ]
+  }
+ },
+ "oracular_gift": {
+  "_why": "Prerequisite not machine-checkable (GM-judgment, class/species feature or choice-specific); unmodelled clauses kept as text: Ability to cast augury",
+  "prereq": {
+   "all": [
+    {
+     "k": "text",
+     "text": "Ability to cast augury"
+    }
+   ]
+  }
+ },
+ "panicked_power": {
+  "_why": "Prerequisite not machine-checkable (GM-judgment, class/species feature or choice-specific); unmodelled clauses kept as text: Ability to cast spells",
+  "prereq": {
+   "all": [
+    {
+     "k": "text",
+     "text": "Ability to cast spells"
+    }
+   ]
+  }
+ },
+ "penetrating_spell": {
+  "_why": "Prerequisite not machine-checkable (GM-judgment, class/species feature or choice-specific); unmodelled clauses kept as text: Ability to cast 4th-level spells",
+  "prereq": {
+   "all": [
+    {
+     "k": "text",
+     "text": "Ability to cast 4th-level spells"
+    }
+   ]
+  }
+ },
+ "periastra_training": {
+  "_why": "Prerequisite not machine-checkable (GM-judgment, class/species feature or choice-specific); unmodelled clauses kept as text: stellar mode class feature",
+  "prereq": {
+   "all": [
+    {
+     "k": "ability",
+     "a": "cha",
+     "min": 13
+    },
+    {
+     "k": "ranks",
+     "skill": "mys",
+     "min": 5
+    },
+    {
+     "k": "text",
+     "text": "stellar mode class feature"
+    }
+   ]
+  }
+ },
+ "perpetual_polymorph": {
+  "_why": "Prerequisite not machine-checkable (GM-judgment, class/species feature or choice-specific); unmodelled clauses kept as text: You know the polymorph spell as a 2nd-level spell or higher",
+  "prereq": {
+   "all": [
+    {
+     "k": "text",
+     "text": "You know the polymorph spell as a 2nd-level spell or higher"
+    }
+   ]
+  }
+ },
+ "pincered_lfan": {
+  "_why": "Prerequisite not machine-checkable (GM-judgment, class/species feature or choice-specific); unmodelled clauses kept as text: LFAN species trait",
+  "prereq": {
+   "all": [
+    {
+     "k": "text",
+     "text": "LFAN species trait"
+    }
+   ]
+  }
+ },
+ "pinpoint_hearing": {
+  "_why": "Prerequisite not machine-checkable (GM-judgment, class/species feature or choice-specific); unmodelled clauses kept as text: Echolocation Attack COM",
+  "prereq": {
+   "all": [
+    {
+     "k": "text",
+     "text": "Echolocation Attack COM"
+    },
+    {
+     "k": "ranks",
+     "skill": "per",
+     "min": 9
+    }
+   ]
+  }
+ },
+ "polymath": {
+  "_why": "Prerequisite not machine-checkable (GM-judgment, class/species feature or choice-specific); unmodelled clauses kept as text: Life Science as a class skill; Physical Science as a class skill",
+  "prereq": {
+   "all": [
+    {
+     "k": "ability",
+     "a": "int",
+     "min": 15
+    },
+    {
+     "k": "text",
+     "text": "Life Science as a class skill"
+    },
+    {
+     "k": "text",
+     "text": "Physical Science as a class skill"
+    }
+   ]
+  }
+ },
+ "polymorph_adept": {
+  "_why": "Prerequisite not machine-checkable (GM-judgment, class/species feature or choice-specific); unmodelled clauses kept as text: You know the polymorph spell as a 3rd-level spell or higher",
+  "prereq": {
+   "all": [
+    {
+     "k": "text",
+     "text": "You know the polymorph spell as a 3rd-level spell or higher"
+    }
+   ]
+  }
+ },
+ "polymorphic_titan": {
+  "_why": "Prerequisite not machine-checkable (GM-judgment, class/species feature or choice-specific); unmodelled clauses kept as text: you know the polymorph spell as a 6th-level spell; and you have at least one Huge predetermined polymorph form",
+  "prereq": {
+   "all": [
+    {
+     "k": "level",
+     "min": 17
+    },
+    {
+     "k": "text",
+     "text": "you know the polymorph spell as a 6th-level spell"
+    },
+    {
+     "k": "text",
+     "text": "and you have at least one Huge predetermined polymorph form"
+    }
+   ]
+  }
+ },
+ "profession_mastery": {
+  "_why": "Prerequisite not machine-checkable (GM-judgment, class/species feature or choice-specific); unmodelled clauses kept as text: or Wis 13 (see text); Profession (any) 1 rank",
+  "prereq": {
+   "all": [
+    {
+     "k": "ability",
+     "a": "cha",
+     "min": 13
+    },
+    {
+     "k": "ability",
+     "a": "int",
+     "min": 13
+    },
+    {
+     "k": "text",
+     "text": "or Wis 13 (see text)"
+    },
+    {
+     "k": "text",
+     "text": "Profession (any) 1 rank"
+    },
+    {
+     "k": "feature",
+     "feature": "cultural_fascination"
+    }
+   ]
+  }
+ },
+ "professional_courtesy": {
+  "_why": "Prerequisite not machine-checkable (GM-judgment, class/species feature or choice-specific); unmodelled clauses kept as text: Profession 3 ranks",
+  "prereq": {
+   "all": [
+    {
+     "k": "text",
+     "text": "Profession 3 ranks"
+    }
+   ]
+  }
+ },
+ "protective_fur": {
+  "_why": "Prerequisite not machine-checkable (GM-judgment, class/species feature or choice-specific); unmodelled clauses kept as text: Skittermander or ysoki",
+  "prereq": {
+   "all": [
+    {
+     "k": "text",
+     "text": "Skittermander or ysoki"
+    }
+   ]
+  }
+ },
+ "protector_of_kahlannal": {
+  "_why": "Prerequisite not machine-checkable (GM-judgment, class/species feature or choice-specific); unmodelled clauses kept as text: Anassanoi; any non-chaotic and non-evil alignment",
+  "prereq": {
+   "all": [
+    {
+     "k": "text",
+     "text": "Anassanoi"
+    },
+    {
+     "k": "text",
+     "text": "any non-chaotic and non-evil alignment"
+    }
+   ]
+  }
+ },
+ "psychic_insight": {
+  "_why": "Prerequisite not machine-checkable (GM-judgment, class/species feature or choice-specific); unmodelled clauses kept as text: Limited telepathy or telepathy",
+  "prereq": {
+   "all": [
+    {
+     "k": "text",
+     "text": "Limited telepathy or telepathy"
+    }
+   ]
+  }
+ },
+ "psychic_sense": {
+  "_why": "Prerequisite not machine-checkable (GM-judgment, class/species feature or choice-specific); unmodelled clauses kept as text: Limited telepathy or telepathy",
+  "prereq": {
+   "all": [
+    {
+     "k": "text",
+     "text": "Limited telepathy or telepathy"
+    }
+   ]
+  }
+ },
+ "psychic_stalking": {
+  "_why": "Prerequisite not machine-checkable (GM-judgment, class/species feature or choice-specific); unmodelled clauses kept as text: Telepathy or limited telepathy species trait",
+  "prereq": {
+   "all": [
+    {
+     "k": "text",
+     "text": "Telepathy or limited telepathy species trait"
+    }
+   ]
+  }
+ },
+ "pull_the_pin_(combat)": {
+  "_why": "Prerequisite not machine-checkable (GM-judgment, class/species feature or choice-specific); unmodelled clauses kept as text: Improved Combat Maneuver (disarm)",
+  "prereq": {
+   "all": [
+    {
+     "k": "feat",
+     "feat": "improved_combat_maneuver_(combat)"
+    },
+    {
+     "k": "text",
+     "text": "Improved Combat Maneuver specialised in disarm"
+    }
+   ]
+  }
+ },
+ "quick_dismissal": {
+  "_why": "Prerequisite not machine-checkable (GM-judgment, class/species feature or choice-specific); unmodelled clauses kept as text: spellcaster",
+  "prereq": {
+   "all": [
+    {
+     "k": "ability",
+     "a": "dex",
+     "min": 13
+    },
+    {
+     "k": "ranks",
+     "skill": "mys",
+     "min": 3
+    },
+    {
+     "k": "text",
+     "text": "spellcaster"
+    }
+   ]
+  }
+ },
+ "reality_glimmer": {
+  "_why": "Prerequisite not machine-checkable (GM-judgment, class/species feature or choice-specific); unmodelled clauses kept as text: no levels in witchwarper",
+  "prereq": {
+   "all": [
+    {
+     "k": "ability",
+     "a": "cha",
+     "min": 15
+    },
+    {
+     "k": "level",
+     "min": 5
+    },
+    {
+     "k": "text",
+     "text": "no levels in witchwarper"
+    }
+   ]
+  }
+ },
+ "registered_dietitian_(medicine_focus)": {
+  "_why": "Prerequisite not machine-checkable (GM-judgment, class/species feature or choice-specific); unmodelled clauses kept as text: Member of a charter that has completed the hospital project",
+  "prereq": {
+   "all": [
+    {
+     "k": "text",
+     "text": "Member of a charter that has completed the hospital project"
+    }
+   ]
+  }
+ },
+ "rending_slash": {
+  "_why": "Prerequisite not machine-checkable (GM-judgment, class/species feature or choice-specific); unmodelled clauses kept as text: natural weapons (s) species trait",
+  "prereq": {
+   "all": [
+    {
+     "k": "ability",
+     "a": "str",
+     "min": 13
+    },
+    {
+     "k": "ability",
+     "a": "dex",
+     "min": 13
+    },
+    {
+     "k": "text",
+     "text": "natural weapons (s) species trait"
+    }
+   ]
+  }
+ },
+ "sacred_strike_(combat)": {
+  "_why": "Prerequisite not machine-checkable (GM-judgment, class/species feature or choice-specific); unmodelled clauses kept as text: Worship a deity of an alignment within one step of your own",
+  "prereq": {
+   "all": [
+    {
+     "k": "text",
+     "text": "Worship a deity of an alignment within one step of your own"
+    }
+   ]
+  }
+ },
+ "scurry": {
+  "_why": "Prerequisite not machine-checkable (GM-judgment, class/species feature or choice-specific); unmodelled clauses kept as text: species bonus to Dexterity; size Small",
+  "prereq": {
+   "all": [
+    {
+     "k": "text",
+     "text": "species bonus to Dexterity"
+    },
+    {
+     "k": "text",
+     "text": "size Small"
+    }
+   ]
+  }
+ },
+ "shadow_infusion": {
+  "_why": "Prerequisite not machine-checkable (GM-judgment, class/species feature or choice-specific); unmodelled clauses kept as text: You must spend a significant time on the Shadow Plane or otherwise become infused with its energies; such as by Dying there or gaining shadow corruption. The GM determines whether you qualify for this feat",
+  "prereq": {
+   "all": [
+    {
+     "k": "text",
+     "text": "You must spend a significant time on the Shadow Plane or otherwise become infused with its energies"
+    },
+    {
+     "k": "text",
+     "text": "such as by Dying there or gaining shadow corruption. The GM determines whether you qualify for this feat"
+    }
+   ]
+  }
+ },
+ "shelter_ally_(combat)": {
+  "_why": "Prerequisite not machine-checkable (GM-judgment, class/species feature or choice-specific); unmodelled clauses kept as text: natural reach of 10 feet or more",
+  "prereq": {
+   "all": [
+    {
+     "k": "feat",
+     "feat": "bodyguard_(combat)"
+    },
+    {
+     "k": "text",
+     "text": "natural reach of 10 feet or more"
+    }
+   ]
+  }
+ },
+ "sidestep_(combat)": {
+  "_why": "Prerequisite not machine-checkable (GM-judgment, class/species feature or choice-specific); unmodelled clauses kept as text: Mobility or trick attack class feature",
+  "prereq": {
+   "all": [
+    {
+     "k": "ability",
+     "a": "dex",
+     "min": 15
+    },
+    {
+     "k": "any",
+     "of": [
+      {
+       "k": "feat",
+       "feat": "mobility_(combat)"
+      },
+      {
+       "k": "text",
+       "text": "trick attack class feature"
+      }
+     ]
+    }
+   ]
+  }
+ },
+ "soothing_telepathy": {
+  "_why": "Prerequisite not machine-checkable (GM-judgment, class/species feature or choice-specific); unmodelled clauses kept as text: Limited telepathy or telepathy",
+  "prereq": {
+   "all": [
+    {
+     "k": "text",
+     "text": "Limited telepathy or telepathy"
+    }
+   ]
+  }
+ },
+ "special_weapon_proficiency_(combat)": {
+  "_why": "Prerequisite not machine-checkable (GM-judgment, class/species feature or choice-specific); unmodelled clauses kept as text: Proficiency in basic melee weapons or small arms (see below)",
+  "prereq": {
+   "all": [
+    {
+     "k": "text",
+     "text": "Proficiency in basic melee weapons or small arms (see below)"
+    }
+   ]
+  }
+ },
+ "spell_focus": {
+  "_why": "Prerequisite not machine-checkable (GM-judgment, class/species feature or choice-specific); unmodelled clauses kept as text: Ability to cast spells",
+  "prereq": {
+   "all": [
+    {
+     "k": "text",
+     "text": "Ability to cast spells"
+    },
+    {
+     "k": "level",
+     "min": 3
+    }
+   ]
+  }
+ },
+ "spell_gem_eater": {
+  "_why": "Prerequisite not machine-checkable (GM-judgment, class/species feature or choice-specific); unmodelled clauses kept as text: Ability to cast 3rd level spells",
+  "prereq": {
+   "all": [
+    {
+     "k": "text",
+     "text": "Ability to cast 3rd level spells"
+    }
+   ]
+  }
+ },
+ "spellbane": {
+  "_why": "Prerequisite not machine-checkable (GM-judgment, class/species feature or choice-specific); unmodelled clauses kept as text: Unable to cast spells or use spell-like abilities",
+  "prereq": {
+   "all": [
+    {
+     "k": "text",
+     "text": "Unable to cast spells or use spell-like abilities"
+    }
+   ]
+  }
+ },
+ "spot_of_luck": {
+  "_why": "Prerequisite not machine-checkable (GM-judgment, class/species feature or choice-specific); unmodelled clauses kept as text: Any species trait or feat that grants a d20 reroll",
+  "prereq": {
+   "all": [
+    {
+     "k": "text",
+     "text": "Any species trait or feat that grants a d20 reroll"
+    },
+    {
+     "k": "level",
+     "min": 5
+    }
+   ]
+  }
+ },
+ "squox_companion": {
+  "_why": "Prerequisite not machine-checkable (GM-judgment, class/species feature or choice-specific); unmodelled clauses kept as text: You own a trained squox that has an attitude of friendly or helpful toward you",
+  "prereq": {
+   "all": [
+    {
+     "k": "text",
+     "text": "You own a trained squox that has an attitude of friendly or helpful toward you"
+    }
+   ]
+  }
+ },
+ "startling_charge": {
+  "_why": "Prerequisite not machine-checkable (GM-judgment, class/species feature or choice-specific); unmodelled clauses kept as text: ferocious charge universal creature rule",
+  "prereq": {
+   "all": [
+    {
+     "k": "ability",
+     "a": "str",
+     "min": 13
+    },
+    {
+     "k": "ranks",
+     "skill": "int",
+     "min": 1
+    },
+    {
+     "k": "text",
+     "text": "ferocious charge universal creature rule"
+    }
+   ]
+  }
+ },
+ "steady_footing": {
+  "_why": "Prerequisite not machine-checkable (GM-judgment, class/species feature or choice-specific); unmodelled clauses kept as text: More than two legs or similar limbs",
+  "prereq": {
+   "all": [
+    {
+     "k": "text",
+     "text": "More than two legs or similar limbs"
+    }
+   ]
+  }
+ },
+ "superheated_spells_(combat)": {
+  "_why": "Prerequisite not machine-checkable (GM-judgment, class/species feature or choice-specific); unmodelled clauses kept as text: ability to cast spells",
+  "prereq": {
+   "all": [
+    {
+     "k": "ranks",
+     "skill": "mys",
+     "min": 5
+    },
+    {
+     "k": "text",
+     "text": "ability to cast spells"
+    }
+   ]
+  }
+ },
+ "tandem_maneuver_(combat_teamwork)": {
+  "_why": "Prerequisite not machine-checkable (GM-judgment, class/species feature or choice-specific); unmodelled clauses kept as text: Improved Combat Maneuver (any)",
+  "prereq": {
+   "all": [
+    {
+     "k": "bab",
+     "min": 6
+    },
+    {
+     "k": "feat",
+     "feat": "improved_combat_maneuver_(combat)"
+    },
+    {
+     "k": "text",
+     "text": "Improved Combat Maneuver specialised in any"
+    }
+   ]
+  }
+ },
+ "technomantic_dabbler": {
+  "_why": "Prerequisite not machine-checkable (GM-judgment, class/species feature or choice-specific); unmodelled clauses kept as text: no levels in Technomancer",
+  "prereq": {
+   "all": [
+    {
+     "k": "ability",
+     "a": "int",
+     "min": 15
+    },
+    {
+     "k": "level",
+     "min": 5
+    },
+    {
+     "k": "text",
+     "text": "no levels in Technomancer"
+    }
+   ]
+  }
+ },
+ "telepathic_scream": {
+  "_why": "Prerequisite not machine-checkable (GM-judgment, class/species feature or choice-specific); unmodelled clauses kept as text: limited telepathy or telepathy",
+  "prereq": {
+   "all": [
+    {
+     "k": "ranks",
+     "skill": "int",
+     "min": 3
+    },
+    {
+     "k": "text",
+     "text": "limited telepathy or telepathy"
+    }
+   ]
+  }
+ },
+ "telepathic_spy": {
+  "_why": "Prerequisite not machine-checkable (GM-judgment, class/species feature or choice-specific); unmodelled clauses kept as text: Limited telepathy or telepathy",
+  "prereq": {
+   "all": [
+    {
+     "k": "text",
+     "text": "Limited telepathy or telepathy"
+    }
+   ]
+  }
+ },
+ "tight_fit": {
+  "_why": "Prerequisite not machine-checkable (GM-judgment, class/species feature or choice-specific); unmodelled clauses kept as text: Large size or larger",
+  "prereq": {
+   "all": [
+    {
+     "k": "text",
+     "text": "Large size or larger"
+    }
+   ]
+  }
+ },
+ "time-touched": {
+  "_why": "Prerequisite not machine-checkable (GM-judgment, class/species feature or choice-specific); unmodelled clauses kept as text: no levels in precog",
+  "prereq": {
+   "all": [
+    {
+     "k": "ability",
+     "a": "int",
+     "min": 15
+    },
+    {
+     "k": "level",
+     "min": 5
+    },
+    {
+     "k": "text",
+     "text": "no levels in precog"
+    }
+   ]
+  }
+ },
+ "toxic_strike": {
+  "_why": "Prerequisite not machine-checkable (GM-judgment, class/species feature or choice-specific); unmodelled clauses kept as text: natural weapons species trait",
+  "prereq": {
+   "all": [
+    {
+     "k": "ability",
+     "a": "con",
+     "min": 13
+    },
+    {
+     "k": "text",
+     "text": "natural weapons species trait"
+    }
+   ]
+  }
+ },
+ "tripping_rush_(combat)": {
+  "_why": "Prerequisite not machine-checkable (GM-judgment, class/species feature or choice-specific); unmodelled clauses kept as text: Improved Combat Maneuver (trip)",
+  "prereq": {
+   "all": [
+    {
+     "k": "feat",
+     "feat": "improved_combat_maneuver_(combat)"
+    },
+    {
+     "k": "text",
+     "text": "Improved Combat Maneuver specialised in trip"
+    },
+    {
+     "k": "bab",
+     "min": 5
+    }
+   ]
+  }
+ },
+ "tunneling_vanguard": {
+  "_why": "Prerequisite not machine-checkable (GM-judgment, class/species feature or choice-specific); unmodelled clauses kept as text: Burrow speed",
+  "prereq": {
+   "all": [
+    {
+     "k": "text",
+     "text": "Burrow speed"
+    }
+   ]
+  }
+ },
+ "underfoot": {
+  "_why": "Prerequisite not machine-checkable (GM-judgment, class/species feature or choice-specific); unmodelled clauses kept as text: species bonus to Dexterity; size Small",
+  "prereq": {
+   "all": [
+    {
+     "k": "feat",
+     "feat": "scurry"
+    },
+    {
+     "k": "ranks",
+     "skill": "acr",
+     "min": 10
+    },
+    {
+     "k": "text",
+     "text": "species bonus to Dexterity"
+    },
+    {
+     "k": "text",
+     "text": "size Small"
+    }
+   ]
+  }
+ },
+ "underhanded_snare": {
+  "_why": "Prerequisite not machine-checkable (GM-judgment, class/species feature or choice-specific); unmodelled clauses kept as text: Improved Combat Maneuver (dirty trick); constrictor’s grasp; enveloping grip; grappler; or snag species trait",
+  "prereq": {
+   "all": [
+    {
+     "k": "feat",
+     "feat": "improved_combat_maneuver_(combat)"
+    },
+    {
+     "k": "text",
+     "text": "Improved Combat Maneuver specialised in dirty trick"
+    },
+    {
+     "k": "text",
+     "text": "constrictor’s grasp"
+    },
+    {
+     "k": "text",
+     "text": "enveloping grip"
+    },
+    {
+     "k": "text",
+     "text": "grappler"
+    },
+    {
+     "k": "text",
+     "text": "or snag species trait"
+    }
+   ]
+  }
+ },
+ "unsinkable_caster_(combat)": {
+  "_why": "Prerequisite not machine-checkable (GM-judgment, class/species feature or choice-specific); unmodelled clauses kept as text: ability to cast spells",
+  "prereq": {
+   "all": [
+    {
+     "k": "level",
+     "min": 3
+    },
+    {
+     "k": "text",
+     "text": "ability to cast spells"
+    }
+   ]
+  }
+ },
+ "versatile_focus_(combat)": {
+  "_why": "Prerequisite not machine-checkable (GM-judgment, class/species feature or choice-specific); unmodelled clauses kept as text: Weapon Focus (any)",
+  "prereq": {
+   "all": [
+    {
+     "k": "text",
+     "text": "Weapon Focus (any)"
+    }
+   ]
+  }
+ },
+ "vidgame_aficionado": {
+  "_why": "Prerequisite not machine-checkable (GM-judgment, class/species feature or choice-specific); unmodelled clauses kept as text: Profession (vidgamer) 7 ranks",
+  "prereq": {
+   "all": [
+    {
+     "k": "text",
+     "text": "Profession (vidgamer) 7 ranks"
+    }
+   ]
+  }
+ },
+ "warpweaver_(perception_focus)": {
+  "_why": "Prerequisite not machine-checkable (GM-judgment, class/species feature or choice-specific); unmodelled clauses kept as text: Major Stage Magic or ability to cast 3rd-level witchwarper spells; member of a charter that has completed the oracle project",
+  "prereq": {
+   "all": [
+    {
+     "k": "text",
+     "text": "Major Stage Magic or ability to cast 3rd-level witchwarper spells"
+    },
+    {
+     "k": "text",
+     "text": "member of a charter that has completed the oracle project"
+    }
+   ]
+  }
+ },
+ "water_magic": {
+  "_why": "Prerequisite not machine-checkable (GM-judgment, class/species feature or choice-specific); unmodelled clauses kept as text: Ability to cast spells",
+  "prereq": {
+   "all": [
+    {
+     "k": "text",
+     "text": "Ability to cast spells"
+    }
+   ]
+  }
+ },
+ "weapon_focus_(combat)": {
+  "_why": "Prerequisite not machine-checkable (GM-judgment, class/species feature or choice-specific); unmodelled clauses kept as text: Proficiency with selected weapon type",
+  "prereq": {
+   "all": [
+    {
+     "k": "text",
+     "text": "Proficiency with selected weapon type"
+    }
+   ]
+  }
+ },
+ "weapon_specialization_(combat)": {
+  "_why": "Prerequisite not machine-checkable (GM-judgment, class/species feature or choice-specific); unmodelled clauses kept as text: proficiency with selected weapon type",
+  "prereq": {
+   "all": [
+    {
+     "k": "level",
+     "min": 3
+    },
+    {
+     "k": "text",
+     "text": "proficiency with selected weapon type"
+    }
+   ]
+  }
+ }
+}
