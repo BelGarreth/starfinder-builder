@@ -104,7 +104,7 @@
       "feats": [
         "skill_focus"
       ],
-      "choices": {},
+      "choices": { "skill_focus": "per" },
       "spells": {},
       "increases": [
         "str",

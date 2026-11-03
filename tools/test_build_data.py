@@ -284,6 +284,41 @@ class PrereqIntegrationTest(unittest.TestCase):
                 self.assertTrue(entry['_why'], slug)
                 self.assertIn(slug.removeprefix('feature:'), names)
 
+    def test_player_choice_records_carry_a_param_or_an_exemption(self):
+        import json
+        entries = json.loads((ROOT / 'tools' / 'choice_params.json').read_text())
+        records = {**self.d['feats'], **self.d['features']}
+        for slug, entry in entries.items():
+            self.assertTrue(entry['_why'], slug)
+            self.assertEqual('param' in entry, 'param' in records[slug], slug)
+        for slug in ('skill_focus', 'student', 'channel_skill_(su)', 'resistance_(ex_exocortex)', 'greater_resistance_(ex_exocortex)',
+                     'resistant_energy_(ex)', 'improved_resistant_energy_(ex)'):
+            self.assertIn('param', records[slug], slug)
+        self.assertEqual(records['student']['param'], {'kind': 'skill', 'count': 2})
+        self.assertEqual(records['channel_skill_(su)']['param']['derive'], 'connectionSkills')
+        self.assertEqual(records['healer']['associatedSkills'], ['med', 'mys'])
+        self.assertFalse([k for k, r in records.items() if '_modTab' in r])
+
+    def test_build_fails_on_an_unlisted_player_choice_record(self):
+        import json, tempfile
+        entries = json.loads((ROOT / 'tools' / 'choice_params.json').read_text())
+        del entries['student']
+        with tempfile.TemporaryDirectory() as tmp:
+            path = Path(tmp) / 'choice_params.json'
+            path.write_text(json.dumps(entries))
+            with self.assertRaisesRegex(ValueError, 'student'):
+                build_data.build(build_data.fetch_foundry(SHA, ROOT / 'tools' / '..' / '.cache' / 'foundry'), choice_params_path=path)
+
+    def test_build_rejects_a_bad_param(self):
+        import json, tempfile
+        entries = json.loads((ROOT / 'tools' / 'choice_params.json').read_text())
+        entries['student']['param'] = {'kind': 'skill', 'count': 2, 'from': ['nope']}
+        with tempfile.TemporaryDirectory() as tmp:
+            path = Path(tmp) / 'choice_params.json'
+            path.write_text(json.dumps(entries))
+            with self.assertRaisesRegex(ValueError, 'nope'):
+                build_data.build(build_data.fetch_foundry(SHA, ROOT / 'tools' / '..' / '.cache' / 'foundry'), choice_params_path=path)
+
     def test_class_features_emitted_for_phase1_classes(self):
         cf = {k: f for k, f in self.d['features'].items() if f['kind'] == 'class'}
         self.assertGreater(len(cf), 400)

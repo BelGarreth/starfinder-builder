@@ -38,6 +38,26 @@ modifiers, writes these in their place and sets `modifiersReplaced`, and the ent
 carry `"when": "armor"`, meaning it applies only while armor is equipped, or `"when": "lightOrNoArmor"`, meaning only in light armor or none and not encumbered. The build fails if a feat has
 no prerequisite or a bonus-bearing feat or feature has no constant modifier and no override.
 
+### Player-choice modifiers
+
+Foundry encodes some player choices as a fixed modifier ("set the type in the Modifiers tab"). `tools/choice_params.json` lists every
+record whose text says that, as `{slug: {_why, param?}}`. The build fails if a detected record is missing from the file, if an entry
+has no `_why`, or if a `param` is malformed; a record without `param` is an explicit exemption. A param is
+`{kind: "skill"|"energy", count, from?, perInstance?, distinct?, within?, derive?: "connectionSkills"}` and lands on the record as `param`.
+`count` picks rewrite the record's `skill` or `energy-resistance` modifiers: pick `j` takes modifier `j` (the first one is cloned if there
+are more picks than modifiers), and a record with no pick contributes nothing. `perInstance` records (repeatable feats and exocortex
+mods) are counted once per instance, `distinct` forbids repeating a value across instances, and `within` limits the pick to values already
+picked for another record (Greater Resistance needs an energy type that already has Resistance). `derive: "connectionSkills"` (Channel Skill)
+uses the mystic connection's `associatedSkills`; Shaper and Zeitgeist have none because their skills are picked per character or per day,
+so Channel Skill adds nothing for them.
+
+Picks live at `levels[i].choices[slug]`, a flat list (a bare string when there is only one), where `i` is the level that grants the feat or
+feature (level 1 for racial traits). Instance `k` owns entries `k*count` to `k*count + count - 1`, and `k` is the order of that slug
+within the level: feats by slot position, class features by plan order. Weapon Focus, Weapon Specialization and Special Weapon
+Proficiency use the same layout, so one representation covers every parameterised feat. validate reports `unspent` for a missing pick,
+`invalid-choice` for a value outside `from` or the kind, and `duplicate` for a repeated value. `allowed('choice', value, levelIndex, char,
+data, {id: slug, index})` answers for the picker, and `SFUI.normalize` drops picks for a feat or feature the character no longer holds.
+
 ### Class progressions
 
 `tools/class_progressions.json` holds each Phase 1 class as `{levels: {"1".."20": [Entry]}, enhanced?: {levels}}`,

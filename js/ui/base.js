@@ -54,6 +54,22 @@
     return '<select' + attrs({ 'data-b': x.sel ? undefined : p, 'data-sel': x.sel, 'data-a': x.a, 'data-c': x.cc, class: x.c }) + '>' + opts + '</select>';
   }
 
+  function paramPicker(C, data, i, entry) {
+    const rules = SF();
+    const p = entry.rec.param;
+    const noun = p.kind === 'skill' ? 'skill' : 'energy type';
+    const keys = rules.optionKeys(p);
+    const selects = rules.picksOf(C, entry).map((value, s) => {
+      const index = entry.k * p.count + s;
+      const opts = [['', '(choose a ' + noun + ')']].concat(keys.map((k) => {
+        const ans = rules.allowed('choice', k, i, C, data, { id: entry.key, index });
+        return [k, ans.ok ? rules.optionName(p.kind, k) : ans.why, !ans.ok && k !== value];
+      }));
+      return fld(entry.rec.name + (p.count > 1 ? ' ' + (s + 1) : ''), select(null, value, opts, { sel: 'paramChoice', a: i, cc: entry.key + '|' + index }));
+    });
+    return '<div class="row c">' + selects.join('') + '</div>';
+  }
+
   const fld = (label, html, c) => '<label class="fld ' + (c || '') + '">' + esc(label) + html + '</label>';
 
   function pickRow(rec, o) {
@@ -153,7 +169,7 @@
 
   Object.assign(U, {
     esc, sign, has, asList, levelsOf, fmt, table, ROW_CAP, TABS, TAB_LABEL, aon, attrs, btn, getPath, input, select, fld,
-    pickRow, pickTable, capped, matches, isCaster, visibleTabs, ctxOf, className, classSummary, blockerMsg,
+    paramPicker, pickRow, pickTable, capped, matches, isCaster, visibleTabs, ctxOf, className, classSummary, blockerMsg,
     renderTop, renderTabs, renderBlockers, levelTabs
   });
 })(this);

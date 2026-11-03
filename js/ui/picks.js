@@ -91,7 +91,9 @@
       if (!slug && j === feats.length) acts.push(btn('featSlot', 'Choose', { c: 'sm' + (target === j ? ' pri' : ''), a: j }));
       if (!slug && j > feats.length) acts.push('<span class="mute">Fill slot ' + (feats.length + 1) + ' first</span>');
       const body = rec ? '<b>' + esc(rec.name) + '</b> ' + U.aon(all[slug]) + (rec.summary ? '<div class="note">' + esc(rec.summary) + '</div>' : '') : '<span class="mute">Empty</span>';
-      const choice = slug && rules.FEAT_CHOICE[slug] ? featChoiceSelect(C, data, i, j, slug) : '';
+      const held = feats.slice(0, j).filter((f) => f === slug).length;
+      const entry = slug && !rules.FEAT_CHOICE[slug] ? rules.entriesAt(C, data, i, slug).find((e) => e.k === held) : null;
+      const choice = slug && rules.FEAT_CHOICE[slug] ? featChoiceSelect(C, data, i, j, slug) : entry ? U.paramPicker(C, data, i, entry) : '';
       rows.push('<tr><td><div class="note">' + esc(label) + '</div>' + body + choice + '</td><td class="acts">' + acts.join(' ') + '</td></tr>');
     }
     const browser = target >= 0 ? featBrowser(C, UI, data, i, target) : '';

@@ -155,6 +155,14 @@ def bonus_flag(item):
     return {'bonus': True} if prereq.BONUS.search(plain(description(item))) else {}
 
 
+MODIFIERS_TAB = re.compile(r'modifiers?\s+tab', re.I)
+
+
+def tab_flag(item):
+    texts = [plain(description(item))] + [f"{m.get('condition') or ''} {m.get('notes') or ''}" for m in modifiers(item['system'])]
+    return {'_modTab': True} if modifiers(item['system']) and any(MODIFIERS_TAB.search(t) for t in texts) else {}
+
+
 def build_features(racial, theme):
     features = {}
     for slug, item in racial.items():
@@ -164,7 +172,7 @@ def build_features(racial, theme):
             'name': item['name'], 'kind': 'race', 'requirements': item['system'].get('requirements', ''),
             'level': None, 'aon': aon_search(item['name']), 'src': item['system'].get('source', ''),
             'summary': summarize(description(item)), 'modifiers': modifiers(item['system']),
-            **bonus_flag(item),
+            **bonus_flag(item), **tab_flag(item),
         }
     for slug, item in theme.items():
         if item['type'] != 'feat':
@@ -176,7 +184,7 @@ def build_features(racial, theme):
             'name': item['name'], 'kind': 'theme', 'requirements': req,
             'level': int(level.group(1)) if level else None, 'aon': aon_search(item['name']),
             'src': item['system'].get('source', ''), 'summary': summarize(description(item)),
-            'modifiers': modifiers(item['system']), **bonus_flag(item),
+            'modifiers': modifiers(item['system']), **bonus_flag(item), **tab_flag(item),
         }
     return features
 
@@ -201,6 +209,7 @@ SPECIALIZATION_TIERS = {'exploit': 5, 'power': 11}
 HEADING_LINK = re.compile(r'<h\d>\s*@UUID\[Compendium\.sfrpg\.class-features\.Item\.(\w+)\]')
 STRONG_LINK = re.compile(r'<strong>\s*@UUID\[Compendium\.sfrpg\.class-features\.Item\.(\w+)\]')
 SPEC_EXPLOIT = re.compile(r'Specialization Exploit(?:\s|:|</?strong>)*@UUID\[Compendium\.sfrpg\.class-features\.Item\.(\w+)\]')
+PAREN = re.compile(r'\s*\([^)]*\)')
 ASSOCIATED = re.compile(r'Associated Skills?(?:\s|:|</?strong>)*(.*?)(?:\.(?=\s|<)|</p>)', re.S)
 NEED_LINK = re.compile(r'@UUID\[Compendium\.sfrpg\.([\w-]+)\.(?:Item\.)?(?:JournalEntry\.)?(?:[\w]+\.JournalEntryPage\.)?([\w#-]+)\]\{([^}]*)\}')
 NEED_SENTENCE = re.compile(r'\bmust (?:have|be|know)\b((?:(?!\.\s).)*?)\bto (?:choose|learn|select|take)(?: or use)? (?:this|it)\b', re.I)
@@ -252,7 +261,7 @@ def associated_skills(markup):
     if not match:
         return []
     names = UUID_LABELLED.findall(match.group(1)) or re.split(r',|\band\b', plain(match.group(1)))
-    keys = [prereq.SKILL_KEYS.get(n.strip().casefold()) for n in names]
+    keys = [prereq.SKILL_KEYS.get(PAREN.sub('', n).strip().casefold()) for n in names]
     return [k for k in keys if k]
 
 
@@ -265,12 +274,15 @@ def class_feature_record(item, cls, lineage):
         'minLevel': min_level(req), 'requirements': req,
         'level': None, 'aon': aon_search(item['name']), 'src': item['system'].get('source', ''),
         'summary': summarize(markup, CLASS_SUMMARY_LIMIT), 'modifiers': modifiers(item['system']),
-        **bonus_flag(item),
+        **bonus_flag(item), **tab_flag(item),
     }
     if lineage and lineage['parent']:
         rec['parent'] = lineage['parent']
     if REPEATABLE.search(plain(markup)):
         rec['repeatable'] = True
+    if rec['category'] == 'connection':
+        skills = associated_skills(markup)
+        rec['associatedSkills'] = skills if len(skills) == 2 else []
     if rec['category'] == 'specialization':
         rec['skillFocus'] = associated_skills(markup)
         rec['freeRanks'] = True
@@ -613,7 +625,7 @@ def build_feats(items, features=None, prereq_overrides=None):
         feats[slug] = {
             'name': item['name'], 'combat': bool(s.get('details', {}).get('combat')), 'prereqText': text,
             'prereq': parsed, 'modifiers': modifiers(s), 'aon': aon('Feats', item['name']), 'src': s.get('source', ''),
-            'summary': summarize(markup[benefit.end():] if benefit else markup), **bonus_flag(item),
+            'summary': summarize(markup[benefit.end():] if benefit else markup), **bonus_flag(item), **tab_flag(item),
         }
     return feats
 
@@ -714,6 +726,44 @@ def apply_replacements(feats, features, overrides):
             raise ValueError(f'effect override {slug} replaces modifiers on an unknown record')
         target['modifiers'] = entry['modifiers']
         target['modifiersReplaced'] = True
+
+
+PARAM_KINDS = {'skill': sorted(prereq.SKILL_KEYS.values()), 'energy': ['acid', 'cold', 'electricity', 'fire', 'sonic']}
+PARAM_DERIVE = ('connectionSkills',)
+
+
+def check_param(slug, param, records):
+    kind = param.get('kind')
+    if kind not in PARAM_KINDS:
+        raise ValueError(f'choice param {slug}: unknown kind {kind}')
+    if 'derive' in param:
+        if param['derive'] not in PARAM_DERIVE:
+            raise ValueError(f'choice param {slug}: unknown derive {param["derive"]}')
+    elif not isinstance(param.get('count'), int) or param['count'] < 1:
+        raise ValueError(f'choice param {slug}: count must be a positive integer')
+    for key in param.get('from', []):
+        if key not in PARAM_KINDS[kind]:
+            raise ValueError(f'choice param {slug}: {key} is not a {kind}')
+    if 'within' in param and param['within'] not in records:
+        raise ValueError(f'choice param {slug}: within names unknown record {param["within"]}')
+
+
+def apply_choice_params(feats, features, entries):
+    records = {**features, **feats}
+    detected = sorted(k for k, r in records.items() if r.get('_modTab') and r['modifiers'])
+    unlisted = [k for k in detected if k not in entries]
+    if unlisted:
+        raise ValueError('player-choice records need a param or _why in choice_params.json: ' + ', '.join(unlisted))
+    for slug, entry in entries.items():
+        if slug not in records:
+            raise ValueError(f'choice_params.json names unknown record {slug}')
+        if not entry.get('_why'):
+            raise ValueError(f'choice_params.json {slug} needs a _why')
+        if 'param' in entry:
+            check_param(slug, entry['param'], records)
+            records[slug]['param'] = entry['param']
+    for rec in records.values():
+        rec.pop('_modTab', None)
 
 
 LEVELS = [str(n) for n in range(1, 21)]
@@ -820,7 +870,7 @@ def build_progressions(source, features, feats):
 
 def build(src, sha=None, built=None, core_path=ROOT / 'tools' / 'race_traits.json',
           prereq_path=ROOT / 'tools' / 'prereq_overrides.json', effects_path=ROOT / 'tools' / 'effect_overrides.json',
-          progressions_path=ROOT / 'tools' / 'class_progressions.json'):
+          progressions_path=ROOT / 'tools' / 'class_progressions.json', choice_params_path=ROOT / 'tools' / 'choice_params.json'):
     src = Path(src)
     racial = load_dir(src / 'racial-features')
     theme = load_dir(src / 'theme-features')
@@ -837,6 +887,7 @@ def build(src, sha=None, built=None, core_path=ROOT / 'tools' / 'race_traits.jso
     prune_needs(emitted)
     effect_overrides = load_json(effects_path)
     apply_replacements(feats, emitted, effect_overrides)
+    apply_choice_params(feats, emitted, load_json(choice_params_path))
     progressions = build_progressions(load_json(progressions_path), emitted, feats)
     check_needs_parsed(progressions, emitted)
     return {

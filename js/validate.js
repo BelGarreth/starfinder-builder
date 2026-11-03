@@ -2,6 +2,7 @@
   const rules = new Proxy({}, { get: (_, k) => (typeof module !== 'undefined' ? require('./rules.js') : root.SF)[k] });
 
   const gear = new Proxy({}, { get: (_, k) => (typeof module !== 'undefined' ? require('./gear.js') : root.SF)[k] });
+  const params = new Proxy({}, { get: (_, k) => (typeof module !== 'undefined' ? require('./params.js') : root.SF)[k] });
 
   const has = (o, k) => !!o && Object.prototype.hasOwnProperty.call(o, k);
   const table = (data, name) => (data && data[name]) || {};
@@ -28,6 +29,7 @@
   const hooks = {
     choiceBlockers: (char, data, ctx) => choiceBlockers(char, data, ctx),
     spellBlockers: (char, data, ctx) => spellBlockers(char, data, ctx),
+    paramBlockers: (char, data, ctx) => params.paramBlockers(char, data, ctx.levelIndex),
     gearBlockers: (char, data, ctx) => gear.gearBlockers(char, data, ctx)
   };
 
@@ -264,6 +266,9 @@
 
   function allowed(kind, slug, levelIndex, char, data, slot) {
     if (kind === 'class') return classAllowed(slug, levelIndex, char, data);
+    if (kind === 'choice' && slot && typeof slot === 'object' && params.isParam(data, slot.id)) {
+      return params.allowedChoice(char, data, levelIndex, slot.id, slug, slot.index);
+    }
     if (kind === 'choice' && slot && typeof slot === 'object' && has(gear.FEAT_CHOICE, slot.id)) {
       const why = gear.featChoiceProblem(char, data, levelIndex, slot.id, slug);
       return why ? { ok: false, why } : { ok: true };
@@ -496,7 +501,7 @@
     });
     const features = table(data, 'features');
     Object.keys(here.choices).forEach((id) => {
-      if (known.indexOf(id) !== -1 || has(gear.FEAT_CHOICE, id)) return;
+      if (known.indexOf(id) !== -1 || has(gear.FEAT_CHOICE, id) || params.isParam(data, id)) return;
       asList(here.choices[id]).forEach((k) => {
         if (typeof k !== 'string' || !has(features, k)) push('missing', "Feature '" + k + "' no longer exists", k);
         else push('invalid', features[k].name + ' is not a choice at ' + className(here.cls, data) + ' level ' + here.classLevel, k);
@@ -599,7 +604,7 @@
       else if (taken.length < available) push(n, 'feats', 'unspent', 'Level ' + n + ' has ' + (available - taken.length) + ' empty feat slots');
 
       const ctx = { level: n, levelIndex: i };
-      [hooks.choiceBlockers, hooks.spellBlockers].forEach((hook) => hook(char, data, ctx).forEach((b) => out.push(b)));
+      [hooks.choiceBlockers, hooks.paramBlockers, hooks.spellBlockers].forEach((hook) => hook(char, data, ctx).forEach((b) => out.push(b)));
     });
     const last = { level: levels.length, levelIndex: levels.length - 1 };
     hooks.gearBlockers(char, data, last).forEach((b) => out.push(b));

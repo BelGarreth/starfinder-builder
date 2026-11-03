@@ -100,6 +100,49 @@ test('weapon focus shows its weapon type picker with disabled types explained', 
   assert.ok(text(html).indexOf('Not proficient in longarms') !== -1, 'longarm reason');
 });
 
+test('skill focus shows a skill picker that disables a skill already chosen and writes the pick', () => {
+  const c = vesk();
+  c.levels[0].feats = ['skill_focus'];
+  c.levels.push({ class: 'soldier', increases: [], skills: {}, feats: ['skill_focus'], choices: {}, spells: {} });
+  c.levels.push({ class: 'soldier', increases: [], skills: {}, feats: ['skill_focus'], choices: {}, spells: {} });
+  c.levels[0].choices.skill_focus = 'per';
+  const html = U.tabFeats(c, ui({ lvl: 2 }), data, U.ctxOf(c, data));
+  assert.ok(html.indexOf('data-sel="paramChoice"') !== -1);
+  assert.ok(text(html).indexOf('Perception is already chosen for Skill Focus') !== -1);
+  U.selects.paramChoice(c, ui(), data, 'sen', '2', 'skill_focus|0');
+  assert.strictEqual(c.levels[2].choices.skill_focus, 'sen');
+  U.selects.paramChoice(c, ui(), data, '', '2', 'skill_focus|0');
+  assert.strictEqual(c.levels[2].choices.skill_focus, undefined);
+});
+
+test('lashunta student shows two skill pickers on the character tab', () => {
+  const c = vesk();
+  U.actions.race(c, ui(), data, 'lashunta');
+  const html = U.tabChar(c, ui(), data);
+  assert.strictEqual(html.split('data-sel="paramChoice"').length - 1, 2);
+  U.selects.paramChoice(c, ui(), data, 'cul', '0', 'student|0');
+  U.selects.paramChoice(c, ui(), data, 'mys', '0', 'student|1');
+  assert.strictEqual(JSON.stringify(c.levels[0].choices.student), '["cul","mys"]');
+});
+
+test('param picks for a feature that is no longer held are dropped on normalize', () => {
+  const c = vesk();
+  c.levels[0].choices.student = ['cul', 'mys'];
+  U.normalize(c, data);
+  assert.strictEqual(c.levels[0].choices.student, undefined);
+});
+
+test('exocortex resistance shows an energy picker on the class tab', () => {
+  const c = vesk();
+  c.levels = [];
+  for (let n = 0; n < 7; n++) c.levels.push({ class: 'mechanic', increases: [], skills: {}, feats: [], choices: {}, spells: {} });
+  c.levels[0].choices.ai = 'exocortex';
+  c.levels[6].choices.exocortexMod = 'resistance_(ex_exocortex)';
+  const html = U.tabClass(c, ui({ lvl: 6 }), data, U.ctxOf(c, data));
+  assert.ok(html.indexOf('data-sel="paramChoice"') !== -1);
+  assert.ok(text(html).indexOf('Sonic') !== -1);
+});
+
 test('fusions are offered but disabled with the pricing reason', () => {
   const c = vesk();
   for (let n = 0; n < 9; n++) c.levels.push({ class: 'soldier' });

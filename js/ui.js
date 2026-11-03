@@ -46,6 +46,9 @@
       if (!l.choices) l.choices = {};
       Object.keys(SF().FEAT_CHOICE).forEach((f) => { if (asList(l.feats).indexOf(f) === -1) delete l.choices[f]; });
     });
+    levelsOf(C).forEach((l, i) => {
+      Object.keys(l.choices).forEach((k) => { if (SF().isParam(data, k) && !SF().slotsAt(C, data, i, k)) delete l.choices[k]; });
+    });
     return C;
   };
 
@@ -179,6 +182,19 @@
       const total = feats.filter((f) => f === slug).length;
       const list = asList(lvl.choices[slug]).slice();
       list[k] = value;
+      const clean = list.slice(0, total).map((v) => (v === undefined ? '' : v));
+      if (!clean.some(Boolean)) delete lvl.choices[slug];
+      else lvl.choices[slug] = total > 1 ? clean : clean[0];
+    },
+    paramChoice: (C, UI, data, value, a, c) => {
+      const i = Number(a);
+      const at = String(c).lastIndexOf('|');
+      const slug = String(c).slice(0, at);
+      const index = Number(String(c).slice(at + 1));
+      const lvl = C.levels[i];
+      const total = SF().slotsAt(C, data, i, slug);
+      const list = asList(lvl.choices[slug]).slice();
+      list[index] = value;
       const clean = list.slice(0, total).map((v) => (v === undefined ? '' : v));
       if (!clean.some(Boolean)) delete lvl.choices[slug];
       else lvl.choices[slug] = total > 1 ? clean : clean[0];

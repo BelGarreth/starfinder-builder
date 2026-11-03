@@ -48,9 +48,14 @@
       const traits = asList(current.coreTraits).map((k) => (table(data, 'features')[k] || {}).name || k);
       const mods = asList(current.abilityMods).map(([n, a]) => sign(n) + ' ' + (a === 'any' ? 'any one' : a.toUpperCase())).join(', ');
       variant = '<div class="row c" style="margin-top:10px">' + fld('Variant', select('race', C.race, opts)) + '<span class="note">' + esc(current.name) + ': ' + esc(mods) + ', ' + esc(current.hp) + ' HP</span></div>'
-        + (traits.length ? '<p class="note">Racial traits: ' + esc(traits.join(', ')) + '</p>' : '');
+        + (traits.length ? '<p class="note">Racial traits: ' + esc(traits.join(', ')) + '</p>' : '') + traitPickers(C, data);
     }
     return '<div class="card"><h2>Race</h2>' + pickTable(rows, 'tall') + variant + '</div>';
+  }
+
+  function traitPickers(C, data) {
+    const entries = levelsOf(C).length ? SF().entriesAt(C, data, 0).filter((e) => e.rec.kind === 'race') : [];
+    return entries.map((e) => U.paramPicker(C, data, 0, e)).join('');
   }
 
   function themeCard(C, UI, data) {
@@ -200,6 +205,12 @@
       else if (e.skillPick) parts.push(skillPicker(C, UI, data, i, e, here));
       else if (e.abilityPick) parts.push(fld(e.label || 'Ability', select('levels.' + i + '.choices.' + e.abilityPick, here.choices[e.abilityPick], abilityAnyOptions())));
       else if (e.bonusFeat) parts.push('<p class="note">Bonus feat slot' + (e.pool === 'combat' ? ' (combat feats only)' : '') + '. ' + btn('goto', 'Fill it on the Feats tab', { c: 'sm', a: 'feats', b: i }) + '</p>');
+    });
+    const classFeatureEntries = rules.entriesAt(C, data, i).filter((e) => e.rec.kind === 'class');
+    classFeatureEntries.forEach((e) => parts.push('<h3>' + esc(e.rec.name) + ' <span class="mute">(' + esc(e.rec.param.kind === 'skill' ? 'skills' : 'energy types') + ')</span></h3>' + U.paramPicker(C, data, i, e)));
+    rules.classFeatures(C, data).filter((f) => f.levelIndex === i && features[f.slug].param && features[f.slug].param.derive).forEach((f) => {
+      const skills = rules.valuesFor({ rec: features[f.slug], cls: f.cls }, C, data).map((k) => rules.SKILLS[k].name);
+      parts.push('<p class="note">' + esc(features[f.slug].name) + ': ' + (skills.length ? 'applies to ' + esc(skills.join(' and ')) + ' from your connection.' : 'no skills are fixed by your connection, so it adds nothing to the sheet.') + '</p>');
     });
     const head = '<h2>Level ' + (i + 1) + ': ' + esc(className(data, here.cls)) + ' ' + here.classLevel + '</h2>';
     return U.levelTabs(C, UI, data, ctx, 'class') + '<div class="card">' + head

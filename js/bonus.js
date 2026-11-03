@@ -1,6 +1,7 @@
 (function(root){
   const rules = new Proxy({}, { get: (_, k) => (typeof module !== 'undefined' ? require('./rules.js') : root.SF)[k] });
   const formula = new Proxy({}, { get: (_, k) => (typeof module !== 'undefined' ? require('./formula.js') : root.SF)[k] });
+  const params = new Proxy({}, { get: (_, k) => (typeof module !== 'undefined' ? require('./params.js') : root.SF)[k] });
 
   const UNTYPED = 'untyped';
   const CIRCUMSTANCE = 'circumstance';
@@ -115,37 +116,48 @@
     const seen = {};
     const feats = table(data, 'feats');
     const features = table(data, 'features');
-    const add = (kind, key, rec) => {
+    const add = (kind, key, rec, levelIndex, k, cls) => {
       const id = kind + ':' + key;
-      if (!rec || seen[id]) return;
+      if (!rec) return;
+      const repeats = !!(rec.param && rec.param.perInstance);
+      if (seen[id] && !repeats) return;
       seen[id] = true;
-      out.push({ kind, key, rec });
+      out.push({ kind, key, rec, levelIndex, k: k || 0, cls });
     };
-    const addFeature = (key) => { if (has(features, key)) add('feature', key, features[key]); };
     const total = rules.charLevel(char || {});
 
     const raceKey = char && char.race;
     const races = table(data, 'races');
     if (raceKey && has(races, raceKey)) {
-      add('race', raceKey, races[raceKey]);
-      asList(races[raceKey].coreTraits).forEach(addFeature);
+      add('race', raceKey, races[raceKey], 0);
+      asList(races[raceKey].coreTraits).forEach((k) => { if (has(features, k)) add('feature', k, features[k], 0); });
     }
 
     const themeKey = char && char.theme;
     const themes = table(data, 'themes');
     if (themeKey && has(themes, themeKey)) {
-      add('theme', themeKey, themes[themeKey]);
+      add('theme', themeKey, themes[themeKey], 0);
       asList(themes[themeKey].features).forEach((k) => {
         const f = has(features, k) ? features[k] : null;
         const gate = f && typeof f.level === 'number' ? f.level : THEME_FEATURE_DEFAULT_LEVEL;
-        if (gate <= total) addFeature(k);
+        if (gate <= total) add('feature', k, f, Math.max(gate - 1, 0));
       });
     }
 
-    levelsOf(char).forEach((lvl) => {
-      asList(lvl && lvl.feats).forEach((k) => { if (has(feats, k)) add('feat', k, feats[k]); });
+    levelsOf(char).forEach((lvl, i) => {
+      const held = {};
+      asList(lvl && lvl.feats).forEach((k) => {
+        if (!has(feats, k)) return;
+        held[k] = (held[k] || 0) + 1;
+        add('feat', k, feats[k], i, held[k] - 1);
+      });
     });
-    rules.classFeatures(char || {}, data).forEach((f) => addFeature(f.slug));
+    const grants = {};
+    rules.classFeatures(char || {}, data).forEach((f) => {
+      const id = f.levelIndex + '|' + f.slug;
+      grants[id] = (grants[id] || 0) + 1;
+      if (has(features, f.slug)) add('feature', f.slug, features[f.slug], f.levelIndex, grants[id] - 1, f.cls);
+    });
 
     const items = table(data, 'items');
     const gear = Array.isArray(char && char.gear) ? char.gear : [];
@@ -168,6 +180,17 @@
     return own.concat(extra);
   }
 
+  function chosenModifiers(entry, mods, char, data) {
+    const param = entry.rec.param;
+    if (!param) return mods;
+    const effectType = params.EFFECT_TYPE[param.kind];
+    const matching = mods.filter((m) => m.effectType === effectType);
+    if (!matching.length) return mods;
+    const values = params.valuesFor(entry, char, data);
+    const chosen = values.map((v, j) => Object.assign({}, matching[j] || matching[0], { valueAffected: v }));
+    return mods.filter((m) => m.effectType !== effectType).concat(chosen);
+  }
+
   function collectModifiers(char, data, opts) {
     const o = opts || {};
     const state = Object.assign({ armorType: armorTypeOf(char, data), encumbered: false }, o.state);
@@ -175,7 +198,7 @@
     const situational = [];
     const inactive = [];
     gatherRecords(char, data).forEach((entry) => {
-      modifiersOf(entry, data).forEach((m) => {
+      chosenModifiers(entry, modifiersOf(entry, data), char, data).forEach((m) => {
         const tagged = Object.assign({}, m, { source: entry.rec.name || entry.key, sourceKey: entry.key, kind: entry.kind });
         if (m.modifierType !== 'constant') situational.push(tagged);
         else if (whenHolds(m.when, state)) constants.push(tagged);
@@ -212,6 +235,6 @@
     return stack(bonuses);
   }
 
-  const api = { stack, target, whenHolds, armorTypeOf, overrideKeys, collectModifiers, resolve, totalFor };
+  const api = { stack, target, whenHolds, armorTypeOf, overrideKeys, collectModifiers, gatherRecords, resolve, totalFor };
   if (typeof module !== 'undefined') module.exports = api; else root.SF = Object.assign(root.SF || {}, api);
 })(this);
