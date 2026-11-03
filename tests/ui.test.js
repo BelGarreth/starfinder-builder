@@ -505,3 +505,27 @@ test('play text is escaped on the Sheet', () => {
   const html = U.renderMain(c, ui({ tab: 'sheet' }), data, U.ctxOf(c, data));
   assert.ok(html.indexOf('<img') === -1 && html.indexOf('<script') === -1);
 });
+
+test('temp Con, key ability and casting ability flow into Sheet SP, RP and spell slots only', () => {
+  const c = JSON.parse(fs.readFileSync(path.join(__dirname, 'fixtures', 'edit-level1-after-5.json'), 'utf8'));
+  const build = win.SF.derive(c, data);
+  c.play = { temp: { con: 4 } };
+  assert.strictEqual(win.SF.derive(c, data, { play: true }).sp, build.sp + 10);
+  assert.strictEqual(win.SF.derive(c, data).sp, build.sp);
+  const kas = data.classes[c.levels[0].class].kas;
+  c.play = { temp: { [kas]: 4 } };
+  assert.strictEqual(win.SF.derive(c, data, { play: true }).rp, build.rp + 2);
+  assert.strictEqual(win.SF.derive(c, data).rp, build.rp);
+
+  const m = vesk();
+  m.levels[0].class = 'mystic';
+  const plain = text(U.renderMain(m, ui({ tab: 'sheet' }), data, U.ctxOf(m, data)));
+  m.play = { temp: { wis: 10 } };
+  const boosted = text(U.renderMain(m, ui({ tab: 'sheet' }), data, U.ctxOf(m, data)));
+  assert.notStrictEqual(boosted.slice(boosted.indexOf('Spells: Mystic')), plain.slice(plain.indexOf('Spells: Mystic')));
+  const sum = (o) => Object.keys(o).reduce((n, k) => n + o[k], 0);
+  assert.ok(sum(win.SF.spellSlots(m, data, { wis: 10 }).mystic.perDay) > sum(win.SF.spellSlots(m, data).mystic.perDay));
+  assert.strictEqual(sum(win.SF.spellSlots(m, data).mystic.perDay), sum(win.SF.spellSlots(vesk_as_mystic(), data).mystic.perDay));
+});
+
+function vesk_as_mystic() { const m = vesk(); m.levels[0].class = 'mystic'; return m; }

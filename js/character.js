@@ -653,7 +653,7 @@
   }
 
   function playAdjust(C, data, key, delta) {
-    const cur = playCurrent(C, SF().derive(C, data));
+    const cur = playCurrent(C, SF().derive(C, data, { play: true }));
     const step = Math.floor(Number(delta));
     if (!Number.isFinite(step)) return;
     const play = playPath(C);
@@ -692,7 +692,7 @@
       const input = '<input' + u.attrs({ type: 'number', class: 'n s', 'data-b': 'play.' + key + '.current', 'data-t': 'n', min: 0, max: m.max, 'data-min': 0, 'data-max': m.max, value: m.current, 'aria-label': 'Current ' + label }) + '>';
       return '<div class="stat"><small>' + esc(label) + '</small><div class="curow">' + u.btn('playAdj', '−', { c: 'sm', a: key, b: -1, title: label + ' −1' }) + input + u.btn('playAdj', '+', { c: 'sm', a: key, b: 1, title: label + ' +1' }) + '</div><span class="note">of ' + esc(m.max) + '</span>' + (extra || '') + '</div>';
     };
-    const nonlethal = '<div class="curow">' + u.btn('playAdj', '−', { c: 'sm', a: 'nonlethal', b: -1, title: 'Nonlethal −1' }) + '<input' + u.attrs({ type: 'number', class: 'n s', 'data-b': 'play.hp.nonlethal', 'data-t': 'n', 'data-z': 'del', min: 0, 'data-min': 0, value: cur.hp.nonlethal || '', 'aria-label': 'Nonlethal damage', placeholder: '0' }) + '>' + u.btn('playAdj', '+', { c: 'sm', a: 'nonlethal', b: 1, title: 'Nonlethal +1' }) + '</div><span class="note">nonlethal</span>';
+    const nonlethal = '<div class="curow">' + u.btn('playAdj', '−', { c: 'sm', a: 'nonlethal', b: -1, title: 'Nonlethal −1' }) + '<input' + u.attrs({ type: 'number', class: 'n s', 'data-b': 'play.hp.nonlethal', 'data-t': 'n', 'data-z': 'del', min: 0, 'data-min': 0, max: 1000000, 'data-max': 1000000, value: cur.hp.nonlethal || '', 'aria-label': 'Nonlethal damage', placeholder: '0' }) + '>' + u.btn('playAdj', '+', { c: 'sm', a: 'nonlethal', b: 1, title: 'Nonlethal +1' }) + '</div><span class="note">nonlethal</span>';
     const actions = '<div class="row c">' + u.btn('playRest', 'Rest', { title: 'Restore SP and RP to max' }) + u.btn('playHeal', 'Heal to full', { title: 'Restore HP to max and clear nonlethal damage' }) + u.btn('playResetTemp', 'Reset temp bonuses') + '</div>';
     const play = isObject(C.play) ? C.play : {};
     const conditions = '<label class="fld">Conditions<input type="text" class="w" data-b="play.conditions" value="' + esc(play.conditions || '') + '"></label>';
@@ -778,11 +778,11 @@
     return known;
   }
 
-  function sheetSpells(C, data) {
+  function sheetSpells(C, data, adj) {
     const u = UI();
     const rules = SF();
     const spells = u.table(data, 'spells');
-    const slots = rules.spellSlots(C, data);
+    const slots = rules.spellSlots(C, data, adj);
     const conn = rules.connectionSpells(C, data);
     return Object.keys(slots).map((cls) => {
       const levels = Object.keys(slots[cls].known).sort((a, b) => a - b);
@@ -833,7 +833,7 @@
       + sheetCard('Defense', [t('eac', 'EAC', p.eac, d('eac')), t('kac', 'KAC', p.kac, d('kac')), t('cmd', 'CMD', p.cmd, d('cmd')), t('fort', 'Fort', sign(p.fort), d('fort')), t('ref', 'Ref', sign(p.ref), d('ref')), t('will', 'Will', sign(p.will), d('will'))])
       + sheetCard('Offense', [t('initiative', 'Init', sign(p.initiative), d('initiative')), sheetStat('BAB', sign(p.bab)), t('speed.land', 'Speed', p.speed + ' ft', d('speed'))])
       + reset + sheetAttacks(C, p, build) + sheetSkills(C, p, build) + sheetSituational(p) + sheetFeats(C, data) + sheetFeatures(C, data) + sheetTraits(C, data)
-      + sheetSpells(C, data) + sheetGear(C, data, p) + notes + '</div>';
+      + sheetSpells(C, data, p.spellAdjust) + sheetGear(C, data, p) + notes + '</div>';
   }
 
   const actions = {
