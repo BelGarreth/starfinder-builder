@@ -38,6 +38,41 @@ modifiers, writes these in their place and sets `modifiersReplaced`, and the ent
 carry `"when": "armor"`, meaning it applies only while armor is equipped, or `"when": "lightOrNoArmor"`, meaning only in light armor or none and not encumbered. The build fails if a feat has
 no prerequisite or a bonus-bearing feat or feature has no constant modifier and no override.
 
+### Class progressions
+
+`tools/class_progressions.json` holds each Phase 1 class as `{levels: {"1".."20": [Entry]}, enhanced?: {levels}}`,
+authored from the Core Rulebook class tables. It lands in `SFDATA.progressions[class]`. The build fails
+if a class lacks any level from 1 to 20, or if an entry names a feature, feat, skill or choice id that
+does not exist. An `_enhanced` class uses its base levels plus `enhanced.levels`. An enhanced choice
+with the same id as a base choice at that level replaces it. An entry is one of:
+
+- `{fixed: slug}`: the feature is gained at that class level.
+- `{choice: id, label, pool, count, minLevelFrom?, allowKnown?}`: the player picks `count` features,
+  stored as `char.levels[i].choices[id]` (a slug or a list of slugs). In the source file `pool` may be
+  `{category, exclude?, enhanced?}`, which the build expands to every feature of that class and category.
+  In `SFDATA` it is a slug list or `{poolOf: id}`, meaning the same pool as choice `id`. A pick is
+  blocked if it is outside the pool, if its `minLevel` is above the class level, or if it repeats an
+  earlier pick or granted feature, unless the feature is `repeatable` or the entry has `allowKnown`.
+- `{fixedOf: id, tier}`: grants the features the option chosen for choice `id` lists under
+  `grants[tier]`. Fighting styles, connections and specializations get `grants` from their own text:
+  the style techniques at 1/5/9/13/17, the connection powers at 1/3/6/9/12/15/18, and the specialization
+  exploit (5) and power (11). The secondary fighting style uses tiers 1/5/9 at soldier levels 9/13/17.
+- `{bonusFeat: true, pool?}`: an extra feat slot at that level; `pool` is `"combat"` or a feat slug list.
+  Restricted slots sort after open ones, and `char.levels[i].feats` fills them in that order.
+- `{skillPick: id, label, count, from?, minRanks?, classSkill?, skillFocus?}`: skills picked into
+  `choices[id]`. `classSkill` makes them class skills and `skillFocus` gives the +3 insight bonus.
+- `{abilityPick: id}`: one ability score key.
+
+A specialization's `skillFocus` list gives its associated skills the Skill Focus bonus. `_minLevels`
+corrects a feature's level where Foundry's requirement text is wrong, such as the 11th-level exocortex mods.
+
+Known gaps: the mechanic gets the exocortex only. The drone is not offered, so drone mods and Control
+Net's drone half are not modelled, and mechanic tricks that need a drone are still listed in the pool.
+Pool options are gated by level only; other requirement text on an option is not enforced. The solarian's solar weapon, flare and shield are
+inventory items in Foundry, so the armor-or-weapon pick is left to gear. Zenith revelations are checked
+for count but not for the one-graviton, one-photon split. The Bully and Diplomat specialization powers
+have no feature record to grant.
+
 ## Tests
 
 ```

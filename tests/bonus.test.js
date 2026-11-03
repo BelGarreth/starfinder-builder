@@ -91,7 +91,6 @@ test('armorTypeOf uses the first equipped item with an armor field', () => {
 
 test('quick movement applies only in light armor or none and not encumbered', () => {
   const c = levelled('operative', 9);
-  c.levels[0].choices = { exploit: 'quick_movement_(ex)' };
   const lightKey = Object.keys(data.items).find((k) => data.items[k].armor && data.items[k].armor.type === 'light');
   const heavyKey = Object.keys(data.items).find((k) => data.items[k].armor && data.items[k].armor.type === 'heavy');
   assert.strictEqual(bonus.totalFor(c, data, 'speed.land'), 20);
@@ -144,12 +143,15 @@ test('feature override keys: feature:<slug> on a feat collision, class- prefix k
 });
 
 test('chosen class features accept slugs and arrays, and automatic features come from progressions', () => {
+  const fake = Object.assign({}, data, { progressions: { operative: { levels: { 1: [{ choice: 'exploit', pool: ['quick_movement_(ex)'], count: 1 }] } } } });
   const c = levelled('operative', 1);
   c.levels[0].choices = { exploit: ['quick_movement_(ex)'] };
-  assert.ok(bonus.collectModifiers(c, data).constants.some((m) => m.sourceKey === 'quick_movement_(ex)'));
-  const fake = Object.assign({}, data, { progressions: { operative: { features: { 1: ['quick_movement_(ex)'] } } } });
-  const d = levelled('operative', 1);
-  assert.ok(bonus.collectModifiers(d, fake).constants.some((m) => m.sourceKey === 'quick_movement_(ex)'));
+  assert.ok(bonus.collectModifiers(c, fake).constants.some((m) => m.sourceKey === 'quick_movement_(ex)'));
+  c.levels[0].choices = { other: 'quick_movement_(ex)' };
+  assert.ok(!bonus.collectModifiers(c, fake).constants.some((m) => m.sourceKey === 'quick_movement_(ex)'));
+  const d = levelled('operative', 3);
+  assert.ok(bonus.collectModifiers(d, data).constants.some((m) => m.sourceKey === 'quick_movement_(ex)'));
+  assert.ok(!bonus.collectModifiers(levelled('operative', 2), data).constants.some((m) => m.sourceKey === 'quick_movement_(ex)'));
 });
 
 test('equipped gear, slotted upgrades and fusions contribute; unequipped gear does not', () => {

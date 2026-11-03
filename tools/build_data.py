@@ -184,7 +184,7 @@ def build_features(racial, theme):
 CLASS_REQ = re.compile(r'\b(' + '|'.join(CLASSES) + r')\b', re.I)
 OTHER_CLASS_REQ = re.compile(r'vanguard|witchwarper|biohacker|evolutionist|nanocyte|precog', re.I)
 MIN_LEVEL = re.compile(r'(\d+)(?:st|nd|rd|th)?\s+(?:level|lvl|technique)|level\s+(\d+)', re.I)
-LINEAGE_LABEL = re.compile(r'^\s*<p>\s*&gt;\s*@UUID\[[^\]]*\]\{([^}]*)\}')
+LINEAGE_LABEL = re.compile(r'^\s*<p>\s*(?:&gt;)*\s*(?:<span>)?\s*@UUID\[Compendium\.sfrpg\.(classes|class-features)\.Item\.(\w+)\]\{([^}]*)\}\s*(?:</span>)?\s*</p>')
 LINEAGE = {
     'operative exploit': ('operative', 'exploit'), 'stellar revelation': ('solarian', 'revelation'),
     'zenith revelation': ('solarian', 'zenithRevelation'), 'magic hack': ('technomancer', 'hack'),
@@ -192,38 +192,131 @@ LINEAGE = {
     'fighting style': ('soldier', 'fightingStyle'), 'mechanic trick': ('mechanic', 'mechanicTrick'),
     'exocortex mods (ex)': ('mechanic', 'exocortexMod'), 'connection': ('mystic', 'connection'),
     'envoy improvisation': ('envoy', 'improvisation'), 'expertise talent': ('envoy', 'expertiseTalent'),
+    'specialization': ('operative', 'specialization'), 'solar manifestation (su)': ('solarian', 'manifestation'),
 }
 LINEAGE.update({c: (c, None) for c in CLASSES})
 LINEAGE.update({f'{c}, enhanced': (c, None) for c in CLASSES})
+OPTION_TIERS = {'fightingStyle': [1, 5, 9, 13, 17], 'connection': [1, 3, 6, 9, 12, 15, 18]}
+SPECIALIZATION_TIERS = {'exploit': 5, 'power': 11}
+HEADING_LINK = re.compile(r'<h\d>\s*@UUID\[Compendium\.sfrpg\.class-features\.Item\.(\w+)\]')
+STRONG_LINK = re.compile(r'<strong>\s*@UUID\[Compendium\.sfrpg\.class-features\.Item\.(\w+)\]')
+SPEC_EXPLOIT = re.compile(r'Specialization Exploit(?:\s|:|</?strong>)*@UUID\[Compendium\.sfrpg\.class-features\.Item\.(\w+)\]')
+ASSOCIATED = re.compile(r'Associated Skills?(?:\s|:|</?strong>)*(.*?)(?:\.(?=\s|<)|</p>)', re.S)
+REPEATABLE = re.compile(r'(?:select|choose|take|learn|gain)\s+(?:this|it)[^.]{0,40}(?:more than once|multiple times)|each subsequent time you (?:choose|select|take) this', re.I)
 
 
-def class_lineage(item):
-    match = LINEAGE_LABEL.match(description(item))
-    return LINEAGE.get(match.group(1).strip().casefold()) if match else None
+def class_lineage(slug, class_features, by_id, class_ids, memo=None, seen=()):
+    memo = {} if memo is None else memo
+    if slug in memo:
+        return memo[slug]
+    if slug in seen:
+        return None
+    match = LINEAGE_LABEL.match(description(class_features[slug]))
+    out = None
+    if match:
+        collection, target, label = match.groups()
+        named = LINEAGE.get(label.strip().casefold())
+        if collection == 'classes':
+            cls_slug = class_ids.get(target, '')
+            out = {'cls': cls_slug.removesuffix('_enhanced') or (named or (None,))[0], 'category': None,
+                   'parent': None, 'enhanced': cls_slug.endswith('_enhanced')}
+        else:
+            parent = by_id.get(target)
+            up = class_lineage(parent, class_features, by_id, class_ids, memo, seen + (slug,)) if parent else None
+            if up:
+                out = {'cls': up['cls'], 'category': named[1] if named else None, 'parent': parent, 'enhanced': up['enhanced']}
+            elif named:
+                out = {'cls': named[0], 'category': named[1], 'parent': parent, 'enhanced': False}
+    memo[slug] = out
+    return out
 
 
-def build_class_features(class_features, features):
-    out = {}
-    for slug, item in class_features.items():
-        if item['type'] != 'feat':
-            continue
+def min_level(req):
+    level = MIN_LEVEL.search(req)
+    return int(level.group(1) or level.group(2)) if level else None
+
+
+def associated_skills(markup):
+    match = ASSOCIATED.search(markup)
+    if not match:
+        return []
+    names = UUID_LABELLED.findall(match.group(1)) or re.split(r',|\band\b', plain(match.group(1)))
+    keys = [prereq.SKILL_KEYS.get(n.strip().casefold()) for n in names]
+    return [k for k in keys if k]
+
+
+def class_feature_record(item, cls, lineage):
+    req = item['system'].get('requirements', '') or ''
+    markup = description(item)
+    rec = {
+        'name': item['name'], 'kind': 'class', 'cls': cls, 'category': lineage['category'] if lineage else None,
+        'enhanced': 'enhanced' in req.lower() or bool(lineage and lineage['enhanced']),
+        'minLevel': min_level(req), 'requirements': req,
+        'level': None, 'aon': aon_search(item['name']), 'src': item['system'].get('source', ''),
+        'summary': summarize(markup, CLASS_SUMMARY_LIMIT), 'modifiers': modifiers(item['system']),
+        **bonus_flag(item),
+    }
+    if lineage and lineage['parent']:
+        rec['parent'] = lineage['parent']
+    if REPEATABLE.search(plain(markup)):
+        rec['repeatable'] = True
+    if rec['category'] == 'specialization':
+        rec['skillFocus'] = associated_skills(markup)
+    return rec
+
+
+def build_class_features(class_features, features, classes=None):
+    feats = {s: i for s, i in class_features.items() if i['type'] == 'feat'}
+    by_id = {i['_id']: s for s, i in feats.items()}
+    class_ids = {i['_id']: s for s, i in (classes or {}).items()}
+    memo = {}
+    raw = {}
+    for slug, item in feats.items():
         req = item['system'].get('requirements', '') or ''
         named = CLASS_REQ.search(req)
-        lineage = class_lineage(item)
+        lineage = class_lineage(slug, feats, by_id, class_ids, memo)
+        if lineage and lineage['cls'] not in CLASSES:
+            continue
         if (not named and not lineage) or (not named and OTHER_CLASS_REQ.search(req)):
             continue
-        cls = named.group(1).lower() if named else lineage[0]
-        level = MIN_LEVEL.search(req)
-        key = slug if slug not in features and slug not in out else f'class-{slug}'
-        out[key] = {
-            'name': item['name'], 'kind': 'class', 'cls': cls, 'category': lineage[1] if lineage else None,
-            'enhanced': 'enhanced' in req.lower(),
-            'minLevel': int(level.group(1) or level.group(2)) if level else None, 'requirements': req,
-            'level': None, 'aon': aon_search(item['name']), 'src': item['system'].get('source', ''),
-            'summary': summarize(description(item), CLASS_SUMMARY_LIMIT), 'modifiers': modifiers(item['system']),
-            **bonus_flag(item),
-        }
+        raw[slug] = class_feature_record(item, lineage['cls'] if lineage else named.group(1).lower(), lineage)
+        grants = option_grants(raw[slug]['category'], description(item), by_id)
+        if grants:
+            raw[slug]['grants'] = grants
+    for slug, rec in list(raw.items()):
+        for granted in [g for tier in rec.get('grants', {}).values() for g in tier]:
+            if granted not in raw:
+                orphan = {'cls': rec['cls'], 'category': None, 'parent': slug, 'enhanced': rec['enhanced']}
+                raw[granted] = class_feature_record(feats[granted], rec['cls'], orphan)
+    key_of = {}
+    for slug in raw:
+        key_of[slug] = slug if slug not in features and slug not in key_of.values() else f'class-{slug}'
+    out = {}
+    for slug, rec in raw.items():
+        if rec.get('parent'):
+            rec['parent'] = key_of.get(rec['parent'])
+            if rec['parent'] is None:
+                del rec['parent']
+        for tier, slugs in rec.get('grants', {}).items():
+            rec['grants'][tier] = [key_of[g] for g in slugs]
+        out[key_of[slug]] = rec
     return out
+
+
+def option_grants(category, markup, by_id):
+    grants = {}
+    if category in OPTION_TIERS:
+        linked = [by_id[i] for i in HEADING_LINK.findall(markup) if i in by_id]
+        for tier, slug in zip(OPTION_TIERS[category], linked):
+            grants[str(tier)] = [slug]
+    if category == 'specialization':
+        exploit = SPEC_EXPLOIT.search(markup)
+        if exploit and exploit.group(1) in by_id:
+            grants[str(SPECIALIZATION_TIERS['exploit'])] = [by_id[exploit.group(1)]]
+        powers = [by_id[i] for i in STRONG_LINK.findall(markup) if i in by_id and (not exploit or i != exploit.group(1))]
+        if powers:
+            grants[str(SPECIALIZATION_TIERS['power'])] = powers[:1]
+    return grants
 
 
 def load_core_traits(path, all_features):
@@ -439,13 +532,101 @@ def apply_replacements(feats, features, overrides):
         target['modifiersReplaced'] = True
 
 
+LEVELS = [str(n) for n in range(1, 21)]
+ENTRY_KINDS = ('fixed', 'choice', 'fixedOf', 'bonusFeat', 'skillPick', 'abilityPick')
+
+
+def apply_min_levels(features, table):
+    for slug, level in table.items():
+        if slug.startswith('_'):
+            continue
+        if slug not in features:
+            raise ValueError(f'class_progressions.json _minLevels names unknown feature {slug}')
+        features[slug]['minLevel'] = level
+
+
+def expand_pool(pool, cls, features):
+    if not isinstance(pool, dict) or 'category' not in pool:
+        return pool
+    exclude = set(pool.get('exclude', []))
+    return sorted(k for k, f in features.items()
+                  if f['kind'] == 'class' and f['cls'] == cls and f['category'] == pool['category']
+                  and k not in exclude and (pool.get('enhanced') or not f['enhanced']))
+
+
+def check_entry(entry, cls, where, features, feats, choice_ids):
+    kinds = [k for k in ENTRY_KINDS if k in entry]
+    if len(kinds) != 1:
+        raise ValueError(f'{where}: entry must have exactly one of {ENTRY_KINDS}: {entry}')
+    if 'fixed' in entry and entry['fixed'] not in features:
+        raise ValueError(f'{where}: unknown feature {entry["fixed"]}')
+    if 'choice' in entry:
+        pool = entry['pool']
+        if isinstance(pool, dict):
+            if pool.get('poolOf') not in choice_ids:
+                raise ValueError(f'{where}: poolOf names unknown choice {pool.get("poolOf")}')
+        else:
+            if not pool:
+                raise ValueError(f'{where}: choice {entry["choice"]} has an empty pool')
+            for slug in pool:
+                if slug not in features:
+                    raise ValueError(f'{where}: pool of {entry["choice"]} names unknown feature {slug}')
+    if 'fixedOf' in entry and entry['fixedOf'] not in choice_ids:
+        raise ValueError(f'{where}: fixedOf names unknown choice {entry["fixedOf"]}')
+    if 'bonusFeat' in entry and isinstance(entry.get('pool'), list):
+        for slug in entry['pool']:
+            if slug not in feats:
+                raise ValueError(f'{where}: bonus feat pool names unknown feat {slug}')
+    if 'skillPick' in entry:
+        for key in entry.get('from', []):
+            if key not in prereq.SKILL_KEYS.values():
+                raise ValueError(f'{where}: unknown skill {key}')
+
+
+def build_progressions(source, features, feats):
+    apply_min_levels(features, source.get('_minLevels', {}))
+    out = {}
+    for cls in CLASSES:
+        if cls not in source:
+            raise ValueError(f'class_progressions.json is missing class {cls}')
+        prog = source[cls]
+        missing = [n for n in LEVELS if n not in prog.get('levels', {})]
+        if missing:
+            raise ValueError(f'class_progressions.json: {cls} lacks levels {", ".join(missing)}')
+        blocks = {'levels': prog['levels']}
+        if 'enhanced' in prog:
+            blocks['enhanced'] = prog['enhanced']['levels']
+        choice_ids = {e['choice'] for block in blocks.values() for entries in block.values() for e in entries if 'choice' in e}
+        built = {}
+        for name, block in blocks.items():
+            levels = {}
+            for n, entries in block.items():
+                if n not in LEVELS:
+                    raise ValueError(f'class_progressions.json: {cls} has unknown level {n}')
+                expanded = []
+                for entry in entries:
+                    e = dict(entry)
+                    if 'choice' in e:
+                        e['pool'] = expand_pool(e['pool'], cls, features)
+                    check_entry(e, cls, f'{cls} {name} {n}', features, feats, choice_ids)
+                    expanded.append(e)
+                levels[n] = expanded
+            built[name] = levels
+        out[cls] = {'levels': built['levels']}
+        if 'enhanced' in built:
+            out[cls]['enhanced'] = {'levels': built['enhanced']}
+    return out
+
+
 def build(src, sha=None, built=None, core_path=ROOT / 'tools' / 'race_traits.json',
-          prereq_path=ROOT / 'tools' / 'prereq_overrides.json', effects_path=ROOT / 'tools' / 'effect_overrides.json'):
+          prereq_path=ROOT / 'tools' / 'prereq_overrides.json', effects_path=ROOT / 'tools' / 'effect_overrides.json',
+          progressions_path=ROOT / 'tools' / 'class_progressions.json'):
     src = Path(src)
     racial = load_dir(src / 'racial-features')
     theme = load_dir(src / 'theme-features')
     features = build_features(racial, theme)
-    class_features = build_class_features(load_dir(src / 'class-features'), features)
+    class_items = load_dir(src / 'classes')
+    class_features = build_class_features(load_dir(src / 'class-features'), features, class_items)
     races = build_races(load_dir(src / 'races'), racial, load_core_traits(core_path, features))
     themes = build_themes(load_dir(src / 'themes'), theme, features)
     used = {t for r in races.values() for t in r['coreTraits'] + r['altTraits']} | {f for t in themes.values() for f in t['features']}
@@ -453,16 +634,17 @@ def build(src, sha=None, built=None, core_path=ROOT / 'tools' / 'race_traits.jso
     emitted = {**{k: v for k, v in features.items() if k in used}, **class_features}
     effect_overrides = load_json(effects_path)
     apply_replacements(feats, emitted, effect_overrides)
+    progressions = build_progressions(load_json(progressions_path), emitted, feats)
     return {
         'meta': {'foundrySha': sha, 'built': built},
         'races': races,
         'themes': themes,
-        'classes': build_classes(load_dir(src / 'classes')),
+        'classes': build_classes(class_items),
         'feats': feats,
         'features': emitted,
         'spells': build_spells(load_dir(src / 'spells')),
         'items': build_items(load_dir(src / 'equipment')),
-        'progressions': {},
+        'progressions': progressions,
         'overrides': {'effects': effect_values(effect_overrides)},
     }
 

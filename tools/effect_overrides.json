@@ -2797,5 +2797,168 @@
     "notes": ""
    }
   ]
+ },
+ "biome_bond_(su)": {
+  "_why": "Conditional: the +2 insight initiative and +2 resistance saves apply only in the bonded biome (saves only against hazards).",
+  "replace": true,
+  "modifiers": [
+   {
+    "name": "Biome Bond",
+    "type": "insight",
+    "effectType": "initiative",
+    "valueAffected": "",
+    "modifier": "2",
+    "modifierType": "formula",
+    "condition": "While in your bonded biome",
+    "notes": ""
+   },
+   {
+    "name": "Biome Bond",
+    "type": "resistance",
+    "effectType": "saves",
+    "valueAffected": "",
+    "modifier": "2",
+    "modifierType": "formula",
+    "condition": "Against hazards while in your bonded biome",
+    "notes": ""
+   }
+  ]
+ },
+ "system_mastery_(su)": {
+  "_why": "Conditional: +4 enhancement to saves only against diseases.",
+  "replace": true,
+  "modifiers": [
+   {
+    "name": "System Mastery",
+    "type": "enhancement",
+    "effectType": "saves",
+    "valueAffected": "",
+    "modifier": "4",
+    "modifierType": "formula",
+    "condition": "Against diseases",
+    "notes": ""
+   }
+  ]
+ },
+ "blood_mark_(su)": {
+  "_why": "Activated after a kill; the chosen +1 morale bonus applies only against the attuned creature type.",
+  "effects": "none"
+ },
+ "calibrate_defenses_(ex)": {
+  "_why": "Move action against one enemy's next attack while wearing the armor prototype; nothing constant.",
+  "effects": "none"
+ },
+ "dancing_flame_(su)": {
+  "_why": "Reaction after a successful Reflex save; no numeric bonus.",
+  "effects": "none"
+ },
+ "divine_protection_(su)": {
+  "_why": "Conditional: +2 divine to saves only against fear and disease.",
+  "effects": [
+   {
+    "name": "Divine Protection",
+    "type": "divine",
+    "effectType": "saves",
+    "valueAffected": "",
+    "modifier": "2",
+    "modifierType": "formula",
+    "condition": "Against fear effects and diseases",
+    "notes": ""
+   }
+  ]
+ },
+ "empathy_(su)": {
+  "_why": "Full-action Sense Motive use; no bonus to the sheet.",
+  "effects": "none"
+ },
+ "feint_and_strike_(ex)_(2nd)": {
+  "_why": "Combat option while wielding two weapons; no numeric bonus.",
+  "effects": "none"
+ },
+ "hammer_fist_(ex)_(1st)": {
+  "_why": "Changes unarmed strike damage in heavy or powered armor; handled on the attack line, not as a modifier.",
+  "effects": "none"
+ },
+ "hunt_foe_(ex)_(2nd)": {
+  "_why": "Move action against one opponent; bonus depends on a Survival check against that target.",
+  "effects": "none"
+ },
+ "ignore_pain_(ex)_(2nd)": {
+  "_why": "Temporary Hit Points only while frenzied.",
+  "effects": "none"
+ },
+ "immortal_tutor_(su)_-_celestial": {
+  "_why": "Lesson benefits are spell-triggered and temporary; the +1 morale saves is an aura while the lesson is active.",
+  "effects": "none"
+ },
+ "immortal_tutor_(su)_-_protean": {
+  "_why": "Lesson benefits are spell-triggered and temporary.",
+  "effects": "none"
+ },
+ "impenetrable_defense_(ex)_(5th)": {
+  "_why": "Standard action that lasts until your next turn.",
+  "effects": "none"
+ },
+ "operations_specialist_(ex)": {
+  "_why": "The +1 applies to a skill the player chooses; not modelled as a fixed constant.",
+  "effects": "none"
+ },
+ "personal_modification_(ex)": {
+  "_why": "Benefit depends on the body system chosen for the augmentation.",
+  "effects": "none"
+ },
+ "protean_-_third_lesson": {
+  "_why": "Only while the first lesson is active, and only against attacks of opportunity, grapple and entangle.",
+  "effects": "none"
+ },
+ "resolve_of_the_ages_(su)": {
+  "_why": "Saves bonus applies only against the descriptor of the embodied zeitgeist.",
+  "effects": "none"
+ },
+ "smash_through_(ex)_(3rd)": {
+  "_why": "Conditional: +4 only to bull rush attack rolls in heavy or powered armor.",
+  "effects": [
+   {
+    "name": "Smash Through",
+    "type": "untyped",
+    "effectType": "all-attacks",
+    "valueAffected": "",
+    "modifier": "4",
+    "modifierType": "formula",
+    "condition": "Bull rush combat maneuvers while wearing heavy or powered armor",
+    "notes": ""
+   }
+  ]
+ },
+ "song_of_the_spheres_(su)": {
+  "_why": "Activated ally buff; nothing on the owner sheet.",
+  "effects": "none"
+ },
+ "suit_up_(su)": {
+  "_why": "Full action that lasts a few rounds and expends a spell slot.",
+  "effects": "none"
+ },
+ "summon_reinforcements_(su)": {
+  "_why": "Bonus goes to summoned creatures.",
+  "effects": "none"
+ },
+ "ward_off_the_end_(su)": {
+  "_why": "Activated bonus granted to allies.",
+  "effects": "none"
+ },
+ "xenoambassador's_eye_(ex)": {
+  "_why": "Conditional: +1 insight AC only against creatures that share a language with you.",
+  "effects": [
+   {
+    "name": "Xenoambassador's Eye",
+    "type": "insight",
+    "effectType": "ac",
+    "valueAffected": "",
+    "modifier": "1",
+    "modifierType": "formula",
+    "condition": "Against creatures with whom you share a language",
+    "notes": ""
+   }
+  ]
  }
 }

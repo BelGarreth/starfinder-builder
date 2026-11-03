@@ -23,7 +23,7 @@ class BuildDataTest(unittest.TestCase):
             {'meta', 'races', 'themes', 'classes', 'feats', 'features', 'spells', 'items', 'progressions', 'overrides'},
         )
         self.assertEqual(set(self.d['overrides']), {'effects'})
-        self.assertEqual(self.d['progressions'], {})
+        self.assertEqual(set(self.d['progressions']), set(build_data.CLASSES))
 
     def test_races(self):
         races = self.d['races']
@@ -355,6 +355,63 @@ class PrereqIntegrationTest(unittest.TestCase):
                     else:
                         self.assertEqual(m['modifierType'], 'formula', slug)
                         self.assertTrue(m['condition'], slug)
+
+
+    def test_review_features_are_mapped_to_their_class(self):
+        f = self.d['features']
+        expect = {
+            'electric_arc_(ex_7th_level)': ('soldier', 'gearBoost'), 'exocortex_mods_(ex)': ('mechanic', None),
+            'memory_module_(ex)': ('mechanic', None), 'multitasking_(ex)': ('mechanic', None),
+            'twin_tracking_(ex)': ('mechanic', None), 'quad_tracking_(ex)': ('mechanic', None),
+            'wireless_hack_(ex)': ('mechanic', None), 'disciple': ('operative', 'specialization'),
+            'class-daredevil': ('operative', 'specialization'), 'rapid_response_(ex)_(1st)': ('soldier', None),
+        }
+        for slug, (cls, category) in expect.items():
+            self.assertEqual((f[slug]['cls'], f[slug]['category']), (cls, category), slug)
+        self.assertEqual(f['memory_module_(ex)']['parent'], 'exocortex')
+        self.assertNotIn('intuitive_deconstruction_(ex)', f)
+
+    def test_option_grants_follow_the_option_text(self):
+        f = self.d['features']
+        self.assertEqual(f['blitz']['grants'], {
+            '1': ['rapid_response_(ex)_(1st)'], '5': ['charge_attack_(ex)_(2nd)'], '9': ['keep_fighting_(ex)_(3rd)'],
+            '13': ['perfect_opportunity_(ex)_(4th)'], '17': ['against_the_odds_(ex)_(5th)']})
+        self.assertEqual(sorted(f['healer']['grants'], key=int), ['1', '3', '6', '9', '12', '15', '18'])
+        self.assertEqual(f['class-daredevil']['grants'], {'5': ['versatile_movement_(ex)'], '11': ['terrain_attack_(ex)']})
+        self.assertEqual(f['class-daredevil']['skillFocus'], ['acr', 'ath'])
+        self.assertEqual(f['bully']['skillFocus'], ['ath', 'int'])
+        for slug, rec in f.items():
+            for granted in [g for tier in rec.get('grants', {}).values() for g in tier]:
+                self.assertIn(granted, f, slug)
+
+    def test_progressions_cover_levels_and_resolve(self):
+        prog = self.d['progressions']
+        for cls in build_data.CLASSES:
+            self.assertEqual(sorted(prog[cls]['levels'], key=int), [str(n) for n in range(1, 21)], cls)
+        soldier1 = prog['soldier']['levels']['1']
+        style = next(e for e in soldier1 if e.get('choice') == 'fightingStyle')
+        self.assertIn('blitz', style['pool'])
+        self.assertIn({'fixedOf': 'fightingStyle', 'tier': 1}, soldier1)
+        self.assertIn({'bonusFeat': True, 'pool': 'combat'}, prog['soldier']['levels']['2'])
+        self.assertEqual([e for e in prog['mechanic']['levels']['1'] if e.get('choice') == 'ai'][0]['pool'], ['exocortex'])
+        self.assertIn('enhanced', prog['technomancer'])
+        self.assertEqual(self.d['features']['flight_system_(ex_exocortex)']['minLevel'], 11)
+
+    def test_progression_build_fails_on_bad_slug_or_missing_level(self):
+        source = json.loads((ROOT / 'tools' / 'class_progressions.json').read_text())
+        features = json.loads(json.dumps(self.d['features']))
+        bad_slug = json.loads(json.dumps(source))
+        bad_slug['soldier']['levels']['20'].append({'fixed': 'no_such_feature'})
+        with self.assertRaisesRegex(ValueError, 'no_such_feature'):
+            build_data.build_progressions(bad_slug, features, self.d['feats'])
+        missing = json.loads(json.dumps(source))
+        del missing['envoy']['levels']['7']
+        with self.assertRaisesRegex(ValueError, 'envoy lacks levels 7'):
+            build_data.build_progressions(missing, features, self.d['feats'])
+        dangling = json.loads(json.dumps(source))
+        dangling['mystic']['levels']['3'].append({'fixedOf': 'nope', 'tier': 3})
+        with self.assertRaisesRegex(ValueError, 'nope'):
+            build_data.build_progressions(dangling, features, self.d['feats'])
 
 
 if __name__ == '__main__':

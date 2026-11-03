@@ -25,7 +25,7 @@
   };
 
   const hooks = {
-    choiceBlockers: () => [],
+    choiceBlockers: (char, data, ctx) => choiceBlockers(char, data, ctx),
     spellBlockers: () => [],
     gearBlockers: () => []
   };
@@ -48,16 +48,7 @@
       const f = features[k];
       if (!f || typeof f.level !== 'number' || f.level <= total) add(k);
     });
-    levelsOf(char).forEach((l) => {
-      const choices = (l && l.choices) || {};
-      Object.keys(choices).forEach((id) => asList(choices[id]).forEach(add));
-    });
-    const levels = rules.classLevels(char);
-    Object.keys(levels).forEach((cls) => {
-      const prog = table(data, 'progressions')[cls];
-      const granted = prog && prog.features;
-      if (granted) Object.keys(granted).forEach((n) => { if (Number(n) <= levels[cls]) asList(granted[n]).forEach(add); });
-    });
+    rules.classFeatures(char, data).forEach((f) => add(f.slug));
     return set;
   }
 
@@ -151,12 +142,145 @@
     return featsOf(Object.assign({}, char, { levels: levelsOf(char).slice(0, levelIndex) }));
   }
 
+  function slotsAt(char, data, levelIndex) {
+    return rules.featSlots(char, data).filter((s) => s.level === levelIndex + 1);
+  }
+
+  function slotProblem(slot, slug, data) {
+    if (!slot || !slot.pool || !has(table(data, 'feats'), slug)) return null;
+    const feat = table(data, 'feats')[slug];
+    const who = cap(className(slot.source, data));
+    if (slot.pool === 'combat') return feat.combat ? null : { code: 'pool', why: who + ' bonus feats must be combat feats' };
+    if (Array.isArray(slot.pool) && slot.pool.indexOf(slug) === -1) {
+      return { code: 'pool', why: who + ' bonus feat must be ' + slot.pool.map((k) => (table(data, 'feats')[k] || {}).name || k).join(' or ') };
+    }
+    return null;
+  }
+
+  function className(cls, data) {
+    return (table(data, 'classes')[cls] || {}).name || String(cls);
+  }
+
+  function choicePlan(char, data, levelIndex) {
+    const plan = rules.levelPlan(char, data);
+    return { plan, here: plan[levelIndex] || null };
+  }
+
+  function featureProblem(entry, slug, ctx, data) {
+    const features = table(data, 'features');
+    if (typeof slug !== 'string' || !has(features, slug)) return { code: 'missing', why: "Feature '" + slug + "' no longer exists" };
+    const f = features[slug];
+    if (rules.poolOf(entry, data, ctx.here.cls).indexOf(slug) === -1) {
+      return { code: 'pool', why: f.name + ' is not a ' + (entry.label || entry.choice) + ' option for ' + className(ctx.here.cls, data) };
+    }
+    if (typeof f.minLevel === 'number' && f.minLevel > ctx.here.classLevel) {
+      return { code: 'level', why: 'Requires ' + className(ctx.here.cls, data) + ' level ' + f.minLevel };
+    }
+    if (!entry.allowKnown && !f.repeatable && ctx.known.indexOf(slug) !== -1) {
+      return { code: 'duplicate', why: f.name + ' cannot be taken twice' };
+    }
+    return null;
+  }
+
+  function knownBefore(plan, levelIndex, entry, upTo, char, data) {
+    const known = [];
+    plan.slice(0, levelIndex).forEach((p) => p.entries.forEach((e) => {
+      if (e.choice && !e.allowKnown) asList(p.choices[e.choice]).forEach((k) => known.push(k));
+    }));
+    const here = plan[levelIndex];
+    if (here) asList(here.choices[entry.choice]).slice(0, upTo).forEach((k) => known.push(k));
+    const lower = Object.assign({}, char, { levels: levelsOf(char).slice(0, levelIndex) });
+    rules.classFeatures(lower, data).filter((f) => f.via !== 'choice').forEach((f) => known.push(f.slug));
+    return known;
+  }
+
+  function choiceProblem(entry, slug, levelIndex, char, data, index) {
+    const { plan, here } = choicePlan(char, data, levelIndex);
+    if (!here) return { code: 'missing', why: 'No level ' + (levelIndex + 1) };
+    const picks = asList(here.choices[entry.choice]);
+    const upTo = Number.isInteger(index) ? index : picks.indexOf(slug) === -1 ? picks.length : picks.indexOf(slug);
+    return featureProblem(entry, slug, { here, known: knownBefore(plan, levelIndex, entry, upTo, char, data) }, data);
+  }
+
   function allowed(kind, slug, levelIndex, char, data, slot) {
+    if (kind === 'choice') {
+      const here = rules.levelPlan(char, data)[levelIndex];
+      const id = slot && typeof slot === 'object' ? slot.id : slot;
+      const entry = here && here.entries.find((e) => e.choice === id);
+      if (!entry) return { ok: false, why: 'No ' + id + ' choice at this level' };
+      const problem = choiceProblem(entry, slug, levelIndex, char, data, slot && typeof slot === 'object' ? slot.index : undefined);
+      return problem ? { ok: false, why: problem.why } : { ok: true };
+    }
     if (kind !== 'feat') return { ok: true };
     const here = asList((levelsOf(char)[levelIndex] || {}).feats);
     const before = Number.isInteger(slot) ? here.slice(0, slot) : here;
-    const problem = featProblem(slug, levelIndex, char, data, priorLevelFeats(char, levelIndex).concat(before));
+    const problem = featProblem(slug, levelIndex, char, data, priorLevelFeats(char, levelIndex).concat(before))
+      || (Number.isInteger(slot) ? slotProblem(slotsAt(char, data, levelIndex)[slot], slug, data) : null);
     return problem ? { ok: false, why: problem.why } : { ok: true };
+  }
+
+  function skillProblems(entry, here, plan, char, push) {
+    const picks = asList(here.choices[entry.skillPick]);
+    const earlier = [];
+    plan.slice(0, here.levelIndex).forEach((p) => {
+      if (p.cls === here.cls && p.entries.some((e) => e.skillPick === entry.skillPick)) asList(p.choices[entry.skillPick]).forEach((k) => earlier.push(k));
+    });
+    const ranks = rules.skillRanksOf(rules.charAt(char, here.levelIndex + 1));
+    picks.forEach((k, j) => {
+      const name = (rules.SKILLS[k] || {}).name || k;
+      if (!has(rules.SKILLS, k)) push('invalid', "Skill '" + k + "' does not exist", k);
+      else if (Array.isArray(entry.from) && entry.from.indexOf(k) === -1) push('pool', name + ' is not a ' + entry.label + ' option', k);
+      else if (earlier.indexOf(k) !== -1 || picks.indexOf(k) !== j) push('duplicate', name + ' is already chosen for ' + entry.label, k);
+      else if (entry.minRanks && (ranks[k] || 0) < entry.minRanks) push('ranks', entry.label + ' needs ' + entry.minRanks + ' rank in ' + name, k);
+    });
+    return picks.length;
+  }
+
+  function choiceBlockers(char, data, ctx) {
+    const out = [];
+    const plan = rules.levelPlan(char, data);
+    const here = plan[ctx.levelIndex];
+    if (!here) return out;
+    const n = ctx.level;
+    const push = (code, msg, ref) => {
+      const b = { level: n, tab: 'class', code, msg };
+      if (ref !== undefined) b.ref = ref;
+      out.push(b);
+    };
+    const known = [];
+    here.entries.forEach((entry) => {
+      let count = 0;
+      const need = entry.count || 1;
+      if (entry.choice) {
+        const picks = asList(here.choices[entry.choice]);
+        count = picks.length;
+        picks.forEach((slug, j) => {
+          const problem = choiceProblem(entry, slug, ctx.levelIndex, char, data, j);
+          if (problem) push(problem.code, problem.why, slug);
+        });
+      } else if (entry.skillPick) {
+        count = skillProblems(entry, here, plan, char, push);
+      } else if (entry.abilityPick) {
+        const picks = asList(here.choices[entry.abilityPick]);
+        count = picks.length;
+        picks.forEach((a) => { if (rules.ABILITIES.indexOf(a) === -1) push('invalid', "Ability '" + a + "' does not exist", a); });
+      } else {
+        return;
+      }
+      const label = entry.label || entry.choice || entry.skillPick || entry.abilityPick;
+      if (count < need) push('unspent', 'Choose ' + (need - count) + ' more ' + label + ' at level ' + n);
+      else if (count > need) push('overspent', 'Level ' + n + ' picks ' + count + ' ' + label + ' but only ' + need + ' allowed');
+      known.push(entry.choice || entry.skillPick || entry.abilityPick);
+    });
+    const features = table(data, 'features');
+    Object.keys(here.choices).forEach((id) => {
+      if (known.indexOf(id) !== -1) return;
+      asList(here.choices[id]).forEach((k) => {
+        if (typeof k !== 'string' || !has(features, k)) push('missing', "Feature '" + k + "' no longer exists", k);
+        else push('invalid', features[k].name + ' is not a choice at ' + className(here.cls, data) + ' level ' + here.classLevel, k);
+      });
+    });
+    return out;
   }
 
   function validate(char, data) {
@@ -186,7 +310,6 @@
     if (!levels.length) push(null, 'class', 'unspent', 'Choose a class for level 1');
 
     const slots = rules.featSlots(char, data);
-    const features = table(data, 'features');
     const priorFeats = [];
 
     levels.forEach((lvl, i) => {
@@ -221,19 +344,15 @@
       else if (spent < budget) push(n, 'skills', 'unspent', 'Level ' + n + ' has ' + (budget - spent) + ' unspent skill ranks');
 
       const taken = asList(lv.feats);
-      const available = slots.filter((s) => s.level === n).length;
-      taken.forEach((slug) => {
-        const problem = featProblem(slug, i, char, data, priorFeats);
+      const here = slots.filter((s) => s.level === n);
+      const available = here.length;
+      taken.forEach((slug, j) => {
+        const problem = featProblem(slug, i, char, data, priorFeats) || slotProblem(here[j], slug, data);
         if (problem) push(n, 'feats', problem.code, problem.why, slug);
         priorFeats.push(slug);
       });
       if (taken.length > available) push(n, 'feats', 'overspent', 'Level ' + n + ' takes ' + taken.length + ' feats with ' + available + ' slots');
       else if (taken.length < available) push(n, 'feats', 'unspent', 'Level ' + n + ' has ' + (available - taken.length) + ' empty feat slots');
-
-      const choices = lv.choices || {};
-      Object.keys(choices).forEach((id) => asList(choices[id]).forEach((k) => {
-        if (typeof k === 'string' && !has(features, k)) push(n, 'class', 'missing', "Feature '" + k + "' no longer exists", k);
-      }));
 
       const ctx = { level: n, levelIndex: i };
       [hooks.choiceBlockers, hooks.spellBlockers].forEach((hook) => hook(char, data, ctx).forEach((b) => out.push(b)));
@@ -248,6 +367,6 @@
     return out;
   }
 
-  const api = { validate, allowed, hooks, unmetPrereq };
+  const api = { validate, allowed, hooks, unmetPrereq, choiceBlockers };
   if (typeof module !== 'undefined') module.exports = api; else root.SF = Object.assign(root.SF || {}, api);
 })(this);

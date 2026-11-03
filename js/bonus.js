@@ -144,19 +144,8 @@
 
     levelsOf(char).forEach((lvl) => {
       asList(lvl && lvl.feats).forEach((k) => { if (has(feats, k)) add('feat', k, feats[k]); });
-      const choices = (lvl && lvl.choices) || {};
-      Object.keys(choices).forEach((id) => asList(choices[id]).forEach((k) => { if (typeof k === 'string') addFeature(k); }));
     });
-
-    const progressions = table(data, 'progressions');
-    const classLevels = rules.classLevels(char || {});
-    Object.keys(classLevels).forEach((cls) => {
-      const granted = has(progressions, cls) && progressions[cls] && progressions[cls].features;
-      if (!granted || typeof granted !== 'object') return;
-      Object.keys(granted).forEach((lvl) => {
-        if (Number(lvl) <= classLevels[cls]) asList(granted[lvl]).forEach(addFeature);
-      });
-    });
+    rules.classFeatures(char || {}, data).forEach((f) => addFeature(f.slug));
 
     const items = table(data, 'items');
     const gear = Array.isArray(char && char.gear) ? char.gear : [];

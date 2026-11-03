@@ -52,7 +52,7 @@ test('human gets a bonus feat and an extra rank per level', () => {
   assert.strictEqual(rules.rankBudget(0, multi, data), 4 + 0 + 1);
   assert.strictEqual(rules.rankBudget(2, multi, data), 8 + 0 + 1);
   const slots = rules.featSlots(multi, data);
-  assert.deepStrictEqual(slots.map((s) => [s.level, s.kind]), [[1, 'general'], [1, 'bonus'], [3, 'general']]);
+  assert.deepStrictEqual(slots.map((s) => [s.level, s.kind]), [[1, 'general'], [1, 'bonus'], [2, 'bonus'], [3, 'general']]);
   assert.ok(slots.every((s) => typeof s.source === 'string'));
 });
 
@@ -121,8 +121,8 @@ test('unknown class or race in a save does not throw', () => {
   });
 });
 
-test('progression bonus feat slots are honored when present', () => {
-  const d = Object.assign({}, data, { progressions: { soldier: { bonusFeats: [1, 2] } } });
-  const slots = rules.featSlots(vesk, d);
-  assert.deepStrictEqual(slots.map((s) => [s.level, s.kind]), [[1, 'general'], [1, 'bonus']]);
+test('progression bonus feat entries become pooled slots at the class level that grants them', () => {
+  const fake = Object.assign({}, data, { progressions: { soldier: { levels: { 1: [{ bonusFeat: true }], 2: [{ bonusFeat: true, pool: 'combat' }] } } } });
+  const slots = rules.featSlots(vesk, fake);
+  assert.deepStrictEqual(slots.map((s) => [s.level, s.kind, s.pool || null]), [[1, 'general', null], [1, 'bonus', null]]);
 });

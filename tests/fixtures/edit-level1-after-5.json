@@ -31,7 +31,9 @@
         "weapon_focus_(combat)",
         "toughness"
       ],
-      "choices": {},
+      "choices": {
+        "fightingStyle": "blitz"
+      },
       "spells": {}
     },
     {
@@ -45,7 +47,9 @@
         "sur": 1,
         "per": 1
       },
-      "feats": [],
+      "feats": [
+        "blind-fight_(combat)"
+      ],
       "choices": {},
       "spells": {}
     },
@@ -63,7 +67,9 @@
       "feats": [
         "nimble_moves_(combat)"
       ],
-      "choices": {},
+      "choices": {
+        "gearBoost": "armored_advantage_(ex)"
+      },
       "spells": {}
     },
     {
@@ -77,7 +83,9 @@
         "sur": 1,
         "per": 1
       },
-      "feats": [],
+      "feats": [
+        "fleet_(combat)"
+      ],
       "choices": {},
       "spells": {}
     },

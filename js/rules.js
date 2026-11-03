@@ -117,20 +117,117 @@
     return !!race && race.base === 'human';
   }
 
+  const hasOwn = (o, k) => !!o && Object.prototype.hasOwnProperty.call(o, k);
+  const listOf = (v) => (Array.isArray(v) ? v : v === undefined || v === null || v === '' ? [] : [v]);
+
+  function progressionOf(data, cls) {
+    const rec = classRec(data, cls);
+    const base = rec && rec.enhancedOf ? rec.enhancedOf : String(cls || '').replace(/_enhanced$/, '');
+    const progressions = (data && data.progressions) || {};
+    const prog = hasOwn(progressions, base) ? progressions[base] : null;
+    if (!prog) return null;
+    const enhanced = cls !== base || !!(rec && rec.enhancedOf);
+    return { base, levels: prog.levels || {}, extra: enhanced && prog.enhanced ? prog.enhanced.levels || {} : {} };
+  }
+
+  function entriesAt(data, cls, classLevel) {
+    const prog = progressionOf(data, cls);
+    if (!prog) return [];
+    const base = listOf(prog.levels[classLevel]);
+    const extra = listOf(prog.extra[classLevel]);
+    const replaced = extra.filter((e) => e.choice).map((e) => e.choice);
+    return base.filter((e) => !e.choice || replaced.indexOf(e.choice) === -1).concat(extra);
+  }
+
+  function levelPlan(char, data) {
+    const taken = {};
+    return levelsOf(char).map((lvl, i) => {
+      const cls = lvl && lvl.class;
+      taken[cls] = (taken[cls] || 0) + 1;
+      return { levelIndex: i, cls, classLevel: taken[cls], entries: entriesAt(data, cls, taken[cls]), choices: (lvl && lvl.choices) || {} };
+    });
+  }
+
+  function choiceEntry(plan, cls, id) {
+    for (let i = 0; i < plan.length; i++) {
+      if (plan[i].cls !== cls) continue;
+      const e = plan[i].entries.find((x) => x.choice === id);
+      if (e) return { entry: e, at: plan[i] };
+    }
+    return null;
+  }
+
+  function poolOf(entry, data, cls, seen) {
+    if (Array.isArray(entry.pool)) return entry.pool;
+    if (entry.pool && entry.pool.poolOf) {
+      const visited = seen || {};
+      if (visited[entry.pool.poolOf]) return [];
+      visited[entry.pool.poolOf] = true;
+      const prog = progressionOf(data, cls);
+      if (!prog) return [];
+      const all = Object.keys(prog.levels).map((n) => entriesAt(data, cls, n)).reduce((a, b) => a.concat(b), []);
+      const ref = all.find((x) => x.choice === entry.pool.poolOf);
+      return ref ? poolOf(ref, data, cls, visited) : [];
+    }
+    return [];
+  }
+
+  function pickedFor(plan, cls, id) {
+    const out = [];
+    plan.forEach((p) => { if (p.cls === cls) listOf(p.choices[id]).forEach((k) => out.push(k)); });
+    return out;
+  }
+
+  function classFeatures(char, data) {
+    const features = (data && data.features) || {};
+    const plan = levelPlan(char, data);
+    const out = [];
+    const add = (slug, p, via) => { if (typeof slug === 'string' && hasOwn(features, slug)) out.push({ slug, levelIndex: p.levelIndex, cls: p.cls, via }); };
+    plan.forEach((p) => {
+      p.entries.forEach((e) => {
+        if (e.fixed) add(e.fixed, p, 'fixed');
+        else if (e.choice) {
+          const pool = poolOf(e, data, p.cls);
+          listOf(p.choices[e.choice]).forEach((k) => { if (pool.indexOf(k) !== -1) add(k, p, 'choice'); });
+        } else if (e.fixedOf) {
+          const option = pickedFor(plan, p.cls, e.fixedOf)[0];
+          const rec = hasOwn(features, option) ? features[option] : null;
+          listOf(rec && rec.grants && rec.grants[e.tier]).forEach((k) => add(k, p, 'grant'));
+        }
+      });
+    });
+    return out;
+  }
+
+  function skillPicks(char, data, flag) {
+    const out = [];
+    levelPlan(char, data).forEach((p) => p.entries.forEach((e) => {
+      if (!e.skillPick || (flag && !e[flag])) return;
+      listOf(p.choices[e.skillPick]).forEach((k) => { if (hasOwn(SKILLS, k) && out.indexOf(k) === -1) out.push(k); });
+    }));
+    return out;
+  }
+
+  function skillFocusSkills(char, data) {
+    const features = (data && data.features) || {};
+    const out = skillPicks(char, data, 'skillFocus');
+    classFeatures(char, data).forEach((f) => listOf(features[f.slug].skillFocus).forEach((k) => { if (out.indexOf(k) === -1) out.push(k); }));
+    return out;
+  }
+
   function featSlots(char, data) {
     const slots = [];
     const total = charLevel(char);
     for (let lvl = 1; lvl <= total; lvl += 2) slots.push({ level: lvl, kind: 'general', source: 'character level' });
     if (total >= 1 && isHuman(char, data)) slots.push({ level: 1, kind: 'bonus', source: 'human' });
-    const progressions = (data && data.progressions) || {};
-    const taken = {};
-    levelsOf(char).forEach((lvl, i) => {
-      taken[lvl.class] = (taken[lvl.class] || 0) + 1;
-      const prog = progressions[lvl.class];
-      const grants = prog && Array.isArray(prog.bonusFeats) ? prog.bonusFeats : [];
-      if (grants.indexOf(taken[lvl.class]) !== -1) slots.push({ level: i + 1, kind: 'bonus', source: lvl.class });
-    });
-    return slots.sort((a, b) => a.level - b.level || (a.kind === b.kind ? 0 : a.kind === 'general' ? -1 : 1));
+    levelPlan(char, data).forEach((p) => p.entries.forEach((e) => {
+      if (!e.bonusFeat) return;
+      const slot = { level: p.levelIndex + 1, kind: 'bonus', source: p.cls };
+      if (e.pool) slot.pool = e.pool;
+      slots.push(slot);
+    }));
+    const rank = (s) => (s.kind === 'general' ? 0 : s.pool ? 2 : 1);
+    return slots.sort((a, b) => a.level - b.level || rank(a) - rank(b));
   }
 
   function rankBudget(levelIndex, char, data) {
@@ -164,6 +261,7 @@
   };
   const ACP_SKILLS = ['acr', 'ath', 'sle', 'ste'];
   const CLASS_SKILL_BONUS = 3;
+  const SKILL_FOCUS = { type: 'insight', value: 3, source: 'skill-focus' };
   const BASE_SPEED = 30;
   const BULK_LIGHT = 0.1;
 
@@ -216,6 +314,7 @@
       const rec = classRec(data, slug);
       ((rec && rec.csk) || []).forEach((k) => { set[k] = true; });
     });
+    skillPicks(char, data, 'classSkill').forEach((k) => { set[k] = true; });
     return set;
   }
 
@@ -251,13 +350,15 @@
     const classSkills = classSkillSet(c, data);
     const theme = themeRec(c, data);
     const themeSkill = theme && SKILLS[theme.skill] ? theme.skill : null;
+    const focused = skillFocusSkills(c, data);
     const skills = {};
     Object.keys(SKILLS).forEach((k) => {
       const def = SKILLS[k];
-      const n = ranks[k] || 0;
+      const n = Math.min(charLevel(c), (ranks[k] || 0) + total(['ranks.' + k]));
       const ability = k === 'pro' && def.variable.indexOf(c.proAbility) !== -1 ? c.proAbility : def.ability;
       const classSkill = !!classSkills[k] || k === themeSkill;
-      const themeExtra = k === themeSkill && classSkills[k] ? [{ type: 'untyped', value: 1 }] : [];
+      const themeExtra = (k === themeSkill && classSkills[k] ? [{ type: 'untyped', value: 1 }] : [])
+        .concat(focused.indexOf(k) !== -1 ? [SKILL_FOCUS] : []);
       skills[k] = {
         name: def.name,
         ability,
@@ -295,6 +396,7 @@
     ABILITIES, POINT_BUY, increaseAt,
     mod, baseScores, pointBuyErrors, classLevels, charLevel,
     bab, baseSave, hp, sp, rp, featSlots, rankBudget,
+    progressionOf, entriesAt, levelPlan, choiceEntry, poolOf, pickedFor, classFeatures, skillPicks, skillFocusSkills,
     SKILLS, ACP_SKILLS, charAt, equippedArmor, skillRanksOf, bulkState, derive
   };
   if (typeof module !== 'undefined') module.exports = api; else root.SF = Object.assign(root.SF || {}, api);
