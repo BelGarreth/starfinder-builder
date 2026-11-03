@@ -25,7 +25,7 @@
 
   const range = (a, b) => { const out = []; for (let i = a; i <= b; i++) out.push(i); return out; };
 
-  const KEYS = (() => {
+  const SEED = (() => {
     const k = ['name', 'player', 'class', 'race', 'theme', 'size', 'gender', 'age', 'height', 'weight', 'deity', 'alignment', 'homeworld', 'campaign',
       'eyes_color', 'hair_color', 'skin_color', 'experience', 'next_level', 'xp_change', 'xp_speed',
       'hp', 'max_hp', 'stam', 'max_stam', 'res', 'max_res', 'hp_nonlethal', 'hp_damage_reduction', 'hp_spell_resistance',
@@ -48,6 +48,25 @@
     range(1, 6).forEach((n) => { k.push('__txt_character_' + n); k.push('__txt_character_' + n + '_name'); });
     return k;
   })();
+
+  function expandFamilies(keys) {
+    const fam = {};
+    const out = {};
+    keys.forEach((k) => {
+      const m = /^(.*?)(\d+)(.*)$/.exec(k);
+      if (!m) { out[k] = true; return; }
+      const f = (fam[m[1]] = fam[m[1]] || { idx: {}, suf: {} });
+      f.idx[m[2]] = true;
+      f.suf[m[3]] = true;
+    });
+    Object.keys(fam).forEach((p) => {
+      const n = Object.keys(fam[p].idx).map(Number);
+      range(Math.min.apply(null, n), Math.max.apply(null, n)).forEach((i) => Object.keys(fam[p].suf).forEach((s) => { out[p + i + s] = true; }));
+    });
+    return Object.keys(out);
+  }
+
+  const KEYS = expandFamilies(SEED);
   const KEY_SET = {};
   KEYS.forEach((k) => { KEY_SET[k] = true; });
 
@@ -242,8 +261,7 @@
     });
 
     const gear = gearRows(C, data);
-    const attacks = asList(s.attacks).map((a, i) => ({ a, i }))
-      .sort((x, y) => (x.a.range ? 1 : 0) - (y.a.range ? 1 : 0) || x.i - y.i).map((x) => x.a);
+    const attacks = asList(s.attacks);
     const typeNames = rules.TYPE_NAME || {};
     attacks.slice(0, WEAPON_ROWS).forEach((a, i) => {
       const p = 'wpn' + (i + 1) + '_';
@@ -300,14 +318,12 @@
     set('movespeed_move', s.speed);
 
     let totalRanks = 0;
-    const ranked = [];
     Object.keys(rules.SKILLS).forEach((k, i) => {
       const sk = s.skills[k];
       const n = i + 1;
       const p = 'skill_' + n + '_';
       const acp = rules.ACP_SKILLS.indexOf(k) !== -1 ? s.acp : 0;
       totalRanks += sk.ranks;
-      if (sk.ranks > 0) ranked.push(sk.name + ' ' + sk.ranks);
       set(p + 'name', sk.name);
       set(p + 'abil', ABBR[sk.ability]);
       set(p + 'abil_mod', m(sk.ability));
@@ -317,7 +333,6 @@
       set(p + 'skill_mod', sk.trainedOnly && !sk.ranks ? '' : sk.total);
     });
     set('total_ranks', totalRanks);
-    overflow(LINE.ranks, ranked);
 
     const featNames = featList(C, data).concat(featureList(C, data));
     featNames.slice(0, FEAT_ROWS).forEach((f, i) => set('feat_' + (i + 1), f));
@@ -755,7 +770,7 @@
     exportMythWeavers: (C, UIstate, data) => { H.download(JSON.stringify(toMythWeavers(C, data), null, 2), mwName(C), 'application/json'); },
     clearMythWeavers: () => { lastImport = null; }
   });
-  Object.assign(H, { toMythWeavers, fromMythWeavers, importMythWeavers, tabMythWeavers, MYTHWEAVERS_KEYS: KEYS, lastMythWeaversImport: () => lastImport });
+  Object.assign(H, { toMythWeavers, fromMythWeavers, importMythWeavers, tabMythWeavers, MYTHWEAVERS_KEYS: KEYS, expandMythWeaversKeys: expandFamilies, lastMythWeaversImport: () => lastImport });
 
   const doc = root.document;
   if (doc && doc.addEventListener) {

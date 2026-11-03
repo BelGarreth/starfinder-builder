@@ -25,6 +25,22 @@ const fixture = (n) => JSON.parse(fs.readFileSync(path.join(__dirname, 'fixtures
 const template = fixture('mythweavers-template-43.json');
 const templateKeys = Object.keys(template.sheet_data);
 
+function familyKeys(keys) {
+  const fam = {};
+  const out = new Set();
+  keys.forEach((k) => {
+    const m = /^(\D*?)(\d+)(.*)$/.exec(k);
+    if (!m) { out.add(k); return; }
+    fam[m[1]] = fam[m[1]] || { lo: Infinity, hi: 0, suf: new Set() };
+    fam[m[1]].lo = Math.min(fam[m[1]].lo, Number(m[2]));
+    fam[m[1]].hi = Math.max(fam[m[1]].hi, Number(m[2]));
+    fam[m[1]].suf.add(m[3]);
+  });
+  Object.keys(fam).forEach((p) => { for (let i = fam[p].lo; i <= fam[p].hi; i++) fam[p].suf.forEach((x) => out.add(p + i + x)); });
+  return [...out].sort();
+}
+const allowedKeys = familyKeys(templateKeys);
+
 function vesk() {
   const c = fixture('vesk-soldier-1.json');
   c.gear = [{ id: 'g1', item: 'second_skin', qty: 1, equipped: true }];
@@ -43,11 +59,14 @@ function bigChar() {
   return c;
 }
 
-test('the key list matches the fixture sheet exactly', () => {
-  assert.deepStrictEqual(clone(H.MYTHWEAVERS_KEYS).sort(), templateKeys.slice().sort());
+test('the key list is the fixture sheet expanded by family', () => {
+  assert.deepStrictEqual(clone(H.MYTHWEAVERS_KEYS).sort(), allowedKeys);
+  templateKeys.forEach((k) => assert.ok(allowedKeys.indexOf(k) !== -1, k));
+  ['skill_13_rank', 'skill_20_acp', 'skill_42_rank', 'equip19_worth', 'aug20_loc', 'wpn1_range'].forEach((k) => assert.ok(allowedKeys.indexOf(k) !== -1, k));
+  ['init_misc', 'spell_1', 'credits'].forEach((k) => assert.ok(allowedKeys.indexOf(k) === -1, k));
 });
 
-test('export of the vesk soldier is a template 43 wrapper with fixture keys and string values', () => {
+test('export of the vesk soldier is a template 43 wrapper with family keys and string values', () => {
   const out = H.toMythWeavers(vesk(), data);
   assert.strictEqual(out.sheet_template_id, 43);
   assert.strictEqual(out.name, 'Vesk Soldier');
@@ -57,7 +76,7 @@ test('export of the vesk soldier is a template 43 wrapper with fixture keys and 
   assert.ok(!Number.isNaN(Date.parse(out.created_at)) && !Number.isNaN(Date.parse(out.updated_at)));
   Object.keys(template).forEach((k) => assert.ok(Object.prototype.hasOwnProperty.call(out, k), k));
   const sd = out.sheet_data;
-  const extra = clone(Object.keys(sd)).filter((k) => templateKeys.indexOf(k) === -1);
+  const extra = clone(Object.keys(sd)).filter((k) => allowedKeys.indexOf(k) === -1);
   assert.deepStrictEqual(extra, []);
   Object.keys(sd).forEach((k) => assert.strictEqual(typeof sd[k], 'string', k));
   const want = { hp: '13', max_hp: '13', stam: '8', res: '5', eac_total: '14', kac_total: '15', ac_cmac: '23', fortitude_total: '3', strength_score: '18', class: 'Soldier 1', race: 'Vesk', theme: 'Mercenary' };
@@ -80,10 +99,28 @@ test('skills follow the sheet order and trained-only skills without ranks are bl
   Object.keys(SF.SKILLS).forEach((k, i) => assert.strictEqual(sd['skill_' + (i + 1) + '_name'], template.sheet_data['skill_' + (i + 1) + '_name'], k));
   assert.strictEqual(sd.skill_5_skill_mod, '');
   assert.strictEqual(sd.skill_2_rank, '2');
-  assert.ok(sd.__txt_other_notes.indexOf('Skill ranks: Athletics 2; Perception 1; Stealth 1') !== -1);
+  assert.strictEqual(sd.skill_13_rank, '1');
+  assert.strictEqual(sd.skill_19_rank, '1');
+  assert.strictEqual(sd.skill_19_acp, '0');
+  assert.strictEqual(sd.__txt_other_notes, 'hello');
   const s = SF.derive(bigChar(), data);
   assert.strictEqual(sd.skill_13_skill_mod, String(s.skills.per.total));
   assert.strictEqual(sd.total_ranks, '4');
+});
+
+test('every weapon row gets its range and every equipment row its details', () => {
+  const c = bigChar();
+  c.gear.push({ id: 'g2', item: 'laser_pistol_azimuth', qty: 1 }, { id: 'g3', item: 'baton_tactical', qty: 1 }, { id: 'g4', item: 'adaptive_serum_mk_1', qty: 2 }, { id: 'g5', item: 'comm_unit_personal', qty: 1 });
+  const sd = H.toMythWeavers(c, data).sheet_data;
+  const s = SF.derive(c, data);
+  s.attacks.slice(0, 6).forEach((a, i) => {
+    assert.strictEqual(sd['wpn' + (i + 1) + '_name'], a.name);
+    assert.strictEqual(sd['wpn' + (i + 1) + '_range'], a.range || '');
+  });
+  assert.strictEqual(sd.wpn1_range, s.attacks[0].range || '');
+  const rows = Object.keys(sd).filter((k) => /^equip\d+_$/.test(k));
+  assert.ok(rows.length >= 2);
+  rows.forEach((k) => ['loc', 'level', 'worth', 'weight'].forEach((x) => assert.ok(Object.prototype.hasOwnProperty.call(sd, k + x), k + x)));
 });
 
 test('feats carry their picks, then class features, and overflow goes to the notes', () => {
