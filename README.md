@@ -143,8 +143,8 @@ python3 -m unittest discover -s tools -p 'test_*.py'
 
 ## Licensing
 
-Uses material from the Starfinder Core Rulebook under the Open Game License 1.0a. Starfinder Core
-Rulebook © 2017, Paizo Inc. Foundry VTT Starfinder system data, MIT, © 2019-2025 The Foundry
+Uses material from the Starfinder Core Rulebook and other Paizo Starfinder books under the Open Game
+License 1.0a; each is listed in Section 15. Starfinder Core Rulebook © 2017, Paizo Inc. Foundry VTT Starfinder system data, MIT, © 2019-2025 The Foundry
 Starfinder Development Team. See [LICENSE-OGL.md](LICENSE-OGL.md) for the license and Section 15.
 
 This website uses trademarks and/or copyrights owned by Paizo Inc., used under Paizo's Community Use Policy (paizo.com/licenses/communityuse). We are expressly prohibited from charging you to use or access this content. This website is not published, endorsed, or specifically approved by Paizo. For more information about Paizo Inc. and Paizo products, visit paizo.com.
