@@ -378,3 +378,51 @@ test('the Not saving notice clears once a later save succeeds', () => {
     assert.doesNotMatch(text(H.statusLine(fullChar(), U.blankUI(), data)), /Not saving/);
   });
 });
+
+test('toBBCode for the vesk soldier carries its numbers and spoilers', () => {
+  const c = fullChar();
+  const out = H.toBBCode(c, data);
+  ['[b]SP[/b] 8', '[b]HP[/b] 13', '[b]EAC[/b] 14', '[b]KAC[/b] 15', '[spoiler=Feats]', '[spoiler=Class features]', '[spoiler=Gear]', 'Blind-Fight'].forEach((x) => assert.ok(out.indexOf(x) !== -1, x + '\n' + out));
+  assert.ok(out.indexOf('Second skin') !== -1 && out.indexOf('(equipped)') !== -1);
+  assert.ok(out.indexOf('[spoiler=Spells]') === -1);
+});
+
+test('toBBCode neutralises brackets in user text and param picks show in feats', () => {
+  const c = fullChar();
+  c.name = '[b]Evil[/b] [url=x]link[/url]';
+  c.notes = '[/spoiler][b]bold\nline two';
+  const out = H.toBBCode(c, data);
+  assert.ok(out.indexOf('[b]Evil') === -1 && out.indexOf('[url=x]') === -1 && out.indexOf('[/spoiler][b]bold') === -1);
+  assert.ok(out.indexOf('\uFF3Bb\uFF3DEvil') !== -1);
+  assert.ok(out.indexOf('line two') !== -1);
+  const f = fullChar();
+  f.levels[0].feats = ['weapon_focus_(combat)'];
+  f.levels[0].choices['weapon_focus_(combat)'] = 'basicMelee';
+  assert.ok(H.featDetail(f, data, 0, 'weapon_focus_(combat)', 0) !== '');
+  assert.ok(H.toBBCode(f, data).indexOf('(' + H.featDetail(f, data, 0, 'weapon_focus_(combat)', 0) + ')') !== -1);
+});
+
+test('toBBCode balances its tags and handles casters and a blank character', () => {
+  const c = fullChar();
+  c.levels[0] = { class: 'technomancer', increases: [], skills: {}, feats: [], choices: {}, spells: { learn: ['mystic-cure'] } };
+  const out = H.toBBCode(c, data);
+  assert.ok(out.indexOf('[spoiler=Spells]') !== -1);
+  ['b', 'i', 'list', 'table', 'tr', 'td', 'spoiler', 'size'].forEach((t) => {
+    const open = (out.match(new RegExp('\\[' + t + '(=[^\\]]*)?\\]', 'g')) || []).length;
+    const close = (out.match(new RegExp('\\[/' + t + '\\]', 'g')) || []).length;
+    assert.strictEqual(open, close, t);
+  });
+  const blank = H.toBBCode(win.SF.blankCharacter(), data);
+  assert.ok(blank.indexOf('Unnamed character') !== -1);
+});
+
+test('the BBCode tab shows an escaped read-only textarea and a Copy button', () => {
+  const c = fullChar();
+  c.name = 'A <i>&</i>';
+  const html = U.tabBBCode(c, U.blankUI(), data, U.ctxOf(c, data));
+  assert.ok(html.indexOf('<textarea') !== -1 && html.indexOf(' readonly') !== -1);
+  assert.ok(html.indexOf('data-act="copyBBCode"') !== -1);
+  assert.ok(html.indexOf('A &lt;i&gt;&amp;&lt;/i&gt;') !== -1);
+  assert.ok(U.TABS.map((t) => t[0]).join().endsWith('io,bbcode'));
+  assert.ok(U.renderMain(c, Object.assign(U.blankUI(), { tab: 'bbcode' }), data).indexOf('copyBBCode') !== -1);
+});

@@ -12,7 +12,9 @@
   U.tabPrint = U.tabPrint || ((C, UI, data, ctx) => (store() && store().tabPrint ? store().tabPrint(C, UI, data, ctx) : placeholder('Print')));
   U.tabIO = U.tabIO || ((C, UI, data, ctx) => (store() && store().tabIO ? store().tabIO(C, UI, data, ctx) : placeholder('Import/Export')));
 
-  const TAB_FN = { char: 'tabChar', abilities: 'tabAbilities', class: 'tabClass', skills: 'tabSkills', feats: 'tabFeats', gear: 'tabGear', spells: 'tabSpells', print: 'tabPrint', io: 'tabIO' };
+  U.tabBBCode = U.tabBBCode || ((C, UI, data, ctx) => (store() && store().tabBBCode ? store().tabBBCode(C, UI, data, ctx) : placeholder('BBCode')));
+
+  const TAB_FN = { char: 'tabChar', abilities: 'tabAbilities', class: 'tabClass', skills: 'tabSkills', feats: 'tabFeats', gear: 'tabGear', spells: 'tabSpells', print: 'tabPrint', io: 'tabIO', bbcode: 'tabBBCode' };
 
   U.renderMain = function (C, UI, data, ctx) {
     const x = ctx || U.ctxOf(C, data);

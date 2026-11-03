@@ -159,6 +159,8 @@
       if (!on && count === 1 && picks.length) ans = rules.allowed('choice', slug, i, cleared, data, { id });
       else if (!on && picks.length >= count) ans = { ok: false, why: 'Unpick one to choose another' };
       else ans = rules.allowed('choice', slug, i, C, data, { id });
+      return { slug, on, ans };
+    }).filter((r) => !UI.hideIneligible || r.on || r.ans.ok).map(({ slug, on, ans }) => {
       return pickRow(own(features, slug) || { name: slug }, { act: 'pick', a: i, b: slug, cc: id, on, ans });
     });
     const stale = picks.filter((k) => pool.indexOf(k) === -1).map((k) => pickRow(own(features, k) || { name: k }, { act: 'pick', a: i, b: k, cc: id, on: true, ans: { ok: false, why: 'Not an option here' } }));
@@ -213,7 +215,7 @@
       const skills = rules.valuesFor({ rec: features[f.slug], cls: f.cls }, C, data).map((k) => rules.SKILLS[k].name);
       parts.push('<p class="note">' + esc(features[f.slug].name) + ': ' + (skills.length ? 'applies to ' + esc(skills.join(' and ')) + ' from your connection.' : 'your connection fixes no skills (Zeitgeist changes daily, Shaper picks its two above), so it adds nothing to the sheet yet.') + '</p>');
     });
-    const head = '<h2>Level ' + (i + 1) + ': ' + esc(className(data, here.cls)) + ' ' + esc(here.classLevel) + '</h2>';
+    const head = '<h2>Level ' + (i + 1) + ': ' + esc(className(data, here.cls)) + ' ' + esc(here.classLevel) + '</h2>' + (here.entries.some((e) => e.choice) ? U.hideToggle(UI) : '');
     return U.levelTabs(C, UI, data, ctx, 'class') + '<div class="card">' + head
       + (fixed.length ? '<h3>Features gained</h3>' + pickTable(fixed) : '<p class="note">No new fixed features at this level.</p>')
       + parts.join('') + '</div>';

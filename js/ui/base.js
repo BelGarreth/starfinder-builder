@@ -15,7 +15,7 @@
 
   const TABS = [
     ['char', 'Character'], ['abilities', 'Abilities'], ['class', 'Class features'], ['skills', 'Skills'],
-    ['feats', 'Feats'], ['gear', 'Gear'], ['spells', 'Spells'], ['print', 'Print'], ['io', 'Import/Export']
+    ['feats', 'Feats'], ['gear', 'Gear'], ['spells', 'Spells'], ['print', 'Print'], ['io', 'Import/Export'], ['bbcode', 'BBCode']
   ];
   const TAB_LABEL = {};
   TABS.forEach(([k, l]) => { TAB_LABEL[k] = l; });
@@ -93,6 +93,10 @@
     return { rows: shown, note: more + none, count: list.length };
   }
 
+  const hideToggle = (UI) => '<label class="note tog"><input type="checkbox" data-b="$hideIneligible" data-t="b"' + (UI && UI.hideIneligible ? ' checked' : '') + '> Hide options I don\'t qualify for</label>';
+
+  const eligibleOnly = (UI, list, answer, keep) => (UI && UI.hideIneligible ? list.filter((k) => (keep && keep(k)) || answer(k).ok) : list);
+
   const matches = (rec, q) => !q || String(rec.name || '').toLowerCase().indexOf(String(q).toLowerCase().trim()) !== -1;
 
   function isCaster(C, data) {
@@ -169,7 +173,7 @@
   U.levelIndex = (C, UI) => Math.max(0, Math.min(levelsOf(C).length - 1, Number(UI.lvl) || 0));
 
   Object.assign(U, {
-    esc, sign, has, own, asList, levelsOf, fmt, table, ROW_CAP, TABS, TAB_LABEL, aon, attrs, btn, getPath, input, select, fld,
+    hideToggle, eligibleOnly, esc, sign, has, own, asList, levelsOf, fmt, table, ROW_CAP, TABS, TAB_LABEL, aon, attrs, btn, getPath, input, select, fld,
     paramPicker, pickRow, pickTable, capped, matches, isCaster, visibleTabs, ctxOf, className, classSummary, blockerMsg,
     renderTop, renderTabs, renderBlockers, levelTabs
   });
