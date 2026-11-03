@@ -131,7 +131,7 @@
     return { base, levels: prog.levels || {}, extra: enhanced && prog.enhanced ? prog.enhanced.levels || {} : {} };
   }
 
-  function entriesAt(data, cls, classLevel) {
+  function progressionEntries(data, cls, classLevel) {
     const prog = progressionOf(data, cls);
     if (!prog) return [];
     const base = listOf(prog.levels[classLevel]);
@@ -145,7 +145,7 @@
     return levelsOf(char).map((lvl, i) => {
       const cls = lvl && lvl.class;
       taken[cls] = (taken[cls] || 0) + 1;
-      return { levelIndex: i, cls, classLevel: taken[cls], entries: entriesAt(data, cls, taken[cls]), choices: (lvl && lvl.choices) || {} };
+      return { levelIndex: i, cls, classLevel: taken[cls], entries: progressionEntries(data, cls, taken[cls]), choices: (lvl && lvl.choices) || {} };
     });
   }
 
@@ -166,7 +166,7 @@
       visited[entry.pool.poolOf] = true;
       const prog = progressionOf(data, cls);
       if (!prog) return [];
-      const all = Object.keys(prog.levels).map((n) => entriesAt(data, cls, n)).reduce((a, b) => a.concat(b), []);
+      const all = Object.keys(prog.levels).map((n) => progressionEntries(data, cls, n)).reduce((a, b) => a.concat(b), []);
       const ref = all.find((x) => x.choice === entry.pool.poolOf);
       return ref ? poolOf(ref, data, cls, visited) : [];
     }
@@ -381,7 +381,7 @@
     return null;
   }
 
-  const bulkState = (char, data, strScore) => (typeof module !== 'undefined' ? require('./gear.js') : root.SF).bulkState(char, data, strScore);
+  const gearBulk = (char, data, strScore) => (typeof module !== 'undefined' ? require('./gear.js') : root.SF).bulkState(char, data, strScore);
 
   function skillRanksOf(char) {
     const ranks = {};
@@ -409,7 +409,7 @@
     const c = opts && opts.levels !== undefined ? charAt(char, opts.levels) : char;
     const armor = equippedArmor(c, data);
     const scores = baseScores(c, data);
-    const preBulk = bulkState(c, data, scores.str);
+    const preBulk = gearBulk(c, data, scores.str);
     const encumbered = preBulk.state !== 'ok';
     const speedBase = BASE_SPEED + (armor ? armor.speedAdjust || 0 : 0);
     const resolved = lib.resolve(c, data, { state: { encumbered }, derived: { speedBase: BASE_SPEED, speedLand: speedBase } });
@@ -458,7 +458,7 @@
       };
     });
 
-    const bulk = bulkState(c, data, abilities.str.score);
+    const bulk = gearBulk(c, data, abilities.str.score);
     const sheet = {
       abilities,
       hp: hp(c, data) + total(['hp']),
@@ -485,8 +485,8 @@
     ABILITIES, POINT_BUY, increaseAt, INCREASE_COUNT,
     mod, baseScores, pointBuyErrors, pointBuyMax, rankMax, classLevels, charLevel,
     bab, baseSave, hp, sp, rp, featSlots, rankBudget,
-    spellSlots, connectionSpells, spellListOf, spellSlotsFor, progressionOf, entriesAt, levelPlan, choiceEntry, poolOf, pickedFor, classFeatures, skillPicks, skillFocusSkills, freeRanks,
-    SKILLS, ACP_SKILLS, charAt, classSkillSet, equippedArmor, skillRanksOf, bulkState, derive
+    spellSlots, connectionSpells, spellListOf, spellSlotsFor, progressionOf, progressionEntries, levelPlan, choiceEntry, poolOf, pickedFor, classFeatures, skillPicks, skillFocusSkills, freeRanks,
+    SKILLS, ACP_SKILLS, charAt, classSkillSet, equippedArmor, skillRanksOf, derive
   };
   if (typeof module !== 'undefined') module.exports = api; else root.SF = Object.assign(root.SF || {}, api);
 })(this);

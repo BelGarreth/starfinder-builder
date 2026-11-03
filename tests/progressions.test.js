@@ -17,7 +17,7 @@ function build(cls, n, choicesAt) {
   return c;
 }
 
-const entries = (cls, n) => rules.entriesAt(data, cls, n);
+const entries = (cls, n) => rules.progressionEntries(data, cls, n);
 const choiceAt = (cls, n, id) => entries(cls, n).find((e) => e.choice === id);
 const features = (c) => rules.classFeatures(c, data).map((f) => f.slug);
 const blockersAt = (c, n) => choiceBlockers(c, data, { level: n, levelIndex: n - 1 });
