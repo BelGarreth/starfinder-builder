@@ -1,0 +1,110 @@
+{
+  "v": 1,
+  "name": "Edit Level 1",
+  "race": "human",
+  "variant": null,
+  "theme": "mercenary",
+  "abilities": {
+    "pb": {
+      "str": 0,
+      "dex": 3,
+      "con": 0,
+      "int": 4,
+      "wis": 0,
+      "cha": 0
+    },
+    "raceAny": "dex"
+  },
+  "levels": [
+    {
+      "class": "soldier",
+      "skills": {
+        "acr": 1,
+        "ath": 1,
+        "eng": 1,
+        "med": 1,
+        "pil": 1,
+        "sur": 1,
+        "per": 1
+      },
+      "feats": [
+        "weapon_focus_(combat)",
+        "toughness"
+      ],
+      "choices": {},
+      "spells": {}
+    },
+    {
+      "class": "soldier",
+      "skills": {
+        "acr": 1,
+        "ath": 1,
+        "eng": 1,
+        "med": 1,
+        "pil": 1,
+        "sur": 1,
+        "per": 1
+      },
+      "feats": [],
+      "choices": {},
+      "spells": {}
+    },
+    {
+      "class": "soldier",
+      "skills": {
+        "acr": 1,
+        "ath": 1,
+        "eng": 1,
+        "med": 1,
+        "pil": 1,
+        "sur": 1,
+        "per": 1
+      },
+      "feats": [
+        "nimble_moves_(combat)"
+      ],
+      "choices": {},
+      "spells": {}
+    },
+    {
+      "class": "soldier",
+      "skills": {
+        "acr": 1,
+        "ath": 1,
+        "eng": 1,
+        "med": 1,
+        "pil": 1,
+        "sur": 1,
+        "per": 1
+      },
+      "feats": [],
+      "choices": {},
+      "spells": {}
+    },
+    {
+      "class": "soldier",
+      "skills": {
+        "acr": 1,
+        "ath": 1,
+        "eng": 1,
+        "med": 1,
+        "pil": 1,
+        "sur": 1,
+        "per": 1
+      },
+      "feats": [
+        "skill_focus"
+      ],
+      "choices": {},
+      "spells": {},
+      "increases": [
+        "str",
+        "dex",
+        "con",
+        "wis"
+      ]
+    }
+  ],
+  "gear": [],
+  "notes": ""
+}
