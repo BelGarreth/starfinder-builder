@@ -15,7 +15,7 @@
 
   const TABS = [
     ['char', 'Character'], ['abilities', 'Abilities'], ['class', 'Class features'], ['skills', 'Skills'],
-    ['feats', 'Feats'], ['gear', 'Gear'], ['spells', 'Spells'], ['print', 'Print'], ['io', 'Import/Export']
+    ['feats', 'Feats'], ['gear', 'Gear'], ['spells', 'Spells'], ['print', 'Print'], ['io', 'Import/Export'], ['bbcode', 'BBCode']
   ];
   const TAB_LABEL = {};
   TABS.forEach(([k, l]) => { TAB_LABEL[k] = l; });

@@ -421,6 +421,164 @@
     return '<section class="pp-page"><div class="pp-sec"><div class="pp-h">Gear</div><table><thead><tr><th>Item</th><th class="num">Qty</th><th></th></tr></thead><tbody>' + rows.join('') + '</tbody></table></div></section>';
   }
 
+  const bb = (v) => String(v === undefined || v === null ? '' : v).replace(/\[/g, '\uFF3B').replace(/\]/g, '\uFF3D');
+  const bbRow = (cells, tag) => '[tr]' + cells.map((c) => '[td]' + (tag === 'b' ? '[b]' + c + '[/b]' : c) + '[/td]').join('') + '[/tr]';
+  const bbTable = (rows) => '[table]' + rows.join('') + '[/table]';
+  const bbList = (items) => '[list]\n' + items.map((x) => '[*]' + x).join('\n') + '\n[/list]';
+  const bbSpoiler = (title, body) => '[spoiler=' + bb(title) + ']\n' + body + '\n[/spoiler]';
+  const withDetail = (name, detail) => bb(name) + (detail ? ' (' + bb(detail) + ')' : '');
+
+  function bbFeats(C, data) {
+    const u = UI();
+    const rules = SF();
+    const out = [];
+    u.levelsOf(C).forEach((l, i) => {
+      const seen = {};
+      rules.grantedAt(C, data, i).forEach((slug) => {
+        const rec = own(u.table(data, 'feats'), slug);
+        out.push(bb(rec ? rec.name : slug) + ' [i](granted, level ' + (i + 1) + ')[/i]');
+      });
+      asList(l.feats).forEach((slug) => {
+        const k = seen[slug] || 0;
+        seen[slug] = k + 1;
+        const rec = own(u.table(data, 'feats'), slug);
+        out.push(withDetail(rec ? rec.name : slug, featDetail(C, data, i, slug, k)) + ' [i](level ' + (i + 1) + ')[/i]');
+      });
+    });
+    return out;
+  }
+
+  function bbFeatures(C, data) {
+    const u = UI();
+    const rules = SF();
+    const out = [];
+    const counts = {};
+    rules.classFeatures(C, data).forEach((f) => {
+      const rec = own(u.table(data, 'features'), f.slug);
+      const key = f.levelIndex + '|' + f.slug;
+      const k = counts[key] || 0;
+      counts[key] = k + 1;
+      const detail = paramDetail(data, C.levels[f.levelIndex].choices || {}, f.slug, k);
+      out.push(withDetail(rec ? rec.name : f.slug, detail) + ' [i](' + bb(u.className(data, f.cls)) + ' ' + (f.levelIndex + 1) + ')[/i]');
+    });
+    rules.levelPlan(C, data).forEach((p) => p.entries.forEach((e) => {
+      if (!e.skillPick) return;
+      const names = asList(p.choices[e.skillPick]).filter((v) => own(rules.SKILLS, v)).map((v) => rules.SKILLS[v].name);
+      if (names.length) out.push(bb((e.label || 'Skill choice') + ': ' + names.join(', ')) + ' [i](' + bb(u.className(data, p.cls)) + ' ' + (p.levelIndex + 1) + ')[/i]');
+    }));
+    return out;
+  }
+
+  function bbSpells(C, data) {
+    const u = UI();
+    const rules = SF();
+    const spells = u.table(data, 'spells');
+    const name = (slug) => (own(spells, slug) ? spells[slug].name : slug);
+    const slots = rules.spellSlots(C, data);
+    const conn = rules.connectionSpells(C, data);
+    const blocks = [];
+    Object.keys(slots).forEach((cls) => {
+      const known = slots[cls].known;
+      const levels = Object.keys(known).sort((a, b) => a - b);
+      const head = bbRow(['Spell level'].concat(levels), 'b');
+      const rows = [bbRow(['Known'].concat(levels.map((l) => known[l]))), bbRow(['Per day'].concat(levels.map((l) => (l === '0' ? '\u221E' : slots[cls].perDay[l] || 0))))];
+      const learned = [];
+      u.levelsOf(C).forEach((l) => {
+        if (!l || l.class !== cls) return;
+        const sp = l.spells || {};
+        asList(sp.learn).forEach((slug) => learned.push(bb(name(slug)) + (own(spells, slug) && Number.isFinite(spells[slug].level) ? ' [i](level ' + spells[slug].level + ')[/i]' : '')));
+        if (sp.swap && sp.swap.to) learned.push(bb(name(sp.swap.to)) + ' [i](swapped in for ' + bb(name(sp.swap.from)) + ')[/i]');
+      });
+      asList(conn[cls]).forEach((c) => learned.push(bb(name(c.slug)) + ' [i](connection, level ' + bb(c.level) + ')[/i]'));
+      blocks.push('[b]' + bb(u.className(data, cls)) + '[/b]\n' + bbTable([head].concat(rows)) + (learned.length ? '\n' + bbList(learned) : ''));
+    });
+    return blocks.join('\n');
+  }
+
+  function bbGear(C, data) {
+    const items = UI().table(data, 'items');
+    const nm = (slug) => (own(items, slug) ? items[slug].name : slug);
+    const gear = asList(C.gear).filter(Boolean);
+    const ordered = gear.filter((g) => g.equipped).concat(gear.filter((g) => !g.equipped));
+    return ordered.map((g) => {
+      const parts = asList(g.slots).map((x) => nm(x && x.item)).concat(asList(g.fusions).map((x) => nm(typeof x === 'string' ? x : x && x.item)), g.ability ? ['raises ' + String(g.ability).toUpperCase()] : []);
+      const qty = Number(g.qty) > 1 ? ' x' + bb(g.qty) : '';
+      return bb(nm(g.item)) + qty + (parts.length ? ' [i](' + bb(parts.join(', ')) + ')[/i]' : '') + (g.equipped ? ' [i](equipped)[/i]' : '');
+    });
+  }
+
+  function toBBCode(C, data) {
+    const u = UI();
+    const rules = SF();
+    const s = rules.derive(C, data);
+    const sign = u.sign;
+    const race = own(u.table(data, 'races'), C.race);
+    const theme = own(u.table(data, 'themes'), C.theme);
+    const sub = [race && race.name, theme && theme.name, u.classSummary(C, data)].filter(Boolean).join(' / ');
+    const out = [];
+    out.push('[b][size=5]' + bb(C.name || 'Unnamed character') + '[/size][/b]');
+    out.push('[i]' + bb(sub || 'No race, theme or class yet') + '[/i]');
+    out.push('');
+    out.push(bbTable([bbRow(rules.ABILITIES.map((a) => a.toUpperCase()), 'b'), bbRow(rules.ABILITIES.map((a) => s.abilities[a].score + ' (' + sign(s.abilities[a].mod) + ')'))]));
+    out.push('');
+    out.push('[b]SP[/b] ' + s.sp + '  [b]HP[/b] ' + s.hp + '  [b]RP[/b] ' + s.rp);
+    out.push('[b]EAC[/b] ' + s.eac + '  [b]KAC[/b] ' + s.kac + '  [b]CMD[/b] ' + s.cmd);
+    out.push('[b]Fort[/b] ' + sign(s.fort) + '  [b]Ref[/b] ' + sign(s.ref) + '  [b]Will[/b] ' + sign(s.will));
+    out.push('[b]Init[/b] ' + sign(s.initiative) + '  [b]Speed[/b] ' + s.speed + ' ft  [b]BAB[/b] ' + sign(s.bab));
+    const attacks = asList(s.attacks);
+    if (attacks.length) {
+      out.push('');
+      out.push('[b]Attacks[/b]');
+      out.push(bbList(attacks.map((a) => bb(a.name) + (a.attack === undefined || a.attack === null || a.attack === false ? '' : ' ' + sign(a.attack)) + (a.damage ? ' (' + bb(a.damage) + (a.crit ? ', crit ' + bb(a.crit) : '') + ')' : ''))));
+    }
+    const skills = Object.keys(s.skills).map((k) => s.skills[k]).filter((k) => k.ranks > 0 || (k.classSkill && !k.trainedOnly));
+    if (skills.length) {
+      out.push('');
+      out.push('[b]Skills[/b]');
+      out.push(bbTable([bbRow(['Skill', 'Ability', 'Ranks', 'Total'], 'b')].concat(skills.map((k) => bbRow([bb(k.name) + (k.classSkill ? ' *' : ''), bb(String(k.ability).toUpperCase()), k.ranks, sign(k.total)])))));
+      out.push('[i]* class skill[/i]');
+    }
+    const feats = bbFeats(C, data);
+    if (feats.length) out.push('', bbSpoiler('Feats', bbList(feats)));
+    const features = bbFeatures(C, data);
+    if (features.length) out.push('', bbSpoiler('Class features', bbList(features)));
+    const spells = bbSpells(C, data);
+    if (spells) out.push('', bbSpoiler('Spells', spells));
+    const gear = bbGear(C, data);
+    if (gear.length) out.push('', bbSpoiler('Gear', bbList(gear)));
+    if (C.notes && String(C.notes).trim()) out.push('', '[b]Notes[/b]', bb(C.notes));
+    return out.join('\n');
+  }
+
+  function copyText(value) {
+    const doc = root.document;
+    const fallback = () => {
+      const ta = doc.createElement('textarea');
+      ta.value = value;
+      ta.setAttribute('readonly', '');
+      ta.style.position = 'fixed';
+      ta.style.opacity = '0';
+      doc.body.appendChild(ta);
+      ta.select();
+      let ok = false;
+      try { ok = doc.execCommand('copy'); } catch (e) { ok = false; }
+      doc.body.removeChild(ta);
+      toast(ok ? 'Copied' : 'Could not copy. Select the text and copy it by hand.');
+    };
+    const nav = root.navigator;
+    if (nav && nav.clipboard && typeof nav.clipboard.writeText === 'function') {
+      try { nav.clipboard.writeText(value).then(() => toast('Copied'), fallback); return; } catch (e) { }
+    }
+    fallback();
+  }
+
+  function tabBBCode(C, UIstate, data) {
+    return '<div class="card"><h2>BBCode</h2>'
+      + '<p class="note">A forum-ready block for Myth-Weavers and other BBCode boards. Brackets in your own text are swapped for full-width ones so they can\'t inject tags.</p>'
+      + '<div class="row c"><button class="btn pri" data-act="copyBBCode">Copy</button></div>'
+      + '<textarea class="w" rows="24" readonly spellcheck="false" aria-label="BBCode">' + esc(toBBCode(C, data)) + '</textarea></div>';
+  }
+
   function tabPrint(C, UIstate, data, ctx) {
     const x = ctx || UI().ctxOf(C, data);
     const pages = [pageOne(C, data, x.sheet), featPage(C, data), spellPage(C, data), gearPage(C, data)].filter(Boolean);
@@ -430,6 +588,7 @@
 
   const actions = {
     print: () => { root.print(); },
+    copyBBCode: (C, UIstate, data) => { copyText(toBBCode(C, data)); },
     exportFile: (C) => { download(exportJSON(C), exportName(C), 'application/json'); },
     downloadRaw: () => {
       let text = recovered ? recovered.text : null;
@@ -456,7 +615,9 @@
       + recoveryNotice(),
     tabPrint,
     tabIO,
+    tabBBCode,
     actions,
+    toBBCode, featDetail, paramDetail,
     VERSION, KEY, ImportError, defaultChar, migrate, exportJSON, importJSON, saveLocal, loadLocal, exportName, applyImport, probeStorage, recoveredBackup: () => recovered
   };
   probeStorage();

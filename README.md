@@ -136,6 +136,10 @@ The Feats, Gear shop, Spells and class-choice pickers share one "Hide options I 
 
 `SFUI.setCharacter(char)` replaces the current character, for example after an import, and resets the level, feat-slot and swap selections.
 
+## BBCode export
+
+The BBCode tab (after Import/Export) shows a read-only forum post for the character and a Copy button (`navigator.clipboard`, falling back to a hidden textarea and `execCommand('copy')`). `SFCHAR.toBBCode(char, data)` builds it from `derive()` and the character, reusing `featDetail` and `paramDetail`, and is exported on the hook. It targets Myth-Weavers and uses only `[b]`, `[i]`, `[size=5]` (name only), `[list]` / `[*]`, `[table]` / `[tr]` / `[td]` and `[spoiler=Title]` for Feats, Class features, Spells and Gear. `[u]`, `[color]` and `[url]` are not emitted. Every `[` and `]` in names and notes becomes the full-width `［` or `］`, so user text can't open or close a tag. The textarea content is HTML-escaped.
+
 ## Tests
 
 ```
