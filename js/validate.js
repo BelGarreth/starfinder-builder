@@ -34,9 +34,10 @@
     gearBlockers: (char, data, ctx) => gear.gearBlockers(char, data, ctx)
   };
 
-  function featsOf(char) {
+  function featsOf(char, data) {
     const out = [];
-    levelsOf(char).forEach((l) => asList(l && l.feats).forEach((f) => out.push(f)));
+    const granted = rules.grantedFeats(char, data);
+    levelsOf(char).forEach((l, i) => granted.filter((g) => g.levelIndex === i).map((g) => g.slug).concat(asList(l && l.feats)).forEach((f) => out.push(f)));
     return out;
   }
 
@@ -82,7 +83,7 @@
       bab: rules.bab(char, data),
       level: rules.charLevel(char),
       classLevels: rules.classLevels(char),
-      feats: featsOf(char),
+      feats: featsOf(char, data),
       ranks: ranksWithFree(char, data),
       features: featureSet(char, data)
     };
@@ -150,8 +151,8 @@
     return why ? { code: 'prereq', why } : null;
   }
 
-  function priorLevelFeats(char, levelIndex) {
-    return featsOf(Object.assign({}, char, { levels: levelsOf(char).slice(0, levelIndex) }));
+  function priorLevelFeats(char, data, levelIndex) {
+    return featsOf(Object.assign({}, char, { levels: levelsOf(char).slice(0, levelIndex) }), data).concat(rules.grantedAt(char, data, levelIndex));
   }
 
   function slotsAt(char, data, levelIndex) {
@@ -295,7 +296,7 @@
     if (kind !== 'feat') return { ok: true };
     const here = asList((levelsOf(char)[levelIndex] || {}).feats);
     const before = Number.isInteger(slot) ? here.slice(0, slot) : here;
-    const problem = featProblem(slug, levelIndex, char, data, priorLevelFeats(char, levelIndex).concat(before))
+    const problem = featProblem(slug, levelIndex, char, data, priorLevelFeats(char, data, levelIndex).concat(before))
       || (Number.isInteger(slot) ? slotProblem(slotsAt(char, data, levelIndex)[slot], slug, data) : null);
     return problem ? { ok: false, why: problem.why } : { ok: true };
   }
@@ -582,6 +583,7 @@
       else if (spent < budget) push(n, 'skills', 'unspent', 'Level ' + n + ' has ' + (budget - spent) + ' unspent skill ranks');
 
       const taken = asList(lv.feats);
+      rules.grantedAt(char, data, i).forEach((slug) => priorFeats.push(slug));
       const here = slots.filter((s) => s.level === n);
       const available = here.length;
       taken.forEach((slug, j) => {

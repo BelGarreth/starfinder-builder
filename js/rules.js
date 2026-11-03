@@ -220,6 +220,17 @@
     return out;
   }
 
+  function grantedFeats(char, data) {
+    const feats = (data && data.feats) || {};
+    const out = [];
+    levelPlan(char, data).forEach((p) => p.entries.forEach((e) => {
+      if (typeof e.fixedFeat === 'string' && hasOwn(feats, e.fixedFeat)) out.push({ slug: e.fixedFeat, levelIndex: p.levelIndex, cls: p.cls });
+    }));
+    return out;
+  }
+
+  const grantedAt = (char, data, levelIndex) => grantedFeats(char, data).filter((f) => f.levelIndex === levelIndex).map((f) => f.slug);
+
   function skillPicks(char, data, flag) {
     const out = [];
     levelPlan(char, data).forEach((p) => p.entries.forEach((e) => {
@@ -500,7 +511,7 @@
     ABILITIES, POINT_BUY, increaseAt, INCREASE_COUNT,
     mod, baseScores, abilityScores, pointBuyErrors, pointBuyMax, rankMax, classLevels, charLevel,
     bab, baseSave, hp, sp, rp, featSlots, rankBudget,
-    spellSlots, connectionSpells, spellListOf, spellSlotsFor, progressionOf, progressionEntries, levelPlan, choiceEntry, poolOf, pickedFor, classFeatures, skillPicks, skillFocusSkills, freeRanks,
+    spellSlots, connectionSpells, spellListOf, spellSlotsFor, progressionOf, progressionEntries, levelPlan, choiceEntry, poolOf, pickedFor, classFeatures, grantedFeats, grantedAt, skillPicks, skillFocusSkills, freeRanks,
     SKILLS, ACP_SKILLS, charAt, classSkillSet, equippedArmor, skillRanksOf, derive
   };
   if (typeof module !== 'undefined') module.exports = api; else root.SF = Object.assign(root.SF || {}, api);

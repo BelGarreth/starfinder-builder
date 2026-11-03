@@ -76,7 +76,12 @@
     const feats = asList(C.levels[i].feats);
     const all = table(data, 'feats');
     const tabs = U.levelTabs(C, UI, data, ctx, 'feats');
-    if (!slots.length && !feats.length) return tabs + '<div class="card"><p class="note">No feat slots at level ' + (i + 1) + '.</p></div>';
+    const granted = rules.grantedAt(C, data, i).map((slug) => {
+      const rec = own(all, slug) || { name: slug };
+      return '<tr><td><div class="note">' + esc(className(data, C.levels[i].class)) + ' bonus feat (granted)</div><b>' + esc(rec.name) + '</b> ' + U.aon(own(all, slug)) + (rec.summary ? '<div class="note">' + esc(rec.summary) + '</div>' : '') + '</td><td class="acts"></td></tr>';
+    });
+    const grantedCard = granted.length ? '<div class="card"><h2>Granted at level ' + (i + 1) + '</h2><div class="scroll"><table class="t pick"><tbody>' + granted.join('') + '</tbody></table></div></div>' : '';
+    if (!slots.length && !feats.length) return tabs + grantedCard + '<div class="card"><p class="note">No feat slots at level ' + (i + 1) + '.</p></div>';
     const count = Math.max(slots.length, feats.length);
     const chosen = Number.isInteger(UI.featSlot) && UI.featSlot <= feats.length && UI.featSlot < count;
     const target = chosen ? UI.featSlot : feats.length < count ? feats.length : -1;
@@ -97,7 +102,7 @@
       rows.push('<tr><td><div class="note">' + esc(label) + '</div>' + body + choice + '</td><td class="acts">' + acts.join(' ') + '</td></tr>');
     }
     const browser = target >= 0 ? featBrowser(C, UI, data, i, target) : '';
-    return tabs + '<div class="card"><h2>Feats at level ' + (i + 1) + '</h2><div class="scroll"><table class="t pick"><tbody>' + rows.join('') + '</tbody></table></div></div>' + browser;
+    return tabs + grantedCard + '<div class="card"><h2>Feats at level ' + (i + 1) + '</h2><div class="scroll"><table class="t pick"><tbody>' + rows.join('') + '</tbody></table></div></div>' + browser;
   };
 
   function heldSpells(C, i, cls) {

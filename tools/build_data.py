@@ -773,7 +773,7 @@ def apply_choice_params(feats, features, entries):
 
 
 LEVELS = [str(n) for n in range(1, 21)]
-ENTRY_KINDS = ('fixed', 'choice', 'fixedOf', 'bonusFeat', 'skillPick', 'abilityPick')
+ENTRY_KINDS = ('fixed', 'fixedFeat', 'choice', 'fixedOf', 'bonusFeat', 'skillPick', 'abilityPick')
 
 
 def apply_min_levels(features, table):
@@ -814,6 +814,8 @@ def check_entry(entry, cls, where, features, feats, choice_ids):
         raise ValueError(f'{where}: entry must have exactly one of {ENTRY_KINDS}: {entry}')
     if 'fixed' in entry and entry['fixed'] not in features:
         raise ValueError(f'{where}: unknown feature {entry["fixed"]}')
+    if 'fixedFeat' in entry and entry['fixedFeat'] not in feats:
+        raise ValueError(f'{where}: unknown feat {entry["fixedFeat"]}')
     if 'choice' in entry:
         pool = entry['pool']
         if isinstance(pool, dict):

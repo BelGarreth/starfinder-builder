@@ -300,3 +300,16 @@ test('a personal upgrade gets an ability picker on the gear tab that feeds the s
   U.selects.gearAbility(c, ui(), data, '', '1');
   assert.strictEqual(c.gear[1].ability, undefined);
 });
+
+test('the technomancer 3 granted spell focus shows on the class and feats tabs and normalize drops a hand-taken copy', () => {
+  const c = vesk();
+  c.levels = [1, 2, 3].map(() => U.newLevel('technomancer'));
+  c.levels[2].feats = ['spell_focus'];
+  U.normalize(c, data);
+  assert.deepStrictEqual(c.levels[2].feats, []);
+  const x = U.ctxOf(c, data);
+  assert.ok(text(U.tabClass(c, ui({ lvl: 2 }), data, x)).indexOf('Spell Focus') !== -1);
+  const feats = text(U.tabFeats(c, ui({ lvl: 2 }), data, x));
+  assert.ok(/Granted at level 3/.test(feats) && feats.indexOf('Spell Focus') !== -1, feats.slice(0, 300));
+  assert.ok(!x.blockers.some((b) => b.level === 3 && b.tab === 'feats' && b.code !== 'unspent'));
+});

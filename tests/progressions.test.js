@@ -176,10 +176,22 @@ test('enhanced variants add their entries on top of the base class', () => {
   assert.ok(!entries('solarian', 8).some((e) => e.fixed === 'aftershock_(su)'));
 });
 
-test('technomancer 3 bonus feat slot only takes spell focus', () => {
+test('technomancer 3 grants spell focus instead of a slot for it', () => {
   const c = build('technomancer', 3);
-  const slot = rules.featSlots(c, data).find((s) => s.level === 3 && s.kind === 'bonus');
-  assert.deepStrictEqual(slot.pool, ['spell_focus']);
+  assert.ok(!rules.featSlots(c, data).some((s) => s.level === 3 && s.kind === 'bonus'));
+  assert.deepStrictEqual(rules.grantedFeats(c, data).map((f) => [f.slug, f.levelIndex]), [['spell_focus', 2]]);
+});
+
+test('the granted technomancer spell focus applies, and taking it by hand is a duplicate, not a second slot', () => {
+  const c = build('technomancer', 3);
+  assert.ok(bonus.collectModifiers(c, data).constants.some((m) => m.kind === 'feat' && m.sourceKey === 'spell_focus'));
+  const slots = rules.featSlots(c, data).filter((s) => s.level === 3);
+  assert.strictEqual(slots.length, 1);
+  assert.strictEqual(allowed('feat', 'spell_focus', 2, c, data, 0).ok, false);
+  c.levels[2].feats = ['spell_focus'];
+  const b = validate(c, data).filter((x) => x.level === 3 && x.tab === 'feats');
+  assert.deepStrictEqual(b.map((x) => x.code), ['duplicate']);
+  assert.deepStrictEqual(rules.grantedFeats(build('technomancer', 2), data), []);
 });
 
 test('picks outside the schema are flagged, and orphaned slugs are missing', () => {

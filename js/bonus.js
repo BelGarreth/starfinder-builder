@@ -147,9 +147,10 @@
       });
     }
 
+    const granted = rules.grantedFeats(char || {}, data);
     levelsOf(char).forEach((lvl, i) => {
       const held = {};
-      asList(lvl && lvl.feats).forEach((k) => {
+      granted.filter((g) => g.levelIndex === i).map((g) => g.slug).concat(asList(lvl && lvl.feats)).forEach((k) => {
         if (!has(feats, k)) return;
         held[k] = (held[k] || 0) + 1;
         add('feat', k, feats[k], i, held[k] - 1);

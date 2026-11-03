@@ -843,10 +843,7 @@
    ],
    "3": [
     {
-     "bonusFeat": true,
-     "pool": [
-      "spell_focus"
-     ]
+     "fixedFeat": "spell_focus"
     },
     {
      "fixed": "techlore_(ex)"

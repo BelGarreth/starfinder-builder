@@ -197,6 +197,7 @@
     const parts = [];
     here.entries.forEach((e) => {
       if (e.fixed) fixed.push(featureLine(features[e.fixed] || { name: e.fixed }, 'gained'));
+      else if (e.fixedFeat) fixed.push(featureLine(own(table(data, 'feats'), e.fixedFeat) || { name: e.fixedFeat }, 'bonus feat, gained'));
       else if (e.fixedOf) {
         const g = granted.map((f) => featureLine(features[f.slug], 'from your ' + e.fixedOf + ' pick'));
         if (g.length) g.forEach((x) => fixed.push(x));

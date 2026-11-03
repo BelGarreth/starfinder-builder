@@ -42,8 +42,10 @@
     if (!C.abilities) C.abilities = { pb: {} };
     if (!C.abilities.pb) C.abilities.pb = {};
     if (!Array.isArray(C.gear)) C.gear = [];
-    levelsOf(C).forEach((l) => {
+    levelsOf(C).forEach((l, i) => {
       if (!l.choices) l.choices = {};
+      const granted = SF().grantedAt(C, data, i);
+      if (granted.length && Array.isArray(l.feats)) l.feats = l.feats.filter((f) => granted.indexOf(f) === -1);
       Object.keys(SF().FEAT_CHOICE).forEach((f) => { if (asList(l.feats).indexOf(f) === -1) delete l.choices[f]; });
     });
     levelsOf(C).forEach((l, i) => {

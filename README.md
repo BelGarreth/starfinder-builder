@@ -86,6 +86,7 @@ with the same id as a base choice at that level replaces it. An entry is one of:
   `grants[tier]`. Fighting styles, connections and specializations get `grants` from their own text:
   the style techniques at 1/5/9/13/17, the connection powers at 1/3/6/9/12/15/18, and the specialization
   exploit (5) and power (11). The secondary fighting style uses tiers 1/5/9 at soldier levels 9/13/17.
+- `{fixedFeat: slug}`: the feat is granted at that class level without using a slot (the technomancer's 3rd-level Spell Focus). It counts as held for prerequisites, duplicates and modifiers, and `SFUI.normalize` drops a hand-taken copy at that level.
 - `{bonusFeat: true, pool?}`: an extra feat slot at that level; `pool` is `"combat"` or a feat slug list.
   Feat slots are matched by position: at each level the open slots sort first and restricted slots
   after them, and `char.levels[i].feats[j]` fills slot `j` in that order.

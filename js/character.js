@@ -360,6 +360,10 @@
     const feats = [];
     u.levelsOf(C).forEach((l, i) => {
       const seen = {};
+      rules.grantedAt(C, data, i).forEach((slug) => {
+        const rec = own(u.table(data, 'feats'), slug);
+        feats.push(li(rec ? rec.name : slug, rec && rec.summary, 'granted, level ' + (i + 1)));
+      });
       asList(l.feats).forEach((slug) => {
         const k = seen[slug] || 0;
         seen[slug] = k + 1;

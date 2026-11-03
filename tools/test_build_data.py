@@ -478,6 +478,8 @@ class PrereqIntegrationTest(unittest.TestCase):
         self.assertIn('blitz', style['pool'])
         self.assertIn({'fixedOf': 'fightingStyle', 'tier': 1}, soldier1)
         self.assertIn({'bonusFeat': True, 'pool': 'combat'}, prog['soldier']['levels']['2'])
+        self.assertIn({'fixedFeat': 'spell_focus'}, prog['technomancer']['levels']['3'])
+        self.assertFalse([e for e in prog['technomancer']['levels']['3'] if 'bonusFeat' in e])
         self.assertEqual([e for e in prog['mechanic']['levels']['1'] if e.get('choice') == 'ai'][0]['pool'], ['exocortex'])
         self.assertIn('enhanced', prog['technomancer'])
         self.assertEqual(self.d['features']['flight_system_(ex_exocortex)']['minLevel'], 11)
