@@ -281,7 +281,9 @@ test('multi-skill picks disable the rest once full', () => {
   ['acr', 'ath', 'blu'].forEach((k) => U.actions.skillPick(c, UI, data, '0', k, 'skillAdept'));
   assert.deepStrictEqual(clone(c.levels[0].choices.skillAdept), ['acr', 'ath']);
   const html = U.tabClass(c, UI, data, U.ctxOf(c, data));
-  assert.ok(/data-b2="blu" data-c="skillAdept" disabled/.test(html) && html.indexOf('Unpick one to choose another') !== -1);
+  assert.ok(/data-b2="blu" data-c="skillAdept" disabled/.test(html));
+  assert.ok(/title="2 already chosen"><input[^>]*data-b2="blu"[^>]*disabled> Bluff<\/label>/.test(html), 'blu is greyed with a tooltip and no inline reason');
+  assert.strictEqual(html.indexOf('Unpick one'), -1);
 });
 
 test('a personal upgrade gets an ability picker on the gear tab that feeds the sheet', () => {

@@ -77,7 +77,7 @@
     const x = o || {};
     const ans = x.ans || { ok: true };
     const label = x.on ? (x.onLabel || 'Chosen') : (x.label || 'Choose');
-    const why = ans.why ? '<div class="why' + (ans.ok ? ' soft' : '') + '">' + esc(ans.why) + '</div>' : '';
+    const why = ans.why && !ans.quiet ? '<div class="why' + (ans.ok ? ' soft' : '') + '">' + esc(ans.why) + '</div>' : '';
     const extra = x.extra ? ' <span class="mute">' + x.extra + '</span>' : '';
     const summary = rec && rec.summary ? '<div class="note">' + esc(rec.summary) + '</div>' : '';
     const button = x.noButton ? '' : btn(x.act, label, { c: 'sm' + (x.on ? ' pri' : ''), a: x.a, b: x.b, cc: x.cc, d: !x.on && !ans.ok, title: !ans.ok ? ans.why : undefined });
