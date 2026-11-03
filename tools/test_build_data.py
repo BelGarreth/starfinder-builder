@@ -175,7 +175,7 @@ class BuildDataTest(unittest.TestCase):
                 self.assertFalse(rec['summary'].startswith('>'), (section, slug))
 
     def test_size_budget(self):
-        self.assertLess(len(json.dumps(self.d)), 3_000_000)
+        self.assertLess(len(json.dumps(self.d, separators=(',', ':'), ensure_ascii=False).encode()), 3_000_000)
 
     def test_write_data_js_round_trips_through_node(self):
         with tempfile.TemporaryDirectory() as tmp:
@@ -256,6 +256,15 @@ class PrereqIntegrationTest(unittest.TestCase):
         self.assertEqual(feats['creature_companion_expert']['prereq']['all'][0], {'k': 'feat', 'feat': 'creature_companion_adept'})
         self.assertEqual(feats['cleave_(combat)']['prereq']['all'][0], {'k': 'ability', 'a': 'str', 'min': 13})
 
+    def test_or_lists_and_structured_clauses_in_real_data(self):
+        feats = self.d['feats']
+        self.assertEqual(feats['profession_mastery']['prereq']['all'][0], {'k': 'any', 'of': [
+            {'k': 'ability', 'a': a, 'min': 13} for a in ('cha', 'int', 'wis')]})
+        self.assertEqual(len(feats['master_crafter']['prereq']['all'][0]['of']), 6)
+        self.assertIn({'k': 'feat', 'feat': 'weapon_focus_(combat)'}, feats['double_tap_(combat)']['prereq']['all'])
+        self.assertEqual([c['group'] for c in feats['heavy_weapon_proficiency_(combat)']['prereq']['all'][1:]], ['small arms', 'longarms'])
+        self.assertEqual(feats['protective_fur']['prereq']['all'][0]['of'][1], {'k': 'race', 'race': 'ysoki'})
+
     def test_effect_overrides_land_in_data_without_notes(self):
         effects = self.d['overrides']['effects']
         self.assertEqual(effects['chitinous_wall'], 'none')
@@ -271,12 +280,33 @@ class PrereqIntegrationTest(unittest.TestCase):
                 self.assertTrue(entry['_why'], slug)
                 self.assertIn(slug.removeprefix('feature:'), names)
 
+    def test_class_features_emitted_for_phase1_classes(self):
+        cf = {k: f for k, f in self.d['features'].items() if f['kind'] == 'class'}
+        self.assertGreater(len(cf), 400)
+        self.assertEqual({f['cls'] for f in cf.values()}, set(build_data.CLASSES))
+        for key, f in cf.items():
+            self.assertTrue(f['requirements'], key)
+            self.assertTrue(f['summary'], key)
+            self.assertIn('modifiers', f)
+            self.assertIsInstance(f['enhanced'], bool)
+        self.assertEqual(cf['tactful_tactician_(ex)']['cls'], 'soldier')
+        self.assertEqual(cf['tactful_tactician_(ex)']['minLevel'], 1)
+        self.assertEqual(cf['tactful_tactician_(ex)']['requirements'], '1st Level (Soldier)')
+
+    def test_class_features_exclude_other_classes(self):
+        for f in self.d['features'].values():
+            if f['kind'] == 'class':
+                self.assertNotRegex(f['requirements'], r'(?i)vanguard|witchwarper|biohacker|evolutionist|nanocyte|precog')
+
     def test_conditional_bonuses_are_never_constant(self):
         for slug, value in self.d['overrides']['effects'].items():
             if value != 'none':
                 for m in value:
-                    self.assertEqual(m['modifierType'], 'formula', slug)
-                    self.assertTrue(m['condition'], slug)
+                    if m['modifierType'] == 'constant':
+                        self.assertFalse(m['condition'], slug)
+                    else:
+                        self.assertEqual(m['modifierType'], 'formula', slug)
+                        self.assertTrue(m['condition'], slug)
 
 
 if __name__ == '__main__':

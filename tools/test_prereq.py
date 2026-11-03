@@ -52,6 +52,33 @@ class ParsePrereqTest(unittest.TestCase):
         self.assertEqual(parse('Con 13, natural weapons species trait', feature_slugs={'natural weapons': 'nw'}),
                          {'all': [ability('con', 13), {'k': 'feature', 'feature': 'nw'}]})
 
+    def test_comma_or_list_folds_to_any(self):
+        self.assertEqual(parse('Cha 13, Int 13, or Wis 13'), {'all': [{'k': 'any', 'of': [
+            ability('cha', 13), ability('int', 13), ability('wis', 13)]}]})
+
+    def test_trailing_or_distributes_shared_ranks(self):
+        got = parse('Computers, Engineering, Life Science, Mysticism, Physical Science, or Piloting 5 ranks.')
+        self.assertEqual(got, {'all': [{'k': 'any', 'of': [{'k': 'ranks', 'skill': k, 'min': 5} for k in ('com', 'eng', 'lsc', 'mys', 'phs', 'pil')]}]})
+
+    def test_or_list_with_unparseable_element_is_none(self):
+        self.assertIsNone(parse('Computers, Engineering, or Xenobiology 5 ranks'))
+
+    def test_master_crafter_shape_with_appropriate_profession(self):
+        got = parse('Computers, Engineering, or appropriate Profession 5 ranks.')
+        self.assertEqual(got, {'all': [{'k': 'any', 'of': [{'k': 'ranks', 'skill': k, 'min': 5} for k in ('com', 'eng', 'pro')]}]})
+
+    def test_profession_specialty_ranks(self):
+        self.assertEqual(parse('Profession (musician) 5 ranks'), {'all': [{'k': 'ranks', 'skill': 'pro', 'min': 5}]})
+
+    def test_proficiency_lists(self):
+        self.assertEqual(parse('Str 13, proficiency in small arms and longarms'), {'all': [
+            ability('str', 13), {'k': 'proficiency', 'group': 'small arms'}, {'k': 'proficiency', 'group': 'longarms'}]})
+        self.assertEqual(parse('Proficiency in basic melee weapons or small arms'), {'all': [{'k': 'any', 'of': [
+            {'k': 'proficiency', 'group': 'basic melee weapons'}, {'k': 'proficiency', 'group': 'small arms'}]}]})
+
+    def test_semicolon_groups_stay_anded(self):
+        self.assertEqual(parse('Dex 13; Mobility'), {'all': [ability('dex', 13), {'k': 'feat', 'feat': 'mobility'}]})
+
     def test_empty_is_no_requirements(self):
         self.assertEqual(parse(''), {'all': []})
 
@@ -98,8 +125,15 @@ class CoverageTest(unittest.TestCase):
     def test_any_enabled_modifier_or_override_covers(self):
         text = '+1 bonus to AC when fighting defensively'
         mod = [{'modifierType': 'formula'}]
-        self.assertEqual(prereq.check_coverage(data(feats={'f': feat(text, modifiers=mod)})), [])
+        self.assertEqual(prereq.check_coverage(data(feats={'f': feat(text, modifiers=[{'modifierType': 'constant'}])})), [])
+        self.assertEqual(prereq.check_coverage(data(feats={'f': feat(text, modifiers=mod)})), ['f'])
         self.assertEqual(prereq.check_coverage(data(feats={'f': feat(text)}, effects={'f': 'none'})), [])
+
+    def test_bonus_on_phrasing_is_gated(self):
+        self.assertEqual(prereq.check_coverage(data(feats={'f': feat('+2 bonus on saving throws against fear')})), ['f'])
+
+    def test_class_feature_gated(self):
+        self.assertEqual(prereq.check_coverage(data(features={'c': feature('+1 bonus to AC', kind='class')})), ['c'])
 
     def test_single_bad_feat_returns_its_slug(self):
         d = data(feats={'ok': feat('Nothing here'), 'oops': feat('+1 bonus to Will saves')}, features={'t': feature()})

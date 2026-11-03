@@ -14,11 +14,12 @@ ROOT = Path(__file__).resolve().parent.parent
 REPO_URL = 'https://github.com/foundryvtt-starfinder/foundryvtt-starfinder.git'
 SPARSE_DIRS = [
     'src/items/races', 'src/items/racial-features', 'src/items/themes', 'src/items/theme-features',
-    'src/items/classes', 'src/items/feats', 'src/items/spells', 'src/items/equipment',
+    'src/items/classes', 'src/items/class-features', 'src/items/feats', 'src/items/spells', 'src/items/equipment',
 ]
 AON = 'https://www.aonsrd.com/'
 SUMMARY_LIMIT = 300
 ITEM_SUMMARY_LIMIT = 160
+CLASS_SUMMARY_LIMIT = 220
 
 RACES = ['android', 'human', 'kasatha', 'lashunta', 'shirren', 'vesk', 'ysoki', 'dwarf', 'elf', 'gnome',
          'half-elf', 'halfling', 'half-orc']
@@ -150,6 +151,10 @@ def traits_for_race(base, variant, markup, id_to_slug, by_name):
     return found
 
 
+def bonus_flag(item):
+    return {'bonus': True} if prereq.BONUS.search(plain(description(item))) else {}
+
+
 def build_features(racial, theme):
     features = {}
     for slug, item in racial.items():
@@ -159,6 +164,7 @@ def build_features(racial, theme):
             'name': item['name'], 'kind': 'race', 'requirements': item['system'].get('requirements', ''),
             'level': None, 'aon': aon_search(item['name']), 'src': item['system'].get('source', ''),
             'summary': summarize(description(item)), 'modifiers': modifiers(item['system']),
+            **bonus_flag(item),
         }
     for slug, item in theme.items():
         if item['type'] != 'feat':
@@ -170,9 +176,34 @@ def build_features(racial, theme):
             'name': item['name'], 'kind': 'theme', 'requirements': req,
             'level': int(level.group(1)) if level else None, 'aon': aon_search(item['name']),
             'src': item['system'].get('source', ''), 'summary': summarize(description(item)),
-            'modifiers': modifiers(item['system']),
+            'modifiers': modifiers(item['system']), **bonus_flag(item),
         }
     return features
+
+
+CLASS_REQ = re.compile(r'\b(' + '|'.join(CLASSES) + r')\b', re.I)
+MIN_LEVEL = re.compile(r'(\d+)(?:st|nd|rd|th)?\s+(?:level|technique)|level\s+(\d+)', re.I)
+
+
+def build_class_features(class_features, features):
+    out = {}
+    for slug, item in class_features.items():
+        if item['type'] != 'feat':
+            continue
+        req = item['system'].get('requirements', '') or ''
+        named = CLASS_REQ.search(req)
+        if not named:
+            continue
+        level = MIN_LEVEL.search(req)
+        key = slug if slug not in features and slug not in out else f'class-{slug}'
+        out[key] = {
+            'name': item['name'], 'kind': 'class', 'cls': named.group(1).lower(), 'enhanced': 'enhanced' in req.lower(),
+            'minLevel': int(level.group(1) or level.group(2)) if level else None, 'requirements': req,
+            'level': None, 'aon': aon_search(item['name']), 'src': item['system'].get('source', ''),
+            'summary': summarize(description(item), CLASS_SUMMARY_LIMIT), 'modifiers': modifiers(item['system']),
+            **bonus_flag(item),
+        }
+    return out
 
 
 def load_core_traits(path, all_features):
@@ -275,7 +306,7 @@ def prereq_text(item):
 
 
 def build_feats(items, features=None, prereq_overrides=None):
-    feat_slugs = {TYPE_PAREN.sub('', i['name']).strip().casefold(): s for s, i in items.items()}
+    feat_slugs = {TYPE_PAREN.sub('', i['name']).strip().casefold().replace('-', ' '): s for s, i in items.items()}
     feature_slugs = {f['name'].casefold(): k for k, f in (features or {}).items()}
     overrides = prereq_overrides or {}
     feats = {}
@@ -288,7 +319,7 @@ def build_feats(items, features=None, prereq_overrides=None):
         feats[slug] = {
             'name': item['name'], 'combat': bool(s.get('details', {}).get('combat')), 'prereqText': text,
             'prereq': parsed, 'modifiers': modifiers(s), 'aon': aon('Feats', item['name']), 'src': s.get('source', ''),
-            'summary': summarize(markup[benefit.end():] if benefit else markup),
+            'summary': summarize(markup[benefit.end():] if benefit else markup), **bonus_flag(item),
         }
     return feats
 
@@ -380,6 +411,7 @@ def build(src, sha=None, built=None, core_path=ROOT / 'tools' / 'race_traits.jso
     racial = load_dir(src / 'racial-features')
     theme = load_dir(src / 'theme-features')
     features = build_features(racial, theme)
+    class_features = build_class_features(load_dir(src / 'class-features'), features)
     races = build_races(load_dir(src / 'races'), racial, load_core_traits(core_path, features))
     themes = build_themes(load_dir(src / 'themes'), theme, features)
     used = {t for r in races.values() for t in r['coreTraits'] + r['altTraits']} | {f for t in themes.values() for f in t['features']}
@@ -389,7 +421,7 @@ def build(src, sha=None, built=None, core_path=ROOT / 'tools' / 'race_traits.jso
         'themes': themes,
         'classes': build_classes(load_dir(src / 'classes')),
         'feats': build_feats(load_dir(src / 'feats'), features, load_json(prereq_path)),
-        'features': {k: v for k, v in features.items() if k in used},
+        'features': {**{k: v for k, v in features.items() if k in used}, **class_features},
         'spells': build_spells(load_dir(src / 'spells')),
         'items': build_items(load_dir(src / 'equipment')),
         'progressions': {},
