@@ -13,8 +13,9 @@
   U.tabIO = U.tabIO || ((C, UI, data, ctx) => (store() && store().tabIO ? store().tabIO(C, UI, data, ctx) : placeholder('Import/Export')));
 
   U.tabBBCode = U.tabBBCode || ((C, UI, data, ctx) => (store() && store().tabBBCode ? store().tabBBCode(C, UI, data, ctx) : placeholder('BBCode')));
+  U.tabMythWeavers = U.tabMythWeavers || ((C, UI, data, ctx) => (store() && store().tabMythWeavers ? store().tabMythWeavers(C, UI, data, ctx) : placeholder('Myth-Weavers')));
 
-  const TAB_FN = { char: 'tabChar', abilities: 'tabAbilities', class: 'tabClass', skills: 'tabSkills', feats: 'tabFeats', gear: 'tabGear', spells: 'tabSpells', print: 'tabPrint', io: 'tabIO', bbcode: 'tabBBCode' };
+  const TAB_FN = { char: 'tabChar', abilities: 'tabAbilities', class: 'tabClass', skills: 'tabSkills', feats: 'tabFeats', gear: 'tabGear', spells: 'tabSpells', print: 'tabPrint', io: 'tabIO', bbcode: 'tabBBCode', mythweavers: 'tabMythWeavers' };
 
   U.renderMain = function (C, UI, data, ctx) {
     const x = ctx || U.ctxOf(C, data);
