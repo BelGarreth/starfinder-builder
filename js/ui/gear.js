@@ -74,17 +74,19 @@
     const targets = gear.filter((g) => own(items, g.item) && (items[g.item].armor || items[g.item].weapon));
     const into = targets.some((g) => g.id === UI.into) ? UI.into : '';
     const li = Math.max(0, levelsOf(C).length - 1);
-    const list = Object.keys(items).filter((k) => matches(items[k], q) && inCategory(items[k], cat));
+    const found = Object.keys(items).filter((k) => matches(items[k], q) && inCategory(items[k], cat));
+    const answer = (k) => rules.allowed('item', k, li, C, data, into && ATTACHABLE.indexOf(items[k].type) !== -1 ? { into } : undefined);
+    const list = U.eligibleOnly(UI, found, answer, (k) => gear.some((g) => g.item === k));
     const out = capped(list, (k) => {
       const rec = items[k];
       const attach = into && ATTACHABLE.indexOf(rec.type) !== -1;
-      const ans = rules.allowed('item', k, li, C, data, attach ? { into } : undefined);
+      const ans = answer(k);
       const extra = esc('level ' + rec.level + ' · ' + fmt(rec.price) + ' cr · bulk ' + bulkText(rec.bulk));
       return pickRow(rec, { act: 'buy', a: k, ans, label: attach ? 'Install' : 'Buy', extra });
     });
     const targetOpts = [['', 'Inventory']].concat(targets.map((g) => [g.id, items[g.item].name]));
     return '<div class="card"><h2>Shop</h2><div class="row">' + fld('Search items', input(C, UI, '$shopQ', { ph: 'Name' })) + fld('Category', select('$shopCat', cat, categories(data)))
-      + fld('Put upgrades and fusions into', select('$into', into, targetOpts)) + '</div><p class="note">' + esc(fmt(out.count)) + ' items. Item level is capped at your character level.</p>' + pickTable(out.rows, 'tall') + out.note + '</div>';
+      + fld('Put upgrades and fusions into', select('$into', into, targetOpts)) + '</div>' + U.hideToggle(UI) + '<p class="note">' + esc(fmt(out.count)) + ' items. Item level is capped at your character level.</p>' + pickTable(out.rows, 'tall') + out.note + '</div>';
   }
 
   U.tabGear = function (C, UI, data, ctx) {

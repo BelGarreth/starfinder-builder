@@ -56,7 +56,8 @@
     const q = UI.featQ || '';
     const cat = UI.featCat || 'all';
     const current = asList(C.levels[i].feats)[j];
-    const list = Object.keys(feats).filter((k) => matches(feats[k], q) && (cat === 'all' || (cat === 'combat') === !!feats[k].combat));
+    const found = Object.keys(feats).filter((k) => matches(feats[k], q) && (cat === 'all' || (cat === 'combat') === !!feats[k].combat));
+    const list = U.eligibleOnly(UI, found, (k) => rules.allowed('feat', k, i, C, data, j), (k) => current === k);
     const out = capped(list, (k) => {
       const f = feats[k];
       const ans = rules.allowed('feat', k, i, C, data, j);
@@ -64,7 +65,7 @@
       return pickRow(f, { act: 'takeFeat', a: i, b: k, cc: j, on: current === k, ans, label: 'Take', extra });
     });
     const cats = [['all', 'All feats'], ['combat', 'Combat'], ['general', 'Non-combat']];
-    return '<div class="card"><h2>Choose for slot ' + (j + 1) + '</h2><div class="row">' + fld('Search feats', input(C, UI, '$featQ', { ph: 'Name' })) + fld('Category', select('$featCat', cat, cats)) + '</div>'
+    return '<div class="card"><h2>Choose for slot ' + (j + 1) + '</h2><div class="row">' + fld('Search feats', input(C, UI, '$featQ', { ph: 'Name' })) + fld('Category', select('$featCat', cat, cats)) + '</div>' + U.hideToggle(UI)
       + '<p class="note">' + esc(out.count) + ' feats. Ones you can\'t take yet are greyed out with the reason.</p>' + pickTable(out.rows, 'tall') + out.note + '</div>';
   }
 
@@ -156,15 +157,18 @@
     const q = UI.spellQ || '';
     const lvF = UI.spellLvl === undefined ? 'all' : String(UI.spellLvl);
     const listF = UI.spellList || 'class';
-    const list = Object.keys(spells).filter((k) => {
+    const found = Object.keys(spells).filter((k) => {
       const s = spells[k];
       return matches(s, q) && (lvF === 'all' || String(s.level) === lvF) && (listF === 'all' || (s.allowedClasses && s.allowedClasses[key]));
     }).sort((a, b) => spells[a].level - spells[b].level || (spells[a].name < spells[b].name ? -1 : 1));
+    const swapping = !!from && !(swap && swap.to);
+    const answerSpell = (k) => (swapping ? rules.allowed('spell', k, i, C, data, { cls: lvl.class, swap: true, from }) : rules.allowed('spell', k, i, C, data));
+    const list = U.eligibleOnly(UI, found, answerSpell, (k) => !swapping && learn.indexOf(k) !== -1);
     const out = capped(list, (k) => {
       const s = spells[k];
       const extra = esc('level ' + s.level + (s.school ? ' · ' + s.school : ''));
-      if (from && !(swap && swap.to)) {
-        const ans = rules.allowed('spell', k, i, C, data, { cls: lvl.class, swap: true, from });
+      if (swapping) {
+        const ans = answerSpell(k);
         return pickRow(s, { act: 'swapTo', a: i, b: k, ans, label: 'Swap in', extra });
       }
       const on = learn.indexOf(k) !== -1;
@@ -172,7 +176,7 @@
     });
     const lvOpts = [['all', 'All levels']].concat([0, 1, 2, 3, 4, 5, 6].map((n) => [String(n), 'Level ' + n]));
     return tabs + slotsCard(C, data) + '<div class="card"><h2>Spells learned at level ' + (i + 1) + '</h2>' + (learned || '<p class="note">None yet.</p>') + swapLine
-      + '<div class="row">' + fld('Search spells', input(C, UI, '$spellQ', { ph: 'Name' })) + fld('Spell level', select('$spellLvl', lvF, lvOpts)) + fld('List', select('$spellList', listF, [['class', className(data, lvl.class) + ' list'], ['all', 'All spells']])) + '</div>'
+      + '<div class="row">' + fld('Search spells', input(C, UI, '$spellQ', { ph: 'Name' })) + fld('Spell level', select('$spellLvl', lvF, lvOpts)) + fld('List', select('$spellList', listF, [['class', className(data, lvl.class) + ' list'], ['all', 'All spells']])) + '</div>' + U.hideToggle(UI)
       + pickTable(out.rows, 'tall') + out.note + '</div>';
   };
 

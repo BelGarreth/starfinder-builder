@@ -132,6 +132,8 @@ Gear (`js/gear.js`): `char.gear = [{id, item, qty, equipped, ability?, slots?: [
 - `tabPrint(char, UI, data, ctx)` and `tabIO(...)`: HTML for the Print and Import/Export tabs.
 - `actions[name](char, UI, data, a, b, c, el)`: extra `data-act` handlers.
 
+The Feats, Gear shop, Spells and class-choice pickers share one "Hide options I don't qualify for" checkbox. It lives in the UI state (`UI.hideIneligible`, default off), not the character, so it is never exported. When ticked, options for which `allowed()` returns `ok: false` are omitted before the row cap, so the cap counts visible rows. The option you currently hold (the feat in the slot, a learned spell, an owned item, a picked feature) always stays visible, and `ok: true` options with a "Not checked" note stay too.
+
 `SFUI.setCharacter(char)` replaces the current character, for example after an import, and resets the level, feat-slot and swap selections.
 
 ## Tests

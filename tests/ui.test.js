@@ -313,3 +313,62 @@ test('the technomancer 3 granted spell focus shows on the class and feats tabs a
   assert.ok(/Granted at level 3/.test(feats) && feats.indexOf('Spell Focus') !== -1, feats.slice(0, 300));
   assert.ok(!x.blockers.some((b) => b.level === 3 && b.tab === 'feats' && b.code !== 'unspent'));
 });
+
+test('hide-ineligible drops feats you cannot take, keeps toughness and the held feat', () => {
+  const c = vesk();
+  const on = ui({ featSlot: 0, hideIneligible: true, featQ: 'l' });
+  const off = ui({ featSlot: 0, featQ: 'l' });
+  const slot = (UI) => rowsOf(U.tabFeats(c, UI, data, U.ctxOf(c, data))).filter((r) => r.indexOf('data-act="takeFeat"') !== -1).join('');
+  assert.ok(slot(off).indexOf('data-b2="lunge_(combat)"') !== -1);
+  assert.ok(!U.tabFeats(c, on, data, U.ctxOf(c, data)).includes('data-b2="lunge_(combat)"'));
+  assert.ok(slot(Object.assign({}, on, { featQ: 'toughness' })).indexOf('data-b2="toughness"') !== -1);
+  assert.ok(slot(Object.assign({}, off, { featQ: 'toughness' })).indexOf('data-b2="toughness"') !== -1);
+  assert.ok(U.tabFeats(c, on, data, U.ctxOf(c, data)).indexOf('checked> Hide options') !== -1);
+});
+
+test('hide-ineligible keeps a taken feat that is now ineligible', () => {
+  const c = vesk();
+  c.levels[0].feats = ['lunge_(combat)'];
+  assert.strictEqual(win.SF.allowed('feat', 'lunge_(combat)', 0, c, data, 0).ok, false);
+  const html = U.tabFeats(c, ui({ featSlot: 0, hideIneligible: true }), data, U.ctxOf(c, data));
+  const row = rowWith(html, 'data-act="takeFeat" data-a="0" data-b2="lunge_(combat)"');
+  assert.ok(row, 'held feat still listed');
+  assert.ok(row.indexOf(' on') !== -1);
+});
+
+test('hide-ineligible filters before the cap and drops unaffordable shop items', () => {
+  const c = vesk();
+  const rules = win.SF;
+  const bad = Object.keys(data.items).find((k) => !rules.allowed('item', k, 0, c, data).ok);
+  assert.ok(bad);
+  const shopRows = (UI) => rowsOf(U.tabGear(c, UI, data, U.ctxOf(c, data))).filter((r) => r.indexOf('data-act="buy"') !== -1);
+  assert.ok(shopRows(ui({ shopQ: data.items[bad].name })).some((r) => r.indexOf('data-a="' + bad + '"') !== -1));
+  assert.ok(!shopRows(ui({ shopQ: data.items[bad].name, hideIneligible: true })).some((r) => r.indexOf('data-a="' + bad + '"') !== -1));
+  const rows = shopRows(ui({ hideIneligible: true }));
+  assert.ok(rows.length > 0 && rows.every((r) => !/<button[^>]*disabled/.test(r)));
+  const ok = Object.keys(data.items).filter((k) => rules.allowed('item', k, 0, c, data).ok).length;
+  assert.strictEqual(rows.length, Math.min(ok, U.ROW_CAP));
+});
+
+test('hide-ineligible hides gated class choices but keeps ok ones, and the checkbox binds into UI only', () => {
+  const c = vesk();
+  const UI = ui({ lvl: 2 });
+  U.actions.addLevel(c, UI, data, 'soldier');
+  U.actions.addLevel(c, UI, data, 'soldier');
+  const html = U.tabClass(c, ui({ lvl: 2, hideIneligible: true }), data, U.ctxOf(c, data));
+  assert.strictEqual(rowWith(html, 'Fast Hands'), undefined);
+  assert.ok(rowsOf(html).filter((r) => r.indexOf('data-act="pick"') !== -1).every((r) => !/<button[^>]*disabled/.test(r)));
+  const before = JSON.stringify(c);
+  U.bind(c, UI, '$hideIneligible', true, { t: 'b' });
+  assert.strictEqual(UI.hideIneligible, true);
+  assert.strictEqual(JSON.stringify(c), before);
+});
+
+test('hide-ineligible keeps spells you hold on the spells tab', () => {
+  const c = JSON.parse(JSON.stringify(vesk()));
+  c.levels[0] = { class: 'technomancer', increases: [], skills: {}, feats: [], choices: {}, spells: {} };
+  const off = U.tabSpells(c, ui({ tab: 'spells' }), data, U.ctxOf(c, data));
+  const on = U.tabSpells(c, ui({ tab: 'spells', hideIneligible: true }), data, U.ctxOf(c, data));
+  assert.ok(rowsOf(off).some((r) => /<button[^>]*disabled/.test(r)));
+  assert.ok(rowsOf(on).filter((r) => r.indexOf('data-act="learn"') !== -1).every((r) => !/<button[^>]*disabled/.test(r)));
+});
