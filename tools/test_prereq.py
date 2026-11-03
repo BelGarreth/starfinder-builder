@@ -135,6 +135,11 @@ class CoverageTest(unittest.TestCase):
     def test_class_feature_gated(self):
         self.assertEqual(prereq.check_coverage(data(features={'c': feature('+1 bonus to AC', kind='class')})), ['c'])
 
+    def test_replaced_modifiers_count_as_covered(self):
+        text = '+1 bonus to AC when fighting defensively'
+        replaced = {'summary': text, 'kind': 'theme', 'requirements': '', 'modifiers': [{'modifierType': 'formula'}], 'modifiersReplaced': True}
+        self.assertEqual(prereq.check_coverage(data(features={'t': replaced})), [])
+
     def test_single_bad_feat_returns_its_slug(self):
         d = data(feats={'ok': feat('Nothing here'), 'oops': feat('+1 bonus to Will saves')}, features={'t': feature()})
         self.assertEqual(prereq.check_coverage(d), ['oops'])

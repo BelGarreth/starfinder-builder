@@ -188,8 +188,8 @@ def gated_features(data):
             yield slug, feature
 
 
-def has_constant(modifiers):
-    return any(m.get('modifierType') == 'constant' for m in modifiers)
+def has_constant(record):
+    return bool(record.get('modifiersReplaced')) or any(m.get('modifierType') == 'constant' for m in record['modifiers'])
 
 
 def check_coverage(data):
@@ -198,10 +198,10 @@ def check_coverage(data):
     for slug, feat in data['feats'].items():
         if feat.get('prereq') is None:
             failed.append(slug)
-        elif (feat.get('bonus') or BONUS.search(feat['summary'])) and not has_constant(feat['modifiers']) and slug not in effects:
+        elif (feat.get('bonus') or BONUS.search(feat['summary'])) and not has_constant(feat) and slug not in effects:
             failed.append(slug)
     for slug, feature in gated_features(data):
         key = override_key(slug, data['feats'])
-        if (feature.get('bonus') or BONUS.search(feature['summary'])) and not has_constant(feature['modifiers']) and key not in effects:
+        if (feature.get('bonus') or BONUS.search(feature['summary'])) and not has_constant(feature) and key not in effects:
             failed.append(key)
     return failed

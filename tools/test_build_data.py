@@ -300,6 +300,25 @@ class PrereqIntegrationTest(unittest.TestCase):
             if f['kind'] == 'class':
                 self.assertNotRegex(f['requirements'], r'(?i)vanguard|witchwarper|biohacker|evolutionist|nanocyte|precog')
 
+    def test_replace_override_swaps_record_modifiers_and_stays_out_of_effects(self):
+        effects = self.d['overrides']['effects']
+        aa = self.d['features']['armored_advantage_(ex)']
+        self.assertTrue(aa['modifiersReplaced'])
+        self.assertEqual(len(aa['modifiers']), 1)
+        self.assertEqual((aa['modifiers'][0]['modifierType'], aa['modifiers'][0]['when']), ('constant', 'armor'))
+        self.assertNotIn('armored_advantage_(ex)', effects)
+        ub = self.d['features']['unyielding_bulwark_(ex)']['modifiers']
+        self.assertEqual([(m['modifierType'], bool(m['condition'])) for m in ub], [('formula', True)])
+        self.assertEqual(self.d['features']['sneaky_(halfling)']['modifiers'][0]['modifier'], '2')
+        self.assertEqual(self.d['features']['fading_shadow_(su)']['modifiers'], [])
+
+    def test_replaced_modifiers_are_never_unconditional_constants_without_reason(self):
+        for slug, rec in {**self.d['feats'], **self.d['features']}.items():
+            if rec.get('modifiersReplaced'):
+                for m in rec['modifiers']:
+                    if m['modifierType'] == 'constant' and slug not in ('sneaky_(halfling)', 'toughness'):
+                        self.assertEqual(m.get('when'), 'armor', slug)
+
     def test_when_field_only_on_constants_and_known(self):
         for slug, value in self.d['overrides']['effects'].items():
             if value != 'none':
@@ -318,7 +337,8 @@ class PrereqIntegrationTest(unittest.TestCase):
         cats = {x['category'] for x in f.values() if x['kind'] == 'class'}
         self.assertTrue({'exploit', 'revelation', 'hack', 'gearBoost', 'mechanicTrick', 'connection', 'fightingStyle', 'improvisation'} <= cats)
         self.assertEqual(f['exosuit']['cls'], 'soldier')
-        self.assertIn('@classes.soldier.levels', self.d['overrides']['effects']['exosuit'][0]['modifier'])
+        self.assertEqual(self.d['overrides']['effects']['exosuit'], 'none')
+        self.assertEqual(self.d['features']['the_only_mech_for_me_(ex)']['modifiers'][0]['valueAffected'], 'pil')
 
     def test_conditional_bonuses_are_never_constant(self):
         for slug, value in self.d['overrides']['effects'].items():

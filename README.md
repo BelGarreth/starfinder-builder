@@ -31,7 +31,10 @@ packages. The page loads the three files as classic scripts and they merge into 
 cannot read; a `text` check is shown but not enforced. `tools/effect_overrides.json` holds
 `{slug: {_why, effects}}` where `effects` is `"none"` or a list of modifiers. They land in
 `SFDATA.overrides.effects` and are not merged into a record's own `modifiers`. Situational bonuses use
-`modifierType: "formula"` with a `condition`; only unconditional bonuses are `constant`. A constant may
+`modifierType: "formula"` with a `condition`; only unconditional bonuses are `constant`. An entry may instead be `{_why, replace: true, modifiers: [...]}`: the build drops the record's own Foundry
+modifiers, writes these in their place and sets `modifiersReplaced`, and the entry does not appear in
+`overrides.effects`, so nothing is counted twice. The engine reads each record's `modifiers` plus
+`overrides.effects[slug]`, as before. A constant may
 carry `"when": "armor"`, meaning it applies only while armor is equipped. The build fails if a feat has
 no prerequisite or a bonus-bearing feat or feature has no constant modifier and no override.
 

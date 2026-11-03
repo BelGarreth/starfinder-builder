@@ -422,7 +422,21 @@ def load_json(path):
 
 
 def effect_values(overrides):
-    return {slug: entry['effects'] for slug, entry in overrides.items() if not slug.startswith('_')}
+    return {slug: entry['effects'] for slug, entry in overrides.items() if not entry.get('replace')}
+
+
+def apply_replacements(feats, features, overrides):
+    for slug, entry in overrides.items():
+        if not entry.get('replace'):
+            continue
+        if slug.startswith('feature:'):
+            target = features.get(slug.removeprefix('feature:'))
+        else:
+            target = feats.get(slug) or features.get(slug)
+        if target is None:
+            raise ValueError(f'effect override {slug} replaces modifiers on an unknown record')
+        target['modifiers'] = entry['modifiers']
+        target['modifiersReplaced'] = True
 
 
 def build(src, sha=None, built=None, core_path=ROOT / 'tools' / 'race_traits.json',
@@ -435,17 +449,21 @@ def build(src, sha=None, built=None, core_path=ROOT / 'tools' / 'race_traits.jso
     races = build_races(load_dir(src / 'races'), racial, load_core_traits(core_path, features))
     themes = build_themes(load_dir(src / 'themes'), theme, features)
     used = {t for r in races.values() for t in r['coreTraits'] + r['altTraits']} | {f for t in themes.values() for f in t['features']}
+    feats = build_feats(load_dir(src / 'feats'), features, load_json(prereq_path))
+    emitted = {**{k: v for k, v in features.items() if k in used}, **class_features}
+    effect_overrides = load_json(effects_path)
+    apply_replacements(feats, emitted, effect_overrides)
     return {
         'meta': {'foundrySha': sha, 'built': built},
         'races': races,
         'themes': themes,
         'classes': build_classes(load_dir(src / 'classes')),
-        'feats': build_feats(load_dir(src / 'feats'), features, load_json(prereq_path)),
-        'features': {**{k: v for k, v in features.items() if k in used}, **class_features},
+        'feats': feats,
+        'features': emitted,
         'spells': build_spells(load_dir(src / 'spells')),
         'items': build_items(load_dir(src / 'equipment')),
         'progressions': {},
-        'overrides': {'effects': effect_values(load_json(effects_path))},
+        'overrides': {'effects': effect_values(effect_overrides)},
     }
 
 
