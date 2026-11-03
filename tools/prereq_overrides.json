@@ -1,0 +1,1975 @@
+{
+ "adaptive_casting": {
+  "_why": "Unmodelled clauses kept as text (GM judgment, class or species features, spellcasting, or choice-specific): Key ability score 19; caster level 7",
+  "prereq": {
+   "all": [
+    {
+     "k": "text",
+     "text": "Key ability score 19"
+    },
+    {
+     "k": "text",
+     "text": "caster level 7"
+    }
+   ]
+  }
+ },
+ "adaptive_fighting_(combat)": {
+  "_why": "Unmodelled clauses kept as text (GM judgment, class or species features, spellcasting, or choice-specific): Three or more combat feats",
+  "prereq": {
+   "all": [
+    {
+     "k": "text",
+     "text": "Three or more combat feats"
+    }
+   ]
+  }
+ },
+ "aerial_evasion_(combat)": {
+  "_why": "Unmodelled clauses kept as text (GM judgment, class or species features, spellcasting, or choice-specific): Fly speed with average maneuverability or better",
+  "prereq": {
+   "all": [
+    {
+     "k": "text",
+     "text": "Fly speed with average maneuverability or better"
+    }
+   ]
+  }
+ },
+ "agile_casting": {
+  "_why": "Unmodelled clauses kept as text (GM judgment, class or species features, spellcasting, or choice-specific): Key ability score 15; caster level 4th",
+  "prereq": {
+   "all": [
+    {
+     "k": "text",
+     "text": "Key ability score 15"
+    },
+    {
+     "k": "ability",
+     "a": "dex",
+     "min": 15
+    },
+    {
+     "k": "feat",
+     "feat": "mobility_(combat)"
+    },
+    {
+     "k": "text",
+     "text": "caster level 4th"
+    }
+   ]
+  }
+ },
+ "agile_swimmer": {
+  "_why": "Unmodelled clauses kept as text (GM judgment, class or species features, spellcasting, or choice-specific): Racial swim speed",
+  "prereq": {
+   "all": [
+    {
+     "k": "text",
+     "text": "Racial swim speed"
+    }
+   ]
+  }
+ },
+ "all_hands_on_deck": {
+  "_why": "Unmodelled clauses kept as text (GM judgment, class or species features, spellcasting, or choice-specific): Four or more arms",
+  "prereq": {
+   "all": [
+    {
+     "k": "text",
+     "text": "Four or more arms"
+    }
+   ]
+  }
+ },
+ "arm_extensions": {
+  "_why": "Unmodelled clauses kept as text (GM judgment, class or species features, spellcasting, or choice-specific): construct type",
+  "prereq": {
+   "all": [
+    {
+     "k": "any",
+     "of": [
+      {
+       "k": "feature",
+       "feature": "constructed"
+      },
+      {
+       "k": "text",
+       "text": "construct type"
+      }
+     ]
+    }
+   ]
+  }
+ },
+ "bear_down": {
+  "_why": "Unmodelled clauses kept as text (GM judgment, class or species features, spellcasting, or choice-specific): Spellcaster",
+  "prereq": {
+   "all": [
+    {
+     "k": "text",
+     "text": "Spellcaster"
+    }
+   ]
+  }
+ },
+ "bear_hug": {
+  "_why": "Structured from clauses the base parser could not read. Maneuver or weapon-type specialisation is not modelled; the base feat is required",
+  "prereq": {
+   "all": [
+    {
+     "k": "feat",
+     "feat": "improved_combat_maneuver_(combat)"
+    }
+   ]
+  }
+ },
+ "blood_of_the_spider": {
+  "_why": "Unmodelled clauses kept as text (GM judgment, class or species features, spellcasting, or choice-specific): species trait that grants a spell-like ability",
+  "prereq": {
+   "all": [
+    {
+     "k": "text",
+     "text": "species trait that grants a spell-like ability"
+    }
+   ]
+  }
+ },
+ "bud_drone": {
+  "_why": "Unmodelled clauses kept as text (GM judgment, class or species features, spellcasting, or choice-specific): Drone class feature; adaptation or early stage adaptation species trait",
+  "prereq": {
+   "all": [
+    {
+     "k": "text",
+     "text": "Drone class feature"
+    },
+    {
+     "k": "text",
+     "text": "adaptation or early stage adaptation species trait"
+    }
+   ]
+  }
+ },
+ "chemical_trail": {
+  "_why": "Unmodelled clauses kept as text (GM judgment, class or species features, spellcasting, or choice-specific): Blindsense (scent); blindsight (scent)",
+  "prereq": {
+   "all": [
+    {
+     "k": "any",
+     "of": [
+      {
+       "k": "text",
+       "text": "Blindsense (scent)"
+      },
+      {
+       "k": "text",
+       "text": "blindsight (scent)"
+      },
+      {
+       "k": "ranks",
+       "skill": "sur",
+       "min": 5
+      }
+     ]
+    }
+   ]
+  }
+ },
+ "combat_casting_(combat)": {
+  "_why": "Unmodelled clauses kept as text (GM judgment, class or species features, spellcasting, or choice-specific): Ability to cast 2nd-level spells",
+  "prereq": {
+   "all": [
+    {
+     "k": "text",
+     "text": "Ability to cast 2nd-level spells"
+    }
+   ]
+  }
+ },
+ "community_leader": {
+  "_why": "Unmodelled clauses kept as text (GM judgment, class or species features, spellcasting, or choice-specific): Manager of an organization using the leadership system (Starfinder Galaxy Exploration Manual 100)",
+  "prereq": {
+   "all": [
+    {
+     "k": "text",
+     "text": "Manager of an organization using the leadership system (Starfinder Galaxy Exploration Manual 100)"
+    }
+   ]
+  }
+ },
+ "connection_inkling": {
+  "_why": "Unmodelled clauses kept as text (GM judgment, class or species features, spellcasting, or choice-specific): no levels in Mystic",
+  "prereq": {
+   "all": [
+    {
+     "k": "ability",
+     "a": "wis",
+     "min": 15
+    },
+    {
+     "k": "level",
+     "min": 5
+    },
+    {
+     "k": "text",
+     "text": "no levels in Mystic"
+    }
+   ]
+  }
+ },
+ "corruption's_gift": {
+  "_why": "Unmodelled clauses kept as text (GM judgment, class or species features, spellcasting, or choice-specific): One or more corruption manifestations",
+  "prereq": {
+   "all": [
+    {
+     "k": "text",
+     "text": "One or more corruption manifestations"
+    }
+   ]
+  }
+ },
+ "counter_grapple_(combat)": {
+  "_why": "Structured from clauses the base parser could not read. Maneuver or weapon-type specialisation is not modelled; the base feat is required",
+  "prereq": {
+   "all": [
+    {
+     "k": "feat",
+     "feat": "improved_combat_maneuver_(combat)"
+    }
+   ]
+  }
+ },
+ "defensive_striker_(combat)": {
+  "_why": "Unmodelled clauses kept as text (GM judgment, class or species features, spellcasting, or choice-specific): armor training trait",
+  "prereq": {
+   "all": [
+    {
+     "k": "ability",
+     "a": "dex",
+     "min": 13
+    },
+    {
+     "k": "bab",
+     "min": 1
+    },
+    {
+     "k": "text",
+     "text": "armor training trait"
+    }
+   ]
+  }
+ },
+ "determined_caster": {
+  "_why": "Unmodelled clauses kept as text (GM judgment, class or species features, spellcasting, or choice-specific): Spellcaster",
+  "prereq": {
+   "all": [
+    {
+     "k": "text",
+     "text": "Spellcaster"
+    },
+    {
+     "k": "level",
+     "min": 5
+    }
+   ]
+  }
+ },
+ "dive_for_cover_(combat)": {
+  "_why": "Unmodelled clauses kept as text (GM judgment, class or species features, spellcasting, or choice-specific): Base Reflex save bonus +2",
+  "prereq": {
+   "all": [
+    {
+     "k": "text",
+     "text": "Base Reflex save bonus +2"
+    }
+   ]
+  }
+ },
+ "diverse_conditioning": {
+  "_why": "Structured from clauses the base parser could not read",
+  "prereq": {
+   "all": [
+    {
+     "k": "any",
+     "of": [
+      {
+       "k": "feature",
+       "feature": "eternal_hope"
+      },
+      {
+       "k": "feature",
+       "feature": "ecstatic_joy"
+      }
+     ]
+    },
+    {
+     "k": "level",
+     "min": 5
+    }
+   ]
+  }
+ },
+ "divine_blessing": {
+  "_why": "Unmodelled clauses kept as text (GM judgment, class or species features, spellcasting, or choice-specific): Worship a deity of an alignment within one step of your own alignment",
+  "prereq": {
+   "all": [
+    {
+     "k": "text",
+     "text": "Worship a deity of an alignment within one step of your own alignment"
+    }
+   ]
+  }
+ },
+ "divine_weapon": {
+  "_why": "Unmodelled clauses kept as text (GM judgment, class or species features, spellcasting, or choice-specific): Worship a deity of an alignment within one step of your own alignment",
+  "prereq": {
+   "all": [
+    {
+     "k": "text",
+     "text": "Worship a deity of an alignment within one step of your own alignment"
+    }
+   ]
+  }
+ },
+ "double_draw_(combat)": {
+  "_why": "Unmodelled clauses kept as text (GM judgment, class or species features, spellcasting, or choice-specific): Four or more arms",
+  "prereq": {
+   "all": [
+    {
+     "k": "text",
+     "text": "Four or more arms"
+    }
+   ]
+  }
+ },
+ "double_tap_(combat)": {
+  "_why": "Structured from clauses the base parser could not read. Maneuver or weapon-type specialisation is not modelled; the base feat is required",
+  "prereq": {
+   "all": [
+    {
+     "k": "feat",
+     "feat": "weapon_focus_(combat)"
+    },
+    {
+     "k": "proficiency",
+     "group": "small arms"
+    }
+   ]
+  }
+ },
+ "draconic_senses": {
+  "_why": "Unmodelled clauses kept as text (GM judgment, class or species features, spellcasting, or choice-specific): darkvision and low-light vision",
+  "prereq": {
+   "all": [
+    {
+     "k": "text",
+     "text": "darkvision and low-light vision"
+    }
+   ]
+  }
+ },
+ "echolocation_attack": {
+  "_why": "Unmodelled clauses kept as text (GM judgment, class or species features, spellcasting, or choice-specific): Perception as a class skill",
+  "prereq": {
+   "all": [
+    {
+     "k": "text",
+     "text": "Perception as a class skill"
+    }
+   ]
+  }
+ },
+ "eldritch_lore": {
+  "_why": "Unmodelled clauses kept as text (GM judgment, class or species features, spellcasting, or choice-specific): Key ability score 19; caster level 10th; 10 levels in a class with a class spell list",
+  "prereq": {
+   "all": [
+    {
+     "k": "text",
+     "text": "Key ability score 19"
+    },
+    {
+     "k": "feat",
+     "feat": "lesser_eldritch_lore"
+    },
+    {
+     "k": "feat",
+     "feat": "minor_eldritch_lore"
+    },
+    {
+     "k": "text",
+     "text": "caster level 10th"
+    },
+    {
+     "k": "text",
+     "text": "10 levels in a class with a class spell list"
+    }
+   ]
+  }
+ },
+ "enclose_serums": {
+  "_why": "Unmodelled clauses kept as text (GM judgment, class or species features, spellcasting, or choice-specific): Adaptation or early stage adaptation species trait; ooze type",
+  "prereq": {
+   "all": [
+    {
+     "k": "any",
+     "of": [
+      {
+       "k": "text",
+       "text": "Adaptation or early stage adaptation species trait"
+      },
+      {
+       "k": "text",
+       "text": "ooze type"
+      }
+     ]
+    }
+   ]
+  }
+ },
+ "flashmorph": {
+  "_why": "Unmodelled clauses kept as text (GM judgment, class or species features, spellcasting, or choice-specific): Change form species trait; change shape universal monster rule; quick disguise operative exploit; similar ability at the GM’s discretion",
+  "prereq": {
+   "all": [
+    {
+     "k": "any",
+     "of": [
+      {
+       "k": "text",
+       "text": "Change form species trait"
+      },
+      {
+       "k": "text",
+       "text": "change shape universal monster rule"
+      },
+      {
+       "k": "text",
+       "text": "quick disguise operative exploit"
+      },
+      {
+       "k": "text",
+       "text": "similar ability at the GM’s discretion"
+      }
+     ]
+    }
+   ]
+  }
+ },
+ "focused_sense": {
+  "_why": "Structured from clauses the base parser could not read",
+  "prereq": {
+   "all": [
+    {
+     "k": "feature",
+     "feature": "blindsense"
+    }
+   ]
+  }
+ },
+ "focused_spellcaster_(combat)": {
+  "_why": "Unmodelled clauses kept as text (GM judgment, class or species features, spellcasting, or choice-specific): ability to cast 4th-level spells",
+  "prereq": {
+   "all": [
+    {
+     "k": "feat",
+     "feat": "combat_casting_(combat)"
+    },
+    {
+     "k": "text",
+     "text": "ability to cast 4th-level spells"
+    }
+   ]
+  }
+ },
+ "fortified_mind": {
+  "_why": "Unmodelled clauses kept as text (GM judgment, class or species features, spellcasting, or choice-specific): telepathy",
+  "prereq": {
+   "all": [
+    {
+     "k": "feat",
+     "feat": "iron_will"
+    },
+    {
+     "k": "any",
+     "of": [
+      {
+       "k": "text",
+       "text": "telepathy"
+      },
+      {
+       "k": "feature",
+       "feature": "limited_telepathy"
+      }
+     ]
+    }
+   ]
+  }
+ },
+ "fouling_reposition_(combat)": {
+  "_why": "Structured from clauses the base parser could not read. Maneuver or weapon-type specialisation is not modelled; the base feat is required",
+  "prereq": {
+   "all": [
+    {
+     "k": "feat",
+     "feat": "improved_combat_maneuver_(combat)"
+    }
+   ]
+  }
+ },
+ "four-handed_hacker": {
+  "_why": "Unmodelled clauses kept as text (GM judgment, class or species features, spellcasting, or choice-specific): four or more hands",
+  "prereq": {
+   "all": [
+    {
+     "k": "ranks",
+     "skill": "com",
+     "min": 1
+    },
+    {
+     "k": "text",
+     "text": "four or more hands"
+    }
+   ]
+  }
+ },
+ "frightful_display": {
+  "_why": "Unmodelled clauses kept as text (GM judgment, class or species features, spellcasting, or choice-specific): ability to cast spells",
+  "prereq": {
+   "all": [
+    {
+     "k": "ability",
+     "a": "cha",
+     "min": 15
+    },
+    {
+     "k": "ranks",
+     "skill": "int",
+     "min": 5
+    },
+    {
+     "k": "text",
+     "text": "ability to cast spells"
+    }
+   ]
+  }
+ },
+ "fusillade_(combat)": {
+  "_why": "Unmodelled clauses kept as text (GM judgment, class or species features, spellcasting, or choice-specific): four or more arms",
+  "prereq": {
+   "all": [
+    {
+     "k": "bab",
+     "min": 1
+    },
+    {
+     "k": "text",
+     "text": "four or more arms"
+    }
+   ]
+  }
+ },
+ "gag_gift_(combat)": {
+  "_why": "Structured from clauses the base parser could not read. Maneuver or weapon-type specialisation is not modelled; the base feat is required",
+  "prereq": {
+   "all": [
+    {
+     "k": "ranks",
+     "skill": "sle",
+     "min": 5
+    },
+    {
+     "k": "feat",
+     "feat": "improved_combat_maneuver_(combat)"
+    }
+   ]
+  }
+ },
+ "greater_eldritch_lore": {
+  "_why": "Unmodelled clauses kept as text (GM judgment, class or species features, spellcasting, or choice-specific): Key ability score 21; caster level 13th; 13 levels in a class with a class spell list",
+  "prereq": {
+   "all": [
+    {
+     "k": "text",
+     "text": "Key ability score 21"
+    },
+    {
+     "k": "feat",
+     "feat": "eldritch_lore"
+    },
+    {
+     "k": "feat",
+     "feat": "lesser_eldritch_lore"
+    },
+    {
+     "k": "feat",
+     "feat": "minor_eldritch_lore"
+    },
+    {
+     "k": "text",
+     "text": "caster level 13th"
+    },
+    {
+     "k": "text",
+     "text": "13 levels in a class with a class spell list"
+    }
+   ]
+  }
+ },
+ "harm_undead": {
+  "_why": "Unmodelled clauses kept as text (GM judgment, class or species features, spellcasting, or choice-specific): Healing Channel (Su) connection power",
+  "prereq": {
+   "all": [
+    {
+     "k": "text",
+     "text": "Healing Channel (Su) connection power"
+    },
+    {
+     "k": "classLevel",
+     "cls": "mystic",
+     "min": 1
+    }
+   ]
+  }
+ },
+ "helpful_telepath": {
+  "_why": "Unmodelled clauses kept as text (GM judgment, class or species features, spellcasting, or choice-specific): telepathy species trait",
+  "prereq": {
+   "all": [
+    {
+     "k": "any",
+     "of": [
+      {
+       "k": "feature",
+       "feature": "communalism"
+      },
+      {
+       "k": "feature",
+       "feature": "hive_defense"
+      }
+     ]
+    },
+    {
+     "k": "any",
+     "of": [
+      {
+       "k": "feature",
+       "feature": "limited_telepathy"
+      },
+      {
+       "k": "text",
+       "text": "telepathy species trait"
+      }
+     ]
+    }
+   ]
+  }
+ },
+ "hibernate": {
+  "_why": "Unmodelled clauses kept as text (GM judgment, class or species features, spellcasting, or choice-specific): any species that grants at least 6 Hit Points at 1st level",
+  "prereq": {
+   "all": [
+    {
+     "k": "ability",
+     "a": "con",
+     "min": 13
+    },
+    {
+     "k": "text",
+     "text": "any species that grants at least 6 Hit Points at 1st level"
+    }
+   ]
+  }
+ },
+ "hurl_ally": {
+  "_why": "Unmodelled clauses kept as text (GM judgment, class or species features, spellcasting, or choice-specific): size Large",
+  "prereq": {
+   "all": [
+    {
+     "k": "text",
+     "text": "size Large"
+    },
+    {
+     "k": "ability",
+     "a": "str",
+     "min": 17
+    }
+   ]
+  }
+ },
+ "improved_energy_resistance": {
+  "_why": "Unmodelled clauses kept as text (GM judgment, class or species features, spellcasting, or choice-specific): energy resistance from a species trait",
+  "prereq": {
+   "all": [
+    {
+     "k": "ability",
+     "a": "con",
+     "min": 13
+    },
+    {
+     "k": "level",
+     "min": 10
+    },
+    {
+     "k": "text",
+     "text": "energy resistance from a species trait"
+    }
+   ]
+  }
+ },
+ "improved_sidestep_(combat)": {
+  "_why": "Unmodelled clauses kept as text (GM judgment, class or species features, spellcasting, or choice-specific): trick attack class feature",
+  "prereq": {
+   "all": [
+    {
+     "k": "ability",
+     "a": "dex",
+     "min": 17
+    },
+    {
+     "k": "any",
+     "of": [
+      {
+       "k": "feat",
+       "feat": "mobility_(combat)"
+      },
+      {
+       "k": "text",
+       "text": "trick attack class feature"
+      }
+     ]
+    },
+    {
+     "k": "feat",
+     "feat": "sidestep_(combat)"
+    }
+   ]
+  }
+ },
+ "improved_spell-like_ability": {
+  "_why": "Unmodelled clauses kept as text (GM judgment, class or species features, spellcasting, or choice-specific): At least one spell-like ability that is a level-0 or 1st-level spell",
+  "prereq": {
+   "all": [
+    {
+     "k": "text",
+     "text": "At least one spell-like ability that is a level-0 or 1st-level spell"
+    },
+    {
+     "k": "level",
+     "min": 4
+    }
+   ]
+  }
+ },
+ "kasathan_battle_dance_(combat)": {
+  "_why": "Unmodelled clauses kept as text (GM judgment, class or species features, spellcasting, or choice-specific): trick attack",
+  "prereq": {
+   "all": [
+    {
+     "k": "ability",
+     "a": "dex",
+     "min": 13
+    },
+    {
+     "k": "any",
+     "of": [
+      {
+       "k": "feat",
+       "feat": "mobility_(combat)"
+      },
+      {
+       "k": "text",
+       "text": "trick attack"
+      }
+     ]
+    }
+   ]
+  }
+ },
+ "knock_heads_(combat)": {
+  "_why": "Structured from clauses the base parser could not read. Maneuver or weapon-type specialisation is not modelled; the base feat is required",
+  "prereq": {
+   "all": [
+    {
+     "k": "feat",
+     "feat": "improved_combat_maneuver_(combat)"
+    }
+   ]
+  }
+ },
+ "lesser_eldritch_lore": {
+  "_why": "Unmodelled clauses kept as text (GM judgment, class or species features, spellcasting, or choice-specific): Key ability score 17; caster level 7th; 7 levels in a class with a class spell list",
+  "prereq": {
+   "all": [
+    {
+     "k": "text",
+     "text": "Key ability score 17"
+    },
+    {
+     "k": "feat",
+     "feat": "minor_eldritch_lore"
+    },
+    {
+     "k": "text",
+     "text": "caster level 7th"
+    },
+    {
+     "k": "text",
+     "text": "7 levels in a class with a class spell list"
+    }
+   ]
+  }
+ },
+ "ley_leech": {
+  "_why": "Unmodelled clauses kept as text (GM judgment, class or species features, spellcasting, or choice-specific): Ability to cast spells",
+  "prereq": {
+   "all": [
+    {
+     "k": "text",
+     "text": "Ability to cast spells"
+    }
+   ]
+  }
+ },
+ "lucky_guess": {
+  "_why": "Unmodelled clauses kept as text (GM judgment, class or species features, spellcasting, or choice-specific): Any species trait or feat that allows you to reroll a d20",
+  "prereq": {
+   "all": [
+    {
+     "k": "text",
+     "text": "Any species trait or feat that allows you to reroll a d20"
+    }
+   ]
+  }
+ },
+ "major_eldritch_lore": {
+  "_why": "Unmodelled clauses kept as text (GM judgment, class or species features, spellcasting, or choice-specific): Key ability score 23; caster level 16th; 16 levels in a class with a class spell list",
+  "prereq": {
+   "all": [
+    {
+     "k": "text",
+     "text": "Key ability score 23"
+    },
+    {
+     "k": "feat",
+     "feat": "eldritch_lore"
+    },
+    {
+     "k": "feat",
+     "feat": "greater_eldritch_lore"
+    },
+    {
+     "k": "feat",
+     "feat": "lesser_eldritch_lore"
+    },
+    {
+     "k": "feat",
+     "feat": "minor_eldritch_lore"
+    },
+    {
+     "k": "text",
+     "text": "caster level 16th"
+    },
+    {
+     "k": "text",
+     "text": "16 levels in a class with a class spell list"
+    }
+   ]
+  }
+ },
+ "many-handed_master_(combat)": {
+  "_why": "Unmodelled clauses kept as text (GM judgment, class or species features, spellcasting, or choice-specific): Four or more arms",
+  "prereq": {
+   "all": [
+    {
+     "k": "text",
+     "text": "Four or more arms"
+    }
+   ]
+  }
+ },
+ "media_mogul_(profession_focus)": {
+  "_why": "Unmodelled clauses kept as text (GM judgment, class or species features, spellcasting, or choice-specific): Member of a charter that has completed the broadcast studio project",
+  "prereq": {
+   "all": [
+    {
+     "k": "text",
+     "text": "Member of a charter that has completed the broadcast studio project"
+    }
+   ]
+  }
+ },
+ "memory_access": {
+  "_why": "Unmodelled clauses kept as text (GM judgment, class or species features, spellcasting, or choice-specific): Construct type; exocortex; head slot augmentation",
+  "prereq": {
+   "all": [
+    {
+     "k": "any",
+     "of": [
+      {
+       "k": "text",
+       "text": "Construct type"
+      },
+      {
+       "k": "feature",
+       "feature": "constructed"
+      },
+      {
+       "k": "text",
+       "text": "exocortex"
+      },
+      {
+       "k": "text",
+       "text": "head slot augmentation"
+      }
+     ]
+    }
+   ]
+  }
+ },
+ "minor_draconic_form": {
+  "_why": "Unmodelled clauses kept as text (GM judgment, class or species features, spellcasting, or choice-specific): dragon type; dragon-scaled species ability; dragonblood theme",
+  "prereq": {
+   "all": [
+    {
+     "k": "ability",
+     "a": "cha",
+     "min": 13
+    },
+    {
+     "k": "any",
+     "of": [
+      {
+       "k": "text",
+       "text": "dragon type"
+      },
+      {
+       "k": "text",
+       "text": "dragon-scaled species ability"
+      },
+      {
+       "k": "text",
+       "text": "dragonblood theme"
+      }
+     ]
+    }
+   ]
+  }
+ },
+ "minor_eldritch_lore": {
+  "_why": "Unmodelled clauses kept as text (GM judgment, class or species features, spellcasting, or choice-specific): Key ability score 15; caster level 4th; 4 levels in a class with a class spell list",
+  "prereq": {
+   "all": [
+    {
+     "k": "text",
+     "text": "Key ability score 15"
+    },
+    {
+     "k": "text",
+     "text": "caster level 4th"
+    },
+    {
+     "k": "text",
+     "text": "4 levels in a class with a class spell list"
+    }
+   ]
+  }
+ },
+ "more_than_flesh_(life_science_focus)": {
+  "_why": "Unmodelled clauses kept as text (GM judgment, class or species features, spellcasting, or choice-specific): Member of a charter that has completed the augmentation clinic project",
+  "prereq": {
+   "all": [
+    {
+     "k": "text",
+     "text": "Member of a charter that has completed the augmentation clinic project"
+    }
+   ]
+  }
+ },
+ "multifaceted_nature": {
+  "_why": "Unmodelled clauses kept as text (GM judgment, class or species features, spellcasting, or choice-specific): Dimorphic species trait",
+  "prereq": {
+   "all": [
+    {
+     "k": "text",
+     "text": "Dimorphic species trait"
+    },
+    {
+     "k": "level",
+     "min": 9
+    }
+   ]
+  }
+ },
+ "multitudinous_lfan": {
+  "_why": "Unmodelled clauses kept as text (GM judgment, class or species features, spellcasting, or choice-specific): LFAN species trait",
+  "prereq": {
+   "all": [
+    {
+     "k": "ability",
+     "a": "str",
+     "min": 13
+    },
+    {
+     "k": "text",
+     "text": "LFAN species trait"
+    }
+   ]
+  }
+ },
+ "mystic_opportunist_(combat)": {
+  "_why": "Unmodelled clauses kept as text (GM judgment, class or species features, spellcasting, or choice-specific): Spellcaster",
+  "prereq": {
+   "all": [
+    {
+     "k": "text",
+     "text": "Spellcaster"
+    }
+   ]
+  }
+ },
+ "mystic_strike_(combat)": {
+  "_why": "Unmodelled clauses kept as text (GM judgment, class or species features, spellcasting, or choice-specific): Ability to cast spells",
+  "prereq": {
+   "all": [
+    {
+     "k": "text",
+     "text": "Ability to cast spells"
+    }
+   ]
+  }
+ },
+ "nanite_integration": {
+  "_why": "Unmodelled clauses kept as text (GM judgment, class or species features, spellcasting, or choice-specific): construct type",
+  "prereq": {
+   "all": [
+    {
+     "k": "level",
+     "min": 3
+    },
+    {
+     "k": "any",
+     "of": [
+      {
+       "k": "feature",
+       "feature": "constructed"
+      },
+      {
+       "k": "text",
+       "text": "construct type"
+      }
+     ]
+    }
+   ]
+  }
+ },
+ "obnoxious_trickster": {
+  "_why": "Structured from clauses the base parser could not read. Maneuver or weapon-type specialisation is not modelled; the base feat is required",
+  "prereq": {
+   "all": [
+    {
+     "k": "feat",
+     "feat": "improved_combat_maneuver_(combat)"
+    }
+   ]
+  }
+ },
+ "old_growth": {
+  "_why": "Unmodelled clauses kept as text (GM judgment, class or species features, spellcasting, or choice-specific): evergreen or limited plant benefits species ability",
+  "prereq": {
+   "all": [
+    {
+     "k": "level",
+     "min": 10
+    },
+    {
+     "k": "text",
+     "text": "evergreen or limited plant benefits species ability"
+    }
+   ]
+  }
+ },
+ "oracular_gift": {
+  "_why": "Unmodelled clauses kept as text (GM judgment, class or species features, spellcasting, or choice-specific): Ability to cast augury",
+  "prereq": {
+   "all": [
+    {
+     "k": "text",
+     "text": "Ability to cast augury"
+    }
+   ]
+  }
+ },
+ "panicked_power": {
+  "_why": "Unmodelled clauses kept as text (GM judgment, class or species features, spellcasting, or choice-specific): Ability to cast spells",
+  "prereq": {
+   "all": [
+    {
+     "k": "text",
+     "text": "Ability to cast spells"
+    }
+   ]
+  }
+ },
+ "penetrating_spell": {
+  "_why": "Unmodelled clauses kept as text (GM judgment, class or species features, spellcasting, or choice-specific): Ability to cast 4th-level spells",
+  "prereq": {
+   "all": [
+    {
+     "k": "text",
+     "text": "Ability to cast 4th-level spells"
+    }
+   ]
+  }
+ },
+ "periastra_training": {
+  "_why": "Unmodelled clauses kept as text (GM judgment, class or species features, spellcasting, or choice-specific): stellar mode class feature",
+  "prereq": {
+   "all": [
+    {
+     "k": "ability",
+     "a": "cha",
+     "min": 13
+    },
+    {
+     "k": "ranks",
+     "skill": "mys",
+     "min": 5
+    },
+    {
+     "k": "text",
+     "text": "stellar mode class feature"
+    }
+   ]
+  }
+ },
+ "perpetual_polymorph": {
+  "_why": "Unmodelled clauses kept as text (GM judgment, class or species features, spellcasting, or choice-specific): You know the polymorph spell as a 2nd-level spell or higher",
+  "prereq": {
+   "all": [
+    {
+     "k": "text",
+     "text": "You know the polymorph spell as a 2nd-level spell or higher"
+    }
+   ]
+  }
+ },
+ "pincered_lfan": {
+  "_why": "Unmodelled clauses kept as text (GM judgment, class or species features, spellcasting, or choice-specific): LFAN species trait",
+  "prereq": {
+   "all": [
+    {
+     "k": "text",
+     "text": "LFAN species trait"
+    }
+   ]
+  }
+ },
+ "pinpoint_hearing": {
+  "_why": "Unmodelled clauses kept as text (GM judgment, class or species features, spellcasting, or choice-specific): Echolocation Attack COM",
+  "prereq": {
+   "all": [
+    {
+     "k": "text",
+     "text": "Echolocation Attack COM"
+    },
+    {
+     "k": "ranks",
+     "skill": "per",
+     "min": 9
+    }
+   ]
+  }
+ },
+ "polymath": {
+  "_why": "Unmodelled clauses kept as text (GM judgment, class or species features, spellcasting, or choice-specific): Life Science as a class skill; Physical Science as a class skill",
+  "prereq": {
+   "all": [
+    {
+     "k": "ability",
+     "a": "int",
+     "min": 15
+    },
+    {
+     "k": "text",
+     "text": "Life Science as a class skill"
+    },
+    {
+     "k": "text",
+     "text": "Physical Science as a class skill"
+    }
+   ]
+  }
+ },
+ "polymorph_adept": {
+  "_why": "Unmodelled clauses kept as text (GM judgment, class or species features, spellcasting, or choice-specific): You know the polymorph spell as a 3rd-level spell or higher",
+  "prereq": {
+   "all": [
+    {
+     "k": "text",
+     "text": "You know the polymorph spell as a 3rd-level spell or higher"
+    }
+   ]
+  }
+ },
+ "polymorphic_titan": {
+  "_why": "Unmodelled clauses kept as text (GM judgment, class or species features, spellcasting, or choice-specific): you know the polymorph spell as a 6th-level spell; and you have at least one Huge predetermined polymorph form",
+  "prereq": {
+   "all": [
+    {
+     "k": "level",
+     "min": 17
+    },
+    {
+     "k": "text",
+     "text": "you know the polymorph spell as a 6th-level spell"
+    },
+    {
+     "k": "text",
+     "text": "and you have at least one Huge predetermined polymorph form"
+    }
+   ]
+  }
+ },
+ "profession_mastery": {
+  "_why": "Structured from clauses the base parser could not read",
+  "prereq": {
+   "all": [
+    {
+     "k": "any",
+     "of": [
+      {
+       "k": "ability",
+       "a": "cha",
+       "min": 13
+      },
+      {
+       "k": "ability",
+       "a": "int",
+       "min": 13
+      },
+      {
+       "k": "ability",
+       "a": "wis",
+       "min": 13
+      }
+     ]
+    },
+    {
+     "k": "ranks",
+     "skill": "pro",
+     "min": 1
+    },
+    {
+     "k": "feature",
+     "feature": "cultural_fascination"
+    }
+   ]
+  }
+ },
+ "protective_fur": {
+  "_why": "Unmodelled clauses kept as text (GM judgment, class or species features, spellcasting, or choice-specific): Skittermander",
+  "prereq": {
+   "all": [
+    {
+     "k": "any",
+     "of": [
+      {
+       "k": "text",
+       "text": "Skittermander"
+      },
+      {
+       "k": "race",
+       "race": "ysoki"
+      }
+     ]
+    }
+   ]
+  }
+ },
+ "protector_of_kahlannal": {
+  "_why": "Unmodelled clauses kept as text (GM judgment, class or species features, spellcasting, or choice-specific): Anassanoi; any non-chaotic and non-evil alignment",
+  "prereq": {
+   "all": [
+    {
+     "k": "text",
+     "text": "Anassanoi"
+    },
+    {
+     "k": "text",
+     "text": "any non-chaotic and non-evil alignment"
+    }
+   ]
+  }
+ },
+ "psychic_insight": {
+  "_why": "Unmodelled clauses kept as text (GM judgment, class or species features, spellcasting, or choice-specific): telepathy",
+  "prereq": {
+   "all": [
+    {
+     "k": "any",
+     "of": [
+      {
+       "k": "feature",
+       "feature": "limited_telepathy"
+      },
+      {
+       "k": "text",
+       "text": "telepathy"
+      }
+     ]
+    }
+   ]
+  }
+ },
+ "psychic_sense": {
+  "_why": "Unmodelled clauses kept as text (GM judgment, class or species features, spellcasting, or choice-specific): telepathy",
+  "prereq": {
+   "all": [
+    {
+     "k": "any",
+     "of": [
+      {
+       "k": "feature",
+       "feature": "limited_telepathy"
+      },
+      {
+       "k": "text",
+       "text": "telepathy"
+      }
+     ]
+    }
+   ]
+  }
+ },
+ "psychic_stalking": {
+  "_why": "Unmodelled clauses kept as text (GM judgment, class or species features, spellcasting, or choice-specific): Telepathy",
+  "prereq": {
+   "all": [
+    {
+     "k": "any",
+     "of": [
+      {
+       "k": "text",
+       "text": "Telepathy"
+      },
+      {
+       "k": "feature",
+       "feature": "limited_telepathy"
+      }
+     ]
+    }
+   ]
+  }
+ },
+ "pull_the_pin_(combat)": {
+  "_why": "Structured from clauses the base parser could not read. Maneuver or weapon-type specialisation is not modelled; the base feat is required",
+  "prereq": {
+   "all": [
+    {
+     "k": "feat",
+     "feat": "improved_combat_maneuver_(combat)"
+    }
+   ]
+  }
+ },
+ "quick_dismissal": {
+  "_why": "Unmodelled clauses kept as text (GM judgment, class or species features, spellcasting, or choice-specific): spellcaster",
+  "prereq": {
+   "all": [
+    {
+     "k": "ability",
+     "a": "dex",
+     "min": 13
+    },
+    {
+     "k": "ranks",
+     "skill": "mys",
+     "min": 3
+    },
+    {
+     "k": "text",
+     "text": "spellcaster"
+    }
+   ]
+  }
+ },
+ "reality_glimmer": {
+  "_why": "Unmodelled clauses kept as text (GM judgment, class or species features, spellcasting, or choice-specific): no levels in witchwarper",
+  "prereq": {
+   "all": [
+    {
+     "k": "ability",
+     "a": "cha",
+     "min": 15
+    },
+    {
+     "k": "level",
+     "min": 5
+    },
+    {
+     "k": "text",
+     "text": "no levels in witchwarper"
+    }
+   ]
+  }
+ },
+ "registered_dietitian_(medicine_focus)": {
+  "_why": "Unmodelled clauses kept as text (GM judgment, class or species features, spellcasting, or choice-specific): Member of a charter that has completed the hospital project",
+  "prereq": {
+   "all": [
+    {
+     "k": "text",
+     "text": "Member of a charter that has completed the hospital project"
+    }
+   ]
+  }
+ },
+ "rending_slash": {
+  "_why": "Unmodelled clauses kept as text (GM judgment, class or species features, spellcasting, or choice-specific): natural weapons (s) species trait",
+  "prereq": {
+   "all": [
+    {
+     "k": "ability",
+     "a": "str",
+     "min": 13
+    },
+    {
+     "k": "ability",
+     "a": "dex",
+     "min": 13
+    },
+    {
+     "k": "text",
+     "text": "natural weapons (s) species trait"
+    }
+   ]
+  }
+ },
+ "sacred_strike_(combat)": {
+  "_why": "Unmodelled clauses kept as text (GM judgment, class or species features, spellcasting, or choice-specific): Worship a deity of an alignment within one step of your own",
+  "prereq": {
+   "all": [
+    {
+     "k": "text",
+     "text": "Worship a deity of an alignment within one step of your own"
+    }
+   ]
+  }
+ },
+ "scurry": {
+  "_why": "Unmodelled clauses kept as text (GM judgment, class or species features, spellcasting, or choice-specific): species bonus to Dexterity; size Small",
+  "prereq": {
+   "all": [
+    {
+     "k": "text",
+     "text": "species bonus to Dexterity"
+    },
+    {
+     "k": "text",
+     "text": "size Small"
+    }
+   ]
+  }
+ },
+ "shadow_infusion": {
+  "_why": "Unmodelled clauses kept as text (GM judgment, class or species features, spellcasting, or choice-specific): You must spend a significant time on the Shadow Plane or otherwise become infused with its energies; such as by Dying there or gaining shadow corruption. The GM determines whether you qualify for this feat",
+  "prereq": {
+   "all": [
+    {
+     "k": "text",
+     "text": "You must spend a significant time on the Shadow Plane or otherwise become infused with its energies"
+    },
+    {
+     "k": "text",
+     "text": "such as by Dying there or gaining shadow corruption. The GM determines whether you qualify for this feat"
+    }
+   ]
+  }
+ },
+ "shelter_ally_(combat)": {
+  "_why": "Unmodelled clauses kept as text (GM judgment, class or species features, spellcasting, or choice-specific): natural reach of 10 feet or more",
+  "prereq": {
+   "all": [
+    {
+     "k": "feat",
+     "feat": "bodyguard_(combat)"
+    },
+    {
+     "k": "text",
+     "text": "natural reach of 10 feet or more"
+    }
+   ]
+  }
+ },
+ "sidestep_(combat)": {
+  "_why": "Unmodelled clauses kept as text (GM judgment, class or species features, spellcasting, or choice-specific): trick attack class feature",
+  "prereq": {
+   "all": [
+    {
+     "k": "ability",
+     "a": "dex",
+     "min": 15
+    },
+    {
+     "k": "any",
+     "of": [
+      {
+       "k": "feat",
+       "feat": "mobility_(combat)"
+      },
+      {
+       "k": "text",
+       "text": "trick attack class feature"
+      }
+     ]
+    }
+   ]
+  }
+ },
+ "soothing_telepathy": {
+  "_why": "Unmodelled clauses kept as text (GM judgment, class or species features, spellcasting, or choice-specific): telepathy",
+  "prereq": {
+   "all": [
+    {
+     "k": "any",
+     "of": [
+      {
+       "k": "feature",
+       "feature": "limited_telepathy"
+      },
+      {
+       "k": "text",
+       "text": "telepathy"
+      }
+     ]
+    }
+   ]
+  }
+ },
+ "special_weapon_proficiency_(combat)": {
+  "_why": "Structured from clauses the base parser could not read",
+  "prereq": {
+   "all": [
+    {
+     "k": "any",
+     "of": [
+      {
+       "k": "proficiency",
+       "group": "basic melee weapons"
+      },
+      {
+       "k": "proficiency",
+       "group": "small arms"
+      }
+     ]
+    }
+   ]
+  }
+ },
+ "spell_focus": {
+  "_why": "Unmodelled clauses kept as text (GM judgment, class or species features, spellcasting, or choice-specific): Ability to cast spells",
+  "prereq": {
+   "all": [
+    {
+     "k": "text",
+     "text": "Ability to cast spells"
+    },
+    {
+     "k": "level",
+     "min": 3
+    }
+   ]
+  }
+ },
+ "spell_gem_eater": {
+  "_why": "Unmodelled clauses kept as text (GM judgment, class or species features, spellcasting, or choice-specific): Ability to cast 3rd level spells",
+  "prereq": {
+   "all": [
+    {
+     "k": "text",
+     "text": "Ability to cast 3rd level spells"
+    }
+   ]
+  }
+ },
+ "spellbane": {
+  "_why": "Unmodelled clauses kept as text (GM judgment, class or species features, spellcasting, or choice-specific): Unable to cast spells or use spell-like abilities",
+  "prereq": {
+   "all": [
+    {
+     "k": "text",
+     "text": "Unable to cast spells or use spell-like abilities"
+    }
+   ]
+  }
+ },
+ "spot_of_luck": {
+  "_why": "Unmodelled clauses kept as text (GM judgment, class or species features, spellcasting, or choice-specific): Any species trait or feat that grants a d20 reroll",
+  "prereq": {
+   "all": [
+    {
+     "k": "text",
+     "text": "Any species trait or feat that grants a d20 reroll"
+    },
+    {
+     "k": "level",
+     "min": 5
+    }
+   ]
+  }
+ },
+ "squox_companion": {
+  "_why": "Unmodelled clauses kept as text (GM judgment, class or species features, spellcasting, or choice-specific): You own a trained squox that has an attitude of friendly or helpful toward you",
+  "prereq": {
+   "all": [
+    {
+     "k": "text",
+     "text": "You own a trained squox that has an attitude of friendly or helpful toward you"
+    }
+   ]
+  }
+ },
+ "startling_charge": {
+  "_why": "Unmodelled clauses kept as text (GM judgment, class or species features, spellcasting, or choice-specific): ferocious charge universal creature rule",
+  "prereq": {
+   "all": [
+    {
+     "k": "ability",
+     "a": "str",
+     "min": 13
+    },
+    {
+     "k": "ranks",
+     "skill": "int",
+     "min": 1
+    },
+    {
+     "k": "text",
+     "text": "ferocious charge universal creature rule"
+    }
+   ]
+  }
+ },
+ "steady_footing": {
+  "_why": "Unmodelled clauses kept as text (GM judgment, class or species features, spellcasting, or choice-specific): More than two legs or similar limbs",
+  "prereq": {
+   "all": [
+    {
+     "k": "text",
+     "text": "More than two legs or similar limbs"
+    }
+   ]
+  }
+ },
+ "superheated_spells_(combat)": {
+  "_why": "Unmodelled clauses kept as text (GM judgment, class or species features, spellcasting, or choice-specific): ability to cast spells",
+  "prereq": {
+   "all": [
+    {
+     "k": "ranks",
+     "skill": "mys",
+     "min": 5
+    },
+    {
+     "k": "text",
+     "text": "ability to cast spells"
+    }
+   ]
+  }
+ },
+ "tandem_maneuver_(combat_teamwork)": {
+  "_why": "Structured from clauses the base parser could not read. Maneuver or weapon-type specialisation is not modelled; the base feat is required",
+  "prereq": {
+   "all": [
+    {
+     "k": "bab",
+     "min": 6
+    },
+    {
+     "k": "feat",
+     "feat": "improved_combat_maneuver_(combat)"
+    }
+   ]
+  }
+ },
+ "technomantic_dabbler": {
+  "_why": "Unmodelled clauses kept as text (GM judgment, class or species features, spellcasting, or choice-specific): no levels in Technomancer",
+  "prereq": {
+   "all": [
+    {
+     "k": "ability",
+     "a": "int",
+     "min": 15
+    },
+    {
+     "k": "level",
+     "min": 5
+    },
+    {
+     "k": "text",
+     "text": "no levels in Technomancer"
+    }
+   ]
+  }
+ },
+ "telepathic_scream": {
+  "_why": "Unmodelled clauses kept as text (GM judgment, class or species features, spellcasting, or choice-specific): telepathy",
+  "prereq": {
+   "all": [
+    {
+     "k": "ranks",
+     "skill": "int",
+     "min": 3
+    },
+    {
+     "k": "any",
+     "of": [
+      {
+       "k": "feature",
+       "feature": "limited_telepathy"
+      },
+      {
+       "k": "text",
+       "text": "telepathy"
+      }
+     ]
+    }
+   ]
+  }
+ },
+ "telepathic_spy": {
+  "_why": "Unmodelled clauses kept as text (GM judgment, class or species features, spellcasting, or choice-specific): telepathy",
+  "prereq": {
+   "all": [
+    {
+     "k": "any",
+     "of": [
+      {
+       "k": "feature",
+       "feature": "limited_telepathy"
+      },
+      {
+       "k": "text",
+       "text": "telepathy"
+      }
+     ]
+    }
+   ]
+  }
+ },
+ "tight_fit": {
+  "_why": "Unmodelled clauses kept as text (GM judgment, class or species features, spellcasting, or choice-specific): Large size or larger",
+  "prereq": {
+   "all": [
+    {
+     "k": "text",
+     "text": "Large size or larger"
+    }
+   ]
+  }
+ },
+ "time-touched": {
+  "_why": "Unmodelled clauses kept as text (GM judgment, class or species features, spellcasting, or choice-specific): no levels in precog",
+  "prereq": {
+   "all": [
+    {
+     "k": "ability",
+     "a": "int",
+     "min": 15
+    },
+    {
+     "k": "level",
+     "min": 5
+    },
+    {
+     "k": "text",
+     "text": "no levels in precog"
+    }
+   ]
+  }
+ },
+ "toxic_strike": {
+  "_why": "Unmodelled clauses kept as text (GM judgment, class or species features, spellcasting, or choice-specific): natural weapons species trait",
+  "prereq": {
+   "all": [
+    {
+     "k": "ability",
+     "a": "con",
+     "min": 13
+    },
+    {
+     "k": "text",
+     "text": "natural weapons species trait"
+    }
+   ]
+  }
+ },
+ "tripping_rush_(combat)": {
+  "_why": "Structured from clauses the base parser could not read. Maneuver or weapon-type specialisation is not modelled; the base feat is required",
+  "prereq": {
+   "all": [
+    {
+     "k": "feat",
+     "feat": "improved_combat_maneuver_(combat)"
+    },
+    {
+     "k": "bab",
+     "min": 5
+    }
+   ]
+  }
+ },
+ "tunneling_vanguard": {
+  "_why": "Unmodelled clauses kept as text (GM judgment, class or species features, spellcasting, or choice-specific): Burrow speed",
+  "prereq": {
+   "all": [
+    {
+     "k": "text",
+     "text": "Burrow speed"
+    }
+   ]
+  }
+ },
+ "underfoot": {
+  "_why": "Unmodelled clauses kept as text (GM judgment, class or species features, spellcasting, or choice-specific): species bonus to Dexterity; size Small",
+  "prereq": {
+   "all": [
+    {
+     "k": "feat",
+     "feat": "scurry"
+    },
+    {
+     "k": "ranks",
+     "skill": "acr",
+     "min": 10
+    },
+    {
+     "k": "text",
+     "text": "species bonus to Dexterity"
+    },
+    {
+     "k": "text",
+     "text": "size Small"
+    }
+   ]
+  }
+ },
+ "underhanded_snare": {
+  "_why": "Unmodelled clauses kept as text (GM judgment, class or species features, spellcasting, or choice-specific): constrictor’s grasp; enveloping grip; grappler; snag species trait. Maneuver or weapon-type specialisation is not modelled; the base feat is required",
+  "prereq": {
+   "all": [
+    {
+     "k": "feat",
+     "feat": "improved_combat_maneuver_(combat)"
+    },
+    {
+     "k": "any",
+     "of": [
+      {
+       "k": "text",
+       "text": "constrictor’s grasp"
+      },
+      {
+       "k": "text",
+       "text": "enveloping grip"
+      },
+      {
+       "k": "text",
+       "text": "grappler"
+      },
+      {
+       "k": "text",
+       "text": "snag species trait"
+      }
+     ]
+    }
+   ]
+  }
+ },
+ "unsinkable_caster_(combat)": {
+  "_why": "Unmodelled clauses kept as text (GM judgment, class or species features, spellcasting, or choice-specific): ability to cast spells",
+  "prereq": {
+   "all": [
+    {
+     "k": "level",
+     "min": 3
+    },
+    {
+     "k": "text",
+     "text": "ability to cast spells"
+    }
+   ]
+  }
+ },
+ "versatile_focus_(combat)": {
+  "_why": "Structured from clauses the base parser could not read. Maneuver or weapon-type specialisation is not modelled; the base feat is required",
+  "prereq": {
+   "all": [
+    {
+     "k": "feat",
+     "feat": "weapon_focus_(combat)"
+    }
+   ]
+  }
+ },
+ "warpweaver_(perception_focus)": {
+  "_why": "Unmodelled clauses kept as text (GM judgment, class or species features, spellcasting, or choice-specific): ability to cast 3rd-level witchwarper spells; member of a charter that has completed the oracle project",
+  "prereq": {
+   "all": [
+    {
+     "k": "any",
+     "of": [
+      {
+       "k": "feat",
+       "feat": "major_stage_magic"
+      },
+      {
+       "k": "text",
+       "text": "ability to cast 3rd-level witchwarper spells"
+      }
+     ]
+    },
+    {
+     "k": "text",
+     "text": "member of a charter that has completed the oracle project"
+    }
+   ]
+  }
+ },
+ "water_magic": {
+  "_why": "Unmodelled clauses kept as text (GM judgment, class or species features, spellcasting, or choice-specific): Ability to cast spells",
+  "prereq": {
+   "all": [
+    {
+     "k": "text",
+     "text": "Ability to cast spells"
+    }
+   ]
+  }
+ },
+ "weapon_focus_(combat)": {
+  "_why": "Unmodelled clauses kept as text (GM judgment, class or species features, spellcasting, or choice-specific): Proficiency with selected weapon type",
+  "prereq": {
+   "all": [
+    {
+     "k": "text",
+     "text": "Proficiency with selected weapon type"
+    }
+   ]
+  }
+ },
+ "weapon_specialization_(combat)": {
+  "_why": "Unmodelled clauses kept as text (GM judgment, class or species features, spellcasting, or choice-specific): proficiency with selected weapon type",
+  "prereq": {
+   "all": [
+    {
+     "k": "level",
+     "min": 3
+    },
+    {
+     "k": "text",
+     "text": "proficiency with selected weapon type"
+    }
+   ]
+  }
+ }
+}

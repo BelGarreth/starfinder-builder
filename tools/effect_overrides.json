@@ -1,0 +1,2893 @@
+{
+ "back_to_back_(combat_teamwork)": {
+  "_why": "Conditional: +1 circumstance KAC only against foes that flank you, and not if either has CR >= your level.",
+  "effects": [
+   {
+    "name": "Back to Back",
+    "type": "circumstance",
+    "effectType": "ac",
+    "valueAffected": "kac",
+    "modifier": "1",
+    "modifierType": "formula",
+    "condition": "Against attacks from foes that flank you (no bonus if either foe has CR equal to or higher than your level)",
+    "notes": ""
+   }
+  ]
+ },
+ "chitinous_wall": {
+  "_why": "Bonuses are granted to allies when using bulwark; nothing changes on the owner sheet.",
+  "effects": "none"
+ },
+ "disease_adaptation": {
+  "_why": "Conditional: +2 enhancement to saves only against Disease.",
+  "effects": [
+   {
+    "name": "Disease Adaptation",
+    "type": "enhancement",
+    "effectType": "saves",
+    "valueAffected": "",
+    "modifier": "2",
+    "modifierType": "formula",
+    "condition": "Against Disease",
+    "notes": ""
+   }
+  ]
+ },
+ "laugh_at_danger_(combat)": {
+  "_why": "Reaction that grants allies a morale bonus to AC; no effect on own sheet.",
+  "effects": "none"
+ },
+ "mounted_expert": {
+  "_why": "The +2 KAC applies to the mount, not the character.",
+  "effects": "none"
+ },
+ "muscular_retort_(combat)": {
+  "_why": "Conditional: +2 KAC against combat maneuvers of the one chosen type (bull rush, grapple or trip).",
+  "effects": [
+   {
+    "name": "Muscular Retort",
+    "type": "untyped",
+    "effectType": "ac",
+    "valueAffected": "kac",
+    "modifier": "2",
+    "modifierType": "formula",
+    "condition": "Against combat maneuvers of the chosen type (bull rush, grapple or trip)",
+    "notes": ""
+   }
+  ]
+ },
+ "poison_adaptation": {
+  "_why": "Conditional: +2 enhancement to saves only against Poison.",
+  "effects": [
+   {
+    "name": "Poison Adaptation",
+    "type": "enhancement",
+    "effectType": "saves",
+    "valueAffected": "",
+    "modifier": "2",
+    "modifierType": "formula",
+    "condition": "Against Poison",
+    "notes": ""
+   }
+  ]
+ },
+ "protective_fur": {
+  "_why": "Conditional circumstance bonuses to Fortitude saves, two different scopes.",
+  "effects": [
+   {
+    "name": "Protective Fur (cold and heat)",
+    "type": "circumstance",
+    "effectType": "save",
+    "valueAffected": "fort",
+    "modifier": "2",
+    "modifierType": "formula",
+    "condition": "Against cold and heat dangers",
+    "notes": ""
+   },
+   {
+    "name": "Protective Fur (contact disease and poison)",
+    "type": "circumstance",
+    "effectType": "save",
+    "valueAffected": "fort",
+    "modifier": "4",
+    "modifierType": "formula",
+    "condition": "Made to avoid contracting contact Diseases and Poisons",
+    "notes": ""
+   }
+  ]
+ },
+ "psychic_insight": {
+  "_why": "Conditional: +2 insight to four skills only against creatures you are communicating with via telepathy.",
+  "effects": [
+   {
+    "name": "Psychic Insight",
+    "type": "insight",
+    "effectType": "skill",
+    "valueAffected": "blu",
+    "modifier": "2",
+    "modifierType": "formula",
+    "condition": "Against creatures you are successfully communicating with using limited telepathy or telepathy",
+    "notes": ""
+   },
+   {
+    "name": "Psychic Insight",
+    "type": "insight",
+    "effectType": "skill",
+    "valueAffected": "dip",
+    "modifier": "2",
+    "modifierType": "formula",
+    "condition": "Against creatures you are successfully communicating with using limited telepathy or telepathy",
+    "notes": ""
+   },
+   {
+    "name": "Psychic Insight",
+    "type": "insight",
+    "effectType": "skill",
+    "valueAffected": "int",
+    "modifier": "2",
+    "modifierType": "formula",
+    "condition": "Against creatures you are successfully communicating with using limited telepathy or telepathy",
+    "notes": ""
+   },
+   {
+    "name": "Psychic Insight",
+    "type": "insight",
+    "effectType": "skill",
+    "valueAffected": "sen",
+    "modifier": "2",
+    "modifierType": "formula",
+    "condition": "Against creatures you are successfully communicating with using limited telepathy or telepathy",
+    "notes": ""
+   }
+  ]
+ },
+ "rallying_roar": {
+  "_why": "Bonus goes to affected allies (and a penalty to enemies); no effect on own sheet.",
+  "effects": "none"
+ },
+ "reject_chains": {
+  "_why": "Conditional: +2 insight to saves only against charm and compulsion effects.",
+  "effects": [
+   {
+    "name": "Reject Chains",
+    "type": "insight",
+    "effectType": "saves",
+    "valueAffected": "",
+    "modifier": "2",
+    "modifierType": "formula",
+    "condition": "Against charm and compulsion effects",
+    "notes": ""
+   }
+  ]
+ },
+ "shifter's_eye": {
+  "_why": "The +10 mentioned is the disguised target's bonus, which this feat reduces; there is no bonus to the character.",
+  "effects": "none"
+ },
+ "soothing_telepathy": {
+  "_why": "Conditional: +2 insight to saves only against mind-affecting effects (the ally-granting reaction is not modelled).",
+  "effects": [
+   {
+    "name": "Soothing Telepathy",
+    "type": "insight",
+    "effectType": "saves",
+    "valueAffected": "",
+    "modifier": "2",
+    "modifierType": "formula",
+    "condition": "Against mind-affecting effects",
+    "notes": ""
+   }
+  ]
+ },
+ "spellbane": {
+  "_why": "Conditional: +2 insight to saves only against spells and spell-like abilities.",
+  "effects": [
+   {
+    "name": "Spellbane",
+    "type": "insight",
+    "effectType": "saves",
+    "valueAffected": "",
+    "modifier": "2",
+    "modifierType": "formula",
+    "condition": "Against spells and spell-like abilities",
+    "notes": ""
+   }
+  ]
+ },
+ "startled_scream": {
+  "_why": "Bonus goes to allies; no effect on own sheet.",
+  "effects": "none"
+ },
+ "steady_footing": {
+  "_why": "Conditional: KAC and saves bonuses apply only to specific effects.",
+  "effects": [
+   {
+    "name": "Steady Footing (KAC)",
+    "type": "untyped",
+    "effectType": "ac",
+    "valueAffected": "kac",
+    "modifier": "2",
+    "modifierType": "formula",
+    "condition": "Against the bull rush, reposition and trip combat maneuvers",
+    "notes": ""
+   },
+   {
+    "name": "Steady Footing (saves)",
+    "type": "untyped",
+    "effectType": "saves",
+    "valueAffected": "",
+    "modifier": "2",
+    "modifierType": "formula",
+    "condition": "Against effects that would knock you prone",
+    "notes": ""
+   }
+  ]
+ },
+ "timely_coordination_(teamwork)": {
+  "_why": "Conditional: bonuses only apply to readied actions triggered by allies (attack bonus only with teamwork partners).",
+  "effects": [
+   {
+    "name": "Timely Coordination (skills)",
+    "type": "circumstance",
+    "effectType": "skill",
+    "valueAffected": "",
+    "modifier": "1",
+    "modifierType": "formula",
+    "condition": "On skill checks made as part of readied actions triggered by your allies",
+    "notes": ""
+   },
+   {
+    "name": "Timely Coordination (attacks)",
+    "type": "circumstance",
+    "effectType": "all-attacks",
+    "valueAffected": "",
+    "modifier": "1",
+    "modifierType": "formula",
+    "condition": "Teamwork: on attack rolls made as part of readied actions triggered by allies who also have this feat",
+    "notes": ""
+   }
+  ]
+ },
+ "armor_savant_(vesk)": {
+  "_why": "+1 species bonus to AC while armor is equipped (ACP reduction in heavy armor is not modelled).",
+  "effects": [
+   {
+    "name": "Armor Savant",
+    "type": "racial",
+    "effectType": "ac",
+    "valueAffected": "both",
+    "modifier": "1",
+    "modifierType": "constant",
+    "condition": "",
+    "notes": "",
+    "when": "armor"
+   }
+  ]
+ },
+ "elven_blood": {
+  "_why": "Conditional: +2 species bonus to saves only against enchantment spells and effects (sleep immunity is text-only).",
+  "effects": [
+   {
+    "name": "Elven Blood",
+    "type": "racial",
+    "effectType": "saves",
+    "valueAffected": "",
+    "modifier": "2",
+    "modifierType": "formula",
+    "condition": "Against enchantment spells and effects",
+    "notes": ""
+   }
+  ]
+ },
+ "elven_immunities": {
+  "_why": "Conditional: +2 species bonus to saves only against enchantment spells and effects (sleep immunity is text-only).",
+  "effects": [
+   {
+    "name": "Elven Immunities",
+    "type": "racial",
+    "effectType": "saves",
+    "valueAffected": "",
+    "modifier": "2",
+    "modifierType": "formula",
+    "condition": "Against enchantment spells and effects",
+    "notes": ""
+   }
+  ]
+ },
+ "eternal_hope": {
+  "_why": "Conditional: +2 species bonus to saves only against fear effects.",
+  "effects": [
+   {
+    "name": "Eternal Hope",
+    "type": "racial",
+    "effectType": "saves",
+    "valueAffected": "",
+    "modifier": "2",
+    "modifierType": "formula",
+    "condition": "Against fear effects",
+    "notes": ""
+   }
+  ]
+ },
+ "fearless": {
+  "_why": "Conditional: +2 species bonus to saves only against fear effects.",
+  "effects": [
+   {
+    "name": "Fearless",
+    "type": "racial",
+    "effectType": "saves",
+    "valueAffected": "",
+    "modifier": "2",
+    "modifierType": "formula",
+    "condition": "Against fear effects",
+    "notes": ""
+   }
+  ]
+ },
+ "stonecunning": {
+  "_why": "Conditional: +2 to Perception only to notice unusual stonework.",
+  "effects": [
+   {
+    "name": "Stonecunning",
+    "type": "untyped",
+    "effectType": "skill",
+    "valueAffected": "per",
+    "modifier": "2",
+    "modifierType": "formula",
+    "condition": "To notice unusual stonework such as traps and hidden doors in stone walls or floors",
+    "notes": ""
+   }
+  ]
+ },
+ "traditional_enemies": {
+  "_why": "Conditional: attack and AC bonuses apply only against specific creature subtypes.",
+  "effects": [
+   {
+    "name": "Traditional Enemies (attack)",
+    "type": "racial",
+    "effectType": "all-attacks",
+    "valueAffected": "",
+    "modifier": "1",
+    "modifierType": "formula",
+    "condition": "Against a creature with the goblinoid or Orc subtype",
+    "notes": ""
+   },
+   {
+    "name": "Traditional Enemies (AC)",
+    "type": "racial",
+    "effectType": "ac",
+    "valueAffected": "both",
+    "modifier": "4",
+    "modifierType": "formula",
+    "condition": "Against an attack from a creature with the giant subtype",
+    "notes": ""
+   }
+  ]
+ },
+ "dread_vitality": {
+  "_why": "Conditional: +1 to saves only against listed effects.",
+  "effects": [
+   {
+    "name": "Dread Vitality",
+    "type": "untyped",
+    "effectType": "saves",
+    "valueAffected": "",
+    "modifier": "1",
+    "modifierType": "formula",
+    "condition": "Against disease, exhaustion, fatigue, mind-affecting effects, paralysis, poison, sleep effects and stunning",
+    "notes": ""
+   }
+  ]
+ },
+ "mental_gravity": {
+  "_why": "Conditional: +1 to Will saves only against compulsion effects.",
+  "effects": [
+   {
+    "name": "Mental Gravity",
+    "type": "untyped",
+    "effectType": "save",
+    "valueAffected": "will",
+    "modifier": "1",
+    "modifierType": "formula",
+    "condition": "Against compulsion effects",
+    "notes": ""
+   }
+  ]
+ },
+ "size_advantage": {
+  "_why": "Conditional: +2 to Intimidate only against creatures at least one size smaller.",
+  "effects": [
+   {
+    "name": "Size Advantage",
+    "type": "untyped",
+    "effectType": "skill",
+    "valueAffected": "int",
+    "modifier": "2",
+    "modifierType": "formula",
+    "condition": "Against creatures at least one size category smaller than you",
+    "notes": ""
+   }
+  ]
+ },
+ "masked_visage": {
+  "_why": "Foundry already ships this as a situational formula modifier (Bluff to lie while masked); the DC increases are not bonuses to the character.",
+  "effects": "none"
+ },
+ "steel_nerves": {
+  "_why": "Foundry already ships this as a situational formula modifier (saves against fear); the Frightened/Panicked rider is text-only.",
+  "effects": "none"
+ },
+ "steady_flier": {
+  "_why": "Conditional: +2 to Acrobatics only for flying in dangerous wind conditions.",
+  "effects": [
+   {
+    "name": "Steady Flier",
+    "type": "untyped",
+    "effectType": "skill",
+    "valueAffected": "acr",
+    "modifier": "2",
+    "modifierType": "formula",
+    "condition": "On Acrobatics checks made to fly in dangerous wind conditions",
+    "notes": ""
+   }
+  ]
+ },
+ "advance_warning_(su)": {
+  "_why": "Scope of the surprise-round qualifier is ambiguous in the text, so both bonuses are kept situational rather than risk inflating initiative.",
+  "effects": [
+   {
+    "name": "Advance Warning (initiative)",
+    "type": "insight",
+    "effectType": "initiative",
+    "valueAffected": "",
+    "modifier": "1",
+    "modifierType": "formula",
+    "condition": "Initiative checks to act in a surprise round",
+    "notes": ""
+   },
+   {
+    "name": "Advance Warning (Perception)",
+    "type": "insight",
+    "effectType": "skill",
+    "valueAffected": "per",
+    "modifier": "1",
+    "modifierType": "formula",
+    "condition": "Perception checks to act in a surprise round",
+    "notes": ""
+   }
+  ]
+ },
+ "brace_yourselves_(ex)": {
+  "_why": "Conditional: +1 morale AC after using the move action, while adjacent to an ally, until the start of your next turn.",
+  "effects": [
+   {
+    "name": "Brace Yourselves",
+    "type": "morale",
+    "effectType": "ac",
+    "valueAffected": "both",
+    "modifier": "1",
+    "modifierType": "formula",
+    "condition": "After using the ability, while adjacent to at least one other ally, until the start of your next turn",
+    "notes": ""
+   }
+  ]
+ },
+ "choreography_of_death_(ex)": {
+  "_why": "Conditional and cumulative: +2 per previous successful small arm attack this combat, capped at half soldier level.",
+  "effects": [
+   {
+    "name": "Choreography of Death",
+    "type": "insight",
+    "effectType": "all-damage",
+    "valueAffected": "",
+    "modifier": "2",
+    "modifierType": "formula",
+    "condition": "Per previous successful ranged or melee attack with a small arm in the same combat, maximum half your soldier level",
+    "notes": ""
+   }
+  ]
+ },
+ "coordinated_defense_(ex)": {
+  "_why": "Conditional: you gain +1 insight to Reflex saves and AC when an ally's attack hits (the ally bonus is not a sheet effect).",
+  "effects": [
+   {
+    "name": "Coordinated Defense (AC)",
+    "type": "insight",
+    "effectType": "ac",
+    "valueAffected": "both",
+    "modifier": "1",
+    "modifierType": "formula",
+    "condition": "After an ally's attack made while flanking with you (or benefiting from Coordinated Shot) hits, until the start of your next turn",
+    "notes": ""
+   },
+   {
+    "name": "Coordinated Defense (Reflex)",
+    "type": "insight",
+    "effectType": "save",
+    "valueAffected": "reflex",
+    "modifier": "1",
+    "modifierType": "formula",
+    "condition": "After an ally's attack made while flanking with you (or benefiting from Coordinated Shot) hits, until the start of your next turn",
+    "notes": ""
+   }
+  ]
+ },
+ "explosive_maneuver_(ex)_(2nd)": {
+  "_why": "Conditional: bonus only for bull rush/reposition into a square with your mine; it scales +3 at 9th, +4 at 13th and +5 at 17th level (shown at the base value).",
+  "effects": [
+   {
+    "name": "Explosive Maneuver",
+    "type": "circumstance",
+    "effectType": "all-attacks",
+    "valueAffected": "",
+    "modifier": "2",
+    "modifierType": "formula",
+    "condition": "Attack rolls to bull rush or reposition a creature into a square containing your deployed mine",
+    "notes": ""
+   }
+  ]
+ },
+ "fortified_imagination_(su)": {
+  "_why": "Conditional: +2 insight to Will saves only against mind-affecting spells and abilities (the ally-granting swift action is text-only).",
+  "effects": [
+   {
+    "name": "Fortified Imagination",
+    "type": "insight",
+    "effectType": "save",
+    "valueAffected": "will",
+    "modifier": "2",
+    "modifierType": "formula",
+    "condition": "Against mind-affecting spells and abilities",
+    "notes": ""
+   }
+  ]
+ },
+ "get_'em_(ex)": {
+  "_why": "Conditional: move-action buff against one chosen enemy.",
+  "effects": [
+   {
+    "name": "Get 'Em",
+    "type": "morale",
+    "effectType": "all-attacks",
+    "valueAffected": "",
+    "modifier": "1",
+    "modifierType": "formula",
+    "condition": "After using the move action, on attack rolls against the chosen enemy until the start of your next turn",
+    "notes": ""
+   }
+  ]
+ },
+ "hyperclocking_(ex)": {
+  "_why": "Bonus is for the drone, not the character.",
+  "effects": "none"
+ },
+ "infuriating_target_(ex)": {
+  "_why": "Foundry already ships this as a situational formula modifier (Reflex vs area effects while adjacent to the designated opponent).",
+  "effects": "none"
+ },
+ "look_alive_(ex)": {
+  "_why": "Bonus goes to allies after a rest; nothing on own sheet.",
+  "effects": "none"
+ },
+ "loud_and_proud_(ex)_(1st)": {
+  "_why": "Foundry already ships this as a situational formula modifier (saves against blind and deafen effects).",
+  "effects": "none"
+ },
+ "twinned_threat_(ex)": {
+  "_why": "Conditional: +2 insight to damage with other one-handed melee weapons while dual-wielding, until end of turn after a damaging hit.",
+  "effects": [
+   {
+    "name": "Twinned Threat",
+    "type": "insight",
+    "effectType": "weapon-damage",
+    "valueAffected": "",
+    "modifier": "2",
+    "modifierType": "formula",
+    "condition": "While wielding two one-handed melee weapons, after dealing damage with one, with all other one-handed melee weapons until the end of your turn",
+    "notes": ""
+   }
+  ]
+ },
+ "escaped_experimental_subject": {
+  "_why": "Conditional: +2 to saves only against biohacker inhibitors, drugs, medicinals and poisons.",
+  "effects": [
+   {
+    "name": "Escaped Experimental Subject",
+    "type": "untyped",
+    "effectType": "saves",
+    "valueAffected": "",
+    "modifier": "2",
+    "modifierType": "formula",
+    "condition": "Against biohacker inhibitors, drugs, medicinals and poisons",
+    "notes": ""
+   }
+  ]
+ },
+ "gussy_up": {
+  "_why": "Bonus goes to the aided ally.",
+  "effects": "none"
+ },
+ "mind_over_magic": {
+  "_why": "Conditional: +1 (or +2 if you can cast the spell) only against a spell you just identified, once per 10 minutes.",
+  "effects": [
+   {
+    "name": "Mind over Magic",
+    "type": "circumstance",
+    "effectType": "saves",
+    "valueAffected": "",
+    "modifier": "1",
+    "modifierType": "formula",
+    "condition": "On a saving throw against a spell you identified as it was cast (+2 if you can cast that spell)",
+    "notes": ""
+   }
+  ]
+ },
+ "starship_aficionado": {
+  "_why": "Bonus goes to an ally.",
+  "effects": "none"
+ },
+ "trusted_companion": {
+  "_why": "Conditional: +1 morale to saves only while the chosen ally is conscious and visible.",
+  "effects": [
+   {
+    "name": "Trusted Companion",
+    "type": "morale",
+    "effectType": "saves",
+    "valueAffected": "",
+    "modifier": "1",
+    "modifierType": "formula",
+    "condition": "While the chosen ally is conscious and visible to you",
+    "notes": ""
+   }
+  ]
+ },
+ "cultural_chameleon": {
+  "_why": "Foundry already ships this as a situational formula modifier (Diplomacy in a settlement after a Culture check).",
+  "effects": "none"
+ },
+ "divine_blessing": {
+  "_why": "Benefit depends on the deity worshipped (e.g. Ibra +2 to recall knowledge); deity-specific, text-only.",
+  "effects": "none"
+ },
+ "hibernate": {
+  "_why": "Conditional: +2 circumstance only to saves against removing negative levels after hibernating.",
+  "effects": [
+   {
+    "name": "Hibernate",
+    "type": "circumstance",
+    "effectType": "saves",
+    "valueAffected": "",
+    "modifier": "2",
+    "modifierType": "formula",
+    "condition": "On saving throws to remove negative levels the day you complete hibernation",
+    "notes": ""
+   }
+  ]
+ },
+ "intuit_relationships": {
+  "_why": "Conditional: temporary bonus after a successful Sense Motive check, only against those creatures.",
+  "effects": [
+   {
+    "name": "Intuit Relationships",
+    "type": "circumstance",
+    "effectType": "skill",
+    "valueAffected": "blu",
+    "modifier": "2",
+    "modifierType": "formula",
+    "condition": "For 1 hour after a successful check, against the creatures whose relationship you used in the interaction",
+    "notes": ""
+   },
+   {
+    "name": "Intuit Relationships",
+    "type": "circumstance",
+    "effectType": "skill",
+    "valueAffected": "dip",
+    "modifier": "2",
+    "modifierType": "formula",
+    "condition": "For 1 hour after a successful check, against the creatures whose relationship you used in the interaction",
+    "notes": ""
+   },
+   {
+    "name": "Intuit Relationships",
+    "type": "circumstance",
+    "effectType": "skill",
+    "valueAffected": "int",
+    "modifier": "2",
+    "modifierType": "formula",
+    "condition": "For 1 hour after a successful check, against the creatures whose relationship you used in the interaction",
+    "notes": ""
+   }
+  ]
+ },
+ "minor_draconic_form": {
+  "_why": "The +2 save bonus goes to a polymorph target, not the character.",
+  "effects": "none"
+ },
+ "morphing_feint_(combat)": {
+  "_why": "The +10 mentioned is the disguise ability bonus the feat excludes; no bonus to the character.",
+  "effects": "none"
+ },
+ "squox_companion": {
+  "_why": "Foundry already ships this as a situational formula modifier (Perception and Bluff while the squox is nearby).",
+  "effects": "none"
+ },
+ "startling_charge": {
+  "_why": "Conditional: +1 morale to combat maneuver attack rolls only against a target you successfully demoralized with the charge.",
+  "effects": [
+   {
+    "name": "Startling Charge",
+    "type": "morale",
+    "effectType": "all-attacks",
+    "valueAffected": "",
+    "modifier": "1",
+    "modifierType": "formula",
+    "condition": "On attack rolls to resolve combat maneuvers against the demoralized target until the end of your next turn",
+    "notes": ""
+   }
+  ]
+ },
+ "constructed": {
+  "_why": "Conditional: +2 species bonus to saves only against listed effects, unless they specifically target constructs.",
+  "effects": [
+   {
+    "name": "Constructed",
+    "type": "racial",
+    "effectType": "saves",
+    "valueAffected": "",
+    "modifier": "2",
+    "modifierType": "formula",
+    "condition": "Against Disease, mind-affecting effects, Poison and sleep, unless the effect specifically targets constructs",
+    "notes": ""
+   }
+  ]
+ },
+ "slow_but_steady_(dwarf)": {
+  "_why": "Conditional species bonuses against specific effects.",
+  "effects": [
+   {
+    "name": "Slow but Steady (saves)",
+    "type": "racial",
+    "effectType": "saves",
+    "valueAffected": "",
+    "modifier": "2",
+    "modifierType": "formula",
+    "condition": "Against Poisons, spells and spell-like abilities",
+    "notes": ""
+   },
+   {
+    "name": "Slow but Steady (KAC)",
+    "type": "racial",
+    "effectType": "ac",
+    "valueAffected": "kac",
+    "modifier": "4",
+    "modifierType": "formula",
+    "condition": "While standing on the ground, against bull rush and trip combat maneuvers",
+    "notes": ""
+   }
+  ]
+ },
+ "able_guardian": {
+  "_why": "Conditional: +4 insight to Fortitude saves only against sleep deprivation.",
+  "effects": [
+   {
+    "name": "Able Guardian",
+    "type": "insight",
+    "effectType": "save",
+    "valueAffected": "fort",
+    "modifier": "4",
+    "modifierType": "formula",
+    "condition": "Against sleep deprivation",
+    "notes": ""
+   }
+  ]
+ },
+ "conceal_contraband": {
+  "_why": "Conditional: +2 only to Sleight of Hand checks to hide an object on your body.",
+  "effects": [
+   {
+    "name": "Conceal Contraband",
+    "type": "untyped",
+    "effectType": "skill",
+    "valueAffected": "sle",
+    "modifier": "2",
+    "modifierType": "formula",
+    "condition": "To hide an object on your body",
+    "notes": ""
+   }
+  ]
+ },
+ "conspiracy_web": {
+  "_why": "Conditional: bonuses apply only against members of the identified cult.",
+  "effects": [
+   {
+    "name": "Conspiracy Web",
+    "type": "circumstance",
+    "effectType": "skill",
+    "valueAffected": "per",
+    "modifier": "2",
+    "modifierType": "formula",
+    "condition": "Against members of the identified cult",
+    "notes": ""
+   },
+   {
+    "name": "Conspiracy Web",
+    "type": "circumstance",
+    "effectType": "skill",
+    "valueAffected": "sen",
+    "modifier": "2",
+    "modifierType": "formula",
+    "condition": "Against members of the identified cult",
+    "notes": ""
+   },
+   {
+    "name": "Conspiracy Web (saves)",
+    "type": "circumstance",
+    "effectType": "saves",
+    "valueAffected": "",
+    "modifier": "1",
+    "modifierType": "formula",
+    "condition": "Against the identified cult members' spells and effects",
+    "notes": ""
+   }
+  ]
+ },
+ "cult_infiltrator": {
+  "_why": "Conditional: +2 only against followers of the hidden cult you infiltrated.",
+  "effects": [
+   {
+    "name": "Cult Infiltrator",
+    "type": "untyped",
+    "effectType": "skill",
+    "valueAffected": "blu",
+    "modifier": "2",
+    "modifierType": "formula",
+    "condition": "Against followers of the cult you have discovered",
+    "notes": ""
+   },
+   {
+    "name": "Cult Infiltrator",
+    "type": "untyped",
+    "effectType": "skill",
+    "valueAffected": "dip",
+    "modifier": "2",
+    "modifierType": "formula",
+    "condition": "Against followers of the cult you have discovered",
+    "notes": ""
+   },
+   {
+    "name": "Cult Infiltrator",
+    "type": "untyped",
+    "effectType": "skill",
+    "valueAffected": "int",
+    "modifier": "2",
+    "modifierType": "formula",
+    "condition": "Against followers of the cult you have discovered",
+    "notes": ""
+   }
+  ]
+ },
+ "daring_drifter": {
+  "_why": "Conditional: +2 insight only to avoid becoming Off-Kilter in zero gravity.",
+  "effects": [
+   {
+    "name": "Daring Drifter",
+    "type": "insight",
+    "effectType": "skill",
+    "valueAffected": "acr",
+    "modifier": "2",
+    "modifierType": "formula",
+    "condition": "To avoid becoming Off-Kilter in zero-g",
+    "notes": ""
+   },
+   {
+    "name": "Daring Drifter",
+    "type": "insight",
+    "effectType": "skill",
+    "valueAffected": "ath",
+    "modifier": "2",
+    "modifierType": "formula",
+    "condition": "To avoid becoming Off-Kilter in zero-g",
+    "notes": ""
+   }
+  ]
+ },
+ "exposure_immunity": {
+  "_why": "Conditional: +1 to Fortitude saves only against Poisons and Diseases.",
+  "effects": [
+   {
+    "name": "Exposure Immunity",
+    "type": "untyped",
+    "effectType": "save",
+    "valueAffected": "fort",
+    "modifier": "1",
+    "modifierType": "formula",
+    "condition": "Against Poisons and Diseases",
+    "notes": ""
+   }
+  ]
+ },
+ "eye_of_the_storm": {
+  "_why": "The +2 Fortitude bonus mentioned is the existing severe-weather bonus the theme lets you keep moving through; nothing is granted.",
+  "effects": "none"
+ },
+ "flash_of_courage": {
+  "_why": "Conditional: +1 morale to Will saves only against fear effects.",
+  "effects": [
+   {
+    "name": "Flash of Courage",
+    "type": "morale",
+    "effectType": "save",
+    "valueAffected": "will",
+    "modifier": "1",
+    "modifierType": "formula",
+    "condition": "Against fear effects",
+    "notes": ""
+   }
+  ]
+ },
+ "live_on": {
+  "_why": "Foundry already ships this as a situational formula modifier (saves against death and negative energy effects).",
+  "effects": "none"
+ },
+ "mantle_of_the_clergy": {
+  "_why": "Conditional: +2 only against lay followers and lower-ranking clergy.",
+  "effects": [
+   {
+    "name": "Mantle of the Clergy",
+    "type": "untyped",
+    "effectType": "skill",
+    "valueAffected": "dip",
+    "modifier": "2",
+    "modifierType": "formula",
+    "condition": "Against lay followers and lower-ranking clergy",
+    "notes": ""
+   },
+   {
+    "name": "Mantle of the Clergy",
+    "type": "untyped",
+    "effectType": "skill",
+    "valueAffected": "int",
+    "modifier": "2",
+    "modifierType": "formula",
+    "condition": "Against lay followers and lower-ranking clergy",
+    "notes": ""
+   }
+  ]
+ },
+ "quick_pidgin": {
+  "_why": "Conditional: +2 only to Culture checks to create a pidgin language.",
+  "effects": [
+   {
+    "name": "Quick Pidgin",
+    "type": "untyped",
+    "effectType": "skill",
+    "valueAffected": "cul",
+    "modifier": "2",
+    "modifierType": "formula",
+    "condition": "To create a pidgin language with creatures that speak the same language",
+    "notes": ""
+   }
+  ]
+ },
+ "slip_through": {
+  "_why": "Conditional: +4 only to Acrobatics checks to escape.",
+  "effects": [
+   {
+    "name": "Slip Through",
+    "type": "untyped",
+    "effectType": "skill",
+    "valueAffected": "acr",
+    "modifier": "4",
+    "modifierType": "formula",
+    "condition": "To escape",
+    "notes": ""
+   }
+  ]
+ },
+ "taking_out_the_trash": {
+  "_why": "Conditional: +2 only to Perception checks opposing Sleight of Hand to hide, palm or pick pockets.",
+  "effects": [
+   {
+    "name": "Taking Out the Trash",
+    "type": "untyped",
+    "effectType": "skill",
+    "valueAffected": "per",
+    "modifier": "2",
+    "modifierType": "formula",
+    "condition": "On Perception checks opposing Sleight of Hand checks to hide objects, palm objects or pick pockets",
+    "notes": ""
+   }
+  ]
+ },
+ "theme_knowledge_(crisis_refugee)": {
+  "_why": "Conditional: +1 only when the skill is a class skill from your 1st-level class (otherwise it becomes a class skill).",
+  "effects": [
+   {
+    "name": "Theme Knowledge",
+    "type": "untyped",
+    "effectType": "skill",
+    "valueAffected": "sur",
+    "modifier": "1",
+    "modifierType": "formula",
+    "condition": "If the skill is already a class skill from the class you take at 1st level",
+    "notes": ""
+   }
+  ]
+ },
+ "theme_knowledge_(drift_crashed)": {
+  "_why": "Conditional: +1 only when the skill is a class skill from your 1st-level class (otherwise it becomes a class skill).",
+  "effects": [
+   {
+    "name": "Theme Knowledge",
+    "type": "untyped",
+    "effectType": "skill",
+    "valueAffected": "ath",
+    "modifier": "1",
+    "modifierType": "formula",
+    "condition": "If the skill is already a class skill from the class you take at 1st level",
+    "notes": ""
+   }
+  ]
+ },
+ "theme_knowledge_(opportunist)": {
+  "_why": "Conditional: +1 only when the skill is a class skill from your 1st-level class (otherwise it becomes a class skill).",
+  "effects": [
+   {
+    "name": "Theme Knowledge",
+    "type": "untyped",
+    "effectType": "skill",
+    "valueAffected": "per",
+    "modifier": "1",
+    "modifierType": "formula",
+    "condition": "If the skill is already a class skill from the class you take at 1st level",
+    "notes": ""
+   }
+  ]
+ },
+ "theme_knowledge_(planar_traveler)": {
+  "_why": "Conditional: +1 only when the skill is a class skill from your 1st-level class (otherwise it becomes a class skill).",
+  "effects": [
+   {
+    "name": "Theme Knowledge",
+    "type": "untyped",
+    "effectType": "skill",
+    "valueAffected": "mys",
+    "modifier": "1",
+    "modifierType": "formula",
+    "condition": "If the skill is already a class skill from the class you take at 1st level",
+    "notes": ""
+   }
+  ]
+ },
+ "theme_knowledge_(spectra_scion)": {
+  "_why": "Conditional: +1 only when the skill is a class skill from your 1st-level class (otherwise it becomes a class skill).",
+  "effects": [
+   {
+    "name": "Theme Knowledge",
+    "type": "untyped",
+    "effectType": "skill",
+    "valueAffected": "mys",
+    "modifier": "1",
+    "modifierType": "formula",
+    "condition": "If the skill is already a class skill from the class you take at 1st level",
+    "notes": ""
+   }
+  ]
+ },
+ "theme_knowledge_(void_nomad)": {
+  "_why": "Conditional: +1 only when the skill is a class skill from your 1st-level class (otherwise it becomes a class skill).",
+  "effects": [
+   {
+    "name": "Theme Knowledge",
+    "type": "untyped",
+    "effectType": "skill",
+    "valueAffected": "sur",
+    "modifier": "1",
+    "modifierType": "formula",
+    "condition": "If the skill is already a class skill from the class you take at 1st level",
+    "notes": ""
+   }
+  ]
+ },
+ "accord": {
+  "_why": "Shields linked allies in an area; not a standing bonus on the character.",
+  "effects": "none"
+ },
+ "pact_of_coordination_(su)": {
+  "_why": "Shields linked allies in an area; not a standing bonus on the character.",
+  "effects": "none"
+ },
+ "aftershock_(su)": {
+  "_why": "Conditional: the Graviton option gives +1 AC after resolving a zenith revelation (alternative is Charisma-based AC).",
+  "effects": [
+   {
+    "name": "Aftershock (Graviton)",
+    "type": "untyped",
+    "effectType": "ac",
+    "valueAffected": "both",
+    "modifier": "1",
+    "modifierType": "formula",
+    "condition": "After resolving a zenith revelation, if you choose the Graviton +1 AC option",
+    "notes": ""
+   }
+  ]
+ },
+ "burn_enchantment_(su)": {
+  "_why": "Conditional: +2 enhancement to saves for 1 round after hitting a spellcaster.",
+  "effects": [
+   {
+    "name": "Burn Enchantment",
+    "type": "enhancement",
+    "effectType": "saves",
+    "valueAffected": "",
+    "modifier": "2",
+    "modifierType": "formula",
+    "condition": "Against that creature's spells and spell-like abilities for 1 round after your melee attack hits it",
+    "notes": ""
+   }
+  ]
+ },
+ "claustrophobic_comfort_(ex)": {
+  "_why": "Soldier Tunnel Striker 9th level: +2 morale to saves against fear and mind-affecting effects while adjacent to three walls (the squeezing and Entangled rider is text-only).",
+  "effects": [
+   {
+    "name": "Claustrophobic Comfort",
+    "type": "morale",
+    "effectType": "saves",
+    "valueAffected": "",
+    "modifier": "2",
+    "modifierType": "formula",
+    "condition": "Against fear and mind-affecting effects while adjacent to at least three walls (floor or ceiling counts)",
+    "notes": ""
+   }
+  ]
+ },
+ "tunnel_striker": {
+  "_why": "Bundles Claustrophobic Comfort, which is covered by its own entry claustrophobic_comfort_(ex).",
+  "effects": "none"
+ },
+ "class-commander": {
+  "_why": "Bundles Coordinated Defense, which is covered by its own entry coordinated_defense_(ex).",
+  "effects": "none"
+ },
+ "construct_form_(su)": {
+  "_why": "Foundry already ships this as a situational formula modifier (+4 enhancement to Fortitude saves while transformed).",
+  "effects": "none"
+ },
+ "disguise_weapon_(ex)": {
+  "_why": "Conditional: +10 circumstance to Disguise checks only to hide the weapon's true nature.",
+  "effects": [
+   {
+    "name": "Disguise Weapon",
+    "type": "circumstance",
+    "effectType": "skill",
+    "valueAffected": "dis",
+    "modifier": "10",
+    "modifierType": "formula",
+    "condition": "Versus attempts to detect the true nature of a weapon you disguised",
+    "notes": ""
+   }
+  ]
+ },
+ "dreamer": {
+  "_why": "Bundles Fortified Imagination, which is covered by its own entry fortified_imagination_(su).",
+  "effects": "none"
+ },
+ "exosuit": {
+  "_why": "Bundles The Only Mech for Me, whose own record already ships the Piloting modifier; avoids double counting.",
+  "effects": "none"
+ },
+ "intuitive_commands_(ex)": {
+  "_why": "Foundry already ships this as a situational formula modifier (+1 enhancement AC for the mech after a move action).",
+  "effects": "none"
+ },
+ "isolation": {
+  "_why": "Bundles Silent State, which is covered by its own entry silent_state_(ex).",
+  "effects": "none"
+ },
+ "mine_menace": {
+  "_why": "Bundles Explosive Maneuver, which is covered by its own entry explosive_maneuver_(ex)_(2nd).",
+  "effects": "none"
+ },
+ "overwhelming_brilliance": {
+  "_why": "Conditional: +2 enhancement to saves only against death effects and effects from undead, and only while the solar manifestation grants an AC bonus.",
+  "effects": [
+   {
+    "name": "Overwhelming Brilliance",
+    "type": "enhancement",
+    "effectType": "saves",
+    "valueAffected": "",
+    "modifier": "2",
+    "modifierType": "formula",
+    "condition": "Against death effects and effects created by undead creatures, while your solar manifestation provides a bonus to AC",
+    "notes": ""
+   }
+  ]
+ },
+ "perfect_insult_(ex)": {
+  "_why": "Foundry already ships this as a situational formula modifier (Bluff and Intimidate against the studied opponent).",
+  "effects": "none"
+ },
+ "pistol_dancer": {
+  "_why": "Bundles Choreography of Death, which is covered by its own entry choreography_of_death_(ex).",
+  "effects": "none"
+ },
+ "scan_weakness_(su)": {
+  "_why": "Conditional: +1 circumstance to attack rolls only against the scanned creature.",
+  "effects": [
+   {
+    "name": "Scan Weakness",
+    "type": "circumstance",
+    "effectType": "all-attacks",
+    "valueAffected": "",
+    "modifier": "1",
+    "modifierType": "formula",
+    "condition": "Against the scanned creature until the beginning of your next turn",
+    "notes": ""
+   }
+  ]
+ },
+ "shock_and_awe": {
+  "_why": "Bundles Loud and Proud, which is covered by its own entry loud_and_proud_(ex)_(1st).",
+  "effects": "none"
+ },
+ "silent_state_(ex)": {
+  "_why": "Conditional: circumstance bonus to saves while in the silent state (+2, +3 at 9th, +4 at 15th level; shown at +2).",
+  "effects": [
+   {
+    "name": "Silent State",
+    "type": "circumstance",
+    "effectType": "saves",
+    "valueAffected": "",
+    "modifier": "2",
+    "modifierType": "formula",
+    "condition": "Against emotion, fear, mind-affecting, pain, sense-dependent and sonic effects while in the silent state",
+    "notes": "Increases to +3 at 9th level and +4 at 15th level"
+   }
+  ]
+ },
+ "take_the_hit_(ex)": {
+  "_why": "Bonus is granted to another creature (the intercepted attack's target), not the character.",
+  "effects": "none"
+ },
+ "vehicle_whisperer_(ex)": {
+  "_why": "Bonuses go to the touched vehicle, not the character.",
+  "effects": "none"
+ },
+ "vexing_style_(ex)": {
+  "_why": "Conditional: +2 to Bluff only to feint creatures within 60 feet while the style is active.",
+  "effects": [
+   {
+    "name": "Vexing Style",
+    "type": "untyped",
+    "effectType": "skill",
+    "valueAffected": "blu",
+    "modifier": "2",
+    "modifierType": "formula",
+    "condition": "To feint enemies within 60 feet while the improvisation is active",
+    "notes": ""
+   }
+  ]
+ },
+ "armor_storm": {
+  "_why": "Conditional bonuses: unarmed damage needs the melee striker gear boost, and the bull rush bonus needs heavy or powered armor.",
+  "effects": [
+   {
+    "name": "Armor Storm (unarmed)",
+    "type": "untyped",
+    "effectType": "all-damage",
+    "valueAffected": "",
+    "modifier": "2",
+    "modifierType": "formula",
+    "condition": "With your unarmed strike using this ability if you have the melee striker gear boost",
+    "notes": ""
+   },
+   {
+    "name": "Smash Through",
+    "type": "untyped",
+    "effectType": "all-attacks",
+    "valueAffected": "",
+    "modifier": "4",
+    "modifierType": "formula",
+    "condition": "On attack rolls to perform a bull rush while wearing heavy armor or powered armor",
+    "notes": ""
+   }
+  ]
+ },
+ "augment_vehicle_(su)": {
+  "_why": "Bonuses are to the touched vehicle, not the character.",
+  "effects": "none"
+ },
+ "blitz": {
+  "_why": "Rapid Response (1st level): unconditional +4 initiative and +10 feet land speed.",
+  "effects": [
+   {
+    "name": "Rapid Response",
+    "type": "untyped",
+    "effectType": "initiative",
+    "valueAffected": "",
+    "modifier": "4",
+    "modifierType": "constant",
+    "condition": "",
+    "notes": ""
+   },
+   {
+    "name": "Rapid Response (speed)",
+    "type": "untyped",
+    "effectType": "specific-speed",
+    "valueAffected": "land",
+    "modifier": "10",
+    "modifierType": "constant",
+    "condition": "",
+    "notes": ""
+   }
+  ]
+ },
+ "brutal_blast_(ex)": {
+  "_why": "Conditional: only blast weapons and only creatures within 10 feet.",
+  "effects": [
+   {
+    "name": "Brutal Blast",
+    "type": "insight",
+    "effectType": "all-damage",
+    "valueAffected": "",
+    "modifier": "2",
+    "modifierType": "formula",
+    "condition": "With weapons that have the blast special property, against creatures within 10 feet",
+    "notes": ""
+   }
+  ]
+ },
+ "bullet_barrage_(ex)": {
+  "_why": "Conditional: projectile-category weapons only; +1 per 4 soldier levels.",
+  "effects": [
+   {
+    "name": "Bullet Barrage",
+    "type": "insight",
+    "effectType": "all-damage",
+    "valueAffected": "",
+    "modifier": "1+floor(@classes.soldier.levels/4)",
+    "modifierType": "formula",
+    "condition": "With weapons in the projectile category",
+    "notes": ""
+   }
+  ]
+ },
+ "bullet_rain": {
+  "_why": "Conditional: only with the weapon just reloaded for free, until the start of your next turn.",
+  "effects": [
+   {
+    "name": "Furious Reload",
+    "type": "morale",
+    "effectType": "all-attacks",
+    "valueAffected": "",
+    "modifier": "1",
+    "modifierType": "formula",
+    "condition": "With the heavy weapon reloaded using the ability, until the beginning of your next turn",
+    "notes": ""
+   }
+  ]
+ },
+ "cloaking_field_(ex)": {
+  "_why": "Foundry already ships this as a situational formula modifier (Stealth while perfectly still).",
+  "effects": "none"
+ },
+ "crusader": {
+  "_why": "Conditional: +2 divine to saves only against fear and Diseases (Divine Protection, 12th level).",
+  "effects": [
+   {
+    "name": "Divine Protection",
+    "type": "divine",
+    "effectType": "saves",
+    "valueAffected": "",
+    "modifier": "2",
+    "modifierType": "formula",
+    "condition": "Against fear effects and Diseases",
+    "notes": ""
+   }
+  ]
+ },
+ "debug_curse_(su)": {
+  "_why": "Conditional: +3 resistance to saves only against curses while in possession of your custom rig.",
+  "effects": [
+   {
+    "name": "Debug Curse",
+    "type": "resistance",
+    "effectType": "saves",
+    "valueAffected": "",
+    "modifier": "3",
+    "modifierType": "formula",
+    "condition": "Against curses while in possession of your custom rig",
+    "notes": ""
+   }
+  ]
+ },
+ "devastator": {
+  "_why": "Choose one of four conditional +1 morale bonuses against the attuned creature type; choice-based, text-only.",
+  "effects": "none"
+ },
+ "empath": {
+  "_why": "Conditional: +2 circumstance after a successful read, against that creature only, for 1 hour.",
+  "effects": [
+   {
+    "name": "Empath",
+    "type": "circumstance",
+    "effectType": "skill",
+    "valueAffected": "blu",
+    "modifier": "2",
+    "modifierType": "formula",
+    "condition": "Against the creature whose emotions you read, for 1 hour",
+    "notes": ""
+   },
+   {
+    "name": "Empath",
+    "type": "circumstance",
+    "effectType": "skill",
+    "valueAffected": "dip",
+    "modifier": "2",
+    "modifierType": "formula",
+    "condition": "Against the creature whose emotions you read, for 1 hour",
+    "notes": ""
+   },
+   {
+    "name": "Empath",
+    "type": "circumstance",
+    "effectType": "skill",
+    "valueAffected": "int",
+    "modifier": "2",
+    "modifierType": "formula",
+    "condition": "Against the creature whose emotions you read, for 1 hour",
+    "notes": ""
+   },
+   {
+    "name": "Empath",
+    "type": "circumstance",
+    "effectType": "skill",
+    "valueAffected": "sen",
+    "modifier": "2",
+    "modifierType": "formula",
+    "condition": "Against the creature whose emotions you read, for 1 hour",
+    "notes": ""
+   }
+  ]
+ },
+ "enlightenment_(su)": {
+  "_why": "Conditional: once-per-day 1-minute state.",
+  "effects": [
+   {
+    "name": "Enlightenment (attacks)",
+    "type": "insight",
+    "effectType": "all-attacks",
+    "valueAffected": "",
+    "modifier": "4",
+    "modifierType": "formula",
+    "condition": "While in total communion with your connection (1 minute, once per day)",
+    "notes": ""
+   },
+   {
+    "name": "Enlightenment (saves)",
+    "type": "insight",
+    "effectType": "saves",
+    "valueAffected": "",
+    "modifier": "4",
+    "modifierType": "formula",
+    "condition": "While in total communion with your connection",
+    "notes": ""
+   },
+   {
+    "name": "Enlightenment (skills)",
+    "type": "insight",
+    "effectType": "skill",
+    "valueAffected": "",
+    "modifier": "4",
+    "modifierType": "formula",
+    "condition": "While in total communion with your connection",
+    "notes": ""
+   }
+  ]
+ },
+ "experiential_learning_(ex)": {
+  "_why": "Conditional: +2 insight to saves only against effects of the creature whose effect you just saved against, for 24 hours.",
+  "effects": [
+   {
+    "name": "Experiential Learning",
+    "type": "insight",
+    "effectType": "saves",
+    "valueAffected": "",
+    "modifier": "2",
+    "modifierType": "formula",
+    "condition": "Against magical effects produced by the creature whose effect you just saved against, for 24 hours",
+    "notes": ""
+   }
+  ]
+ },
+ "experimental_armor_prototype": {
+  "_why": "Conditional: +1 shield bonus to AC (+2 at 8th level, +3 later) only against the next attack from a studied enemy.",
+  "effects": [
+   {
+    "name": "Experimental Armor Prototype",
+    "type": "shield",
+    "effectType": "ac",
+    "valueAffected": "both",
+    "modifier": "1",
+    "modifierType": "formula",
+    "condition": "Against the next attack from the studied opponent before the end of your next turn",
+    "notes": ""
+   }
+  ]
+ },
+ "flamewalker": {
+  "_why": "Conditional: +4 circumstance AC only against attacks of opportunity provoked by the reactive movement.",
+  "effects": [
+   {
+    "name": "Flamewalker",
+    "type": "circumstance",
+    "effectType": "ac",
+    "valueAffected": "both",
+    "modifier": "4",
+    "modifierType": "formula",
+    "condition": "Against attacks of opportunity provoked by the reaction movement",
+    "notes": ""
+   }
+  ]
+ },
+ "fourfold_tactician": {
+  "_why": "Conditional: needs Improved Feint and two wielded weapons.",
+  "effects": [
+   {
+    "name": "Fourfold Tactician",
+    "type": "insight",
+    "effectType": "skill",
+    "valueAffected": "blu",
+    "modifier": "2",
+    "modifierType": "formula",
+    "condition": "To feint while wielding at least two weapons, if you have Improved Feint",
+    "notes": ""
+   }
+  ]
+ },
+ "geneturge": {
+  "_why": "Option-based body-part bonuses (ears, eyes) chosen by the player; text-only.",
+  "effects": "none"
+ },
+ "gremlin_companion_(su)": {
+  "_why": "Conditional: only while the glitch gremlin is adjacent or in your space, and only for specific tasks.",
+  "effects": [
+   {
+    "name": "Tech Support",
+    "type": "morale",
+    "effectType": "skill",
+    "valueAffected": "eng",
+    "modifier": "2",
+    "modifierType": "formula",
+    "condition": "To arm explosives and disable devices while your glitch gremlin is adjacent to you or in your space",
+    "notes": ""
+   },
+   {
+    "name": "Tech Support",
+    "type": "morale",
+    "effectType": "skill",
+    "valueAffected": "com",
+    "modifier": "2",
+    "modifierType": "formula",
+    "condition": "To hack computers, disable modules and systems, and destroy devices while your glitch gremlin is adjacent to you or in your space",
+    "notes": ""
+   }
+  ]
+ },
+ "guard": {
+  "_why": "Conditional: reaction against a chosen ally attack, until the start of your next turn.",
+  "effects": [
+   {
+    "name": "Guard",
+    "type": "untyped",
+    "effectType": "ac",
+    "valueAffected": "both",
+    "modifier": "4",
+    "modifierType": "formula",
+    "condition": "After using the reaction to protect a chosen ally, until the start of your next turn",
+    "notes": ""
+   }
+  ]
+ },
+ "hunter": {
+  "_why": "Conditional: only against the tracked creature.",
+  "effects": [
+   {
+    "name": "Hunter (damage)",
+    "type": "insight",
+    "effectType": "all-damage",
+    "valueAffected": "",
+    "modifier": "1",
+    "modifierType": "formula",
+    "condition": "Against the identified chosen creature",
+    "notes": ""
+   },
+   {
+    "name": "Hunter",
+    "type": "insight",
+    "effectType": "skill",
+    "valueAffected": "blu",
+    "modifier": "1",
+    "modifierType": "formula",
+    "condition": "Against the identified chosen creature",
+    "notes": ""
+   },
+   {
+    "name": "Hunter",
+    "type": "insight",
+    "effectType": "skill",
+    "valueAffected": "per",
+    "modifier": "1",
+    "modifierType": "formula",
+    "condition": "Against the identified chosen creature",
+    "notes": ""
+   },
+   {
+    "name": "Hunter",
+    "type": "insight",
+    "effectType": "skill",
+    "valueAffected": "sen",
+    "modifier": "1",
+    "modifierType": "formula",
+    "condition": "Against the identified chosen creature",
+    "notes": ""
+   },
+   {
+    "name": "Hunter",
+    "type": "insight",
+    "effectType": "skill",
+    "valueAffected": "sur",
+    "modifier": "1",
+    "modifierType": "formula",
+    "condition": "Against the identified chosen creature",
+    "notes": ""
+   }
+  ]
+ },
+ "improvise_surgery_(ex_medicine)": {
+  "_why": "Conditional: only to treat deadly wounds, scaled by the medkit you have.",
+  "effects": [
+   {
+    "name": "Improvise Surgery (basic medkit)",
+    "type": "insight",
+    "effectType": "skill",
+    "valueAffected": "med",
+    "modifier": "1",
+    "modifierType": "formula",
+    "condition": "To treat deadly wounds with a basic medkit",
+    "notes": ""
+   },
+   {
+    "name": "Improvise Surgery (advanced medkit)",
+    "type": "insight",
+    "effectType": "skill",
+    "valueAffected": "med",
+    "modifier": "2",
+    "modifierType": "formula",
+    "condition": "To treat deadly wounds with an advanced medkit",
+    "notes": ""
+   }
+  ]
+ },
+ "laser_accuracy_(ex)": {
+  "_why": "Conditional: laser-category weapons only.",
+  "effects": [
+   {
+    "name": "Laser Accuracy",
+    "type": "insight",
+    "effectType": "all-attacks",
+    "valueAffected": "",
+    "modifier": "1",
+    "modifierType": "formula",
+    "condition": "With weapons in the laser category",
+    "notes": ""
+   }
+  ]
+ },
+ "marked_for_death_(ex)": {
+  "_why": "Conditional: only against the marked foe.",
+  "effects": [
+   {
+    "name": "Marked for Death",
+    "type": "enhancement",
+    "effectType": "all-attacks",
+    "valueAffected": "",
+    "modifier": "1",
+    "modifierType": "formula",
+    "condition": "Against the opponent you marked for death while it is in sight",
+    "notes": ""
+   }
+  ]
+ },
+ "melophile": {
+  "_why": "Bonuses go to allies within 60 feet.",
+  "effects": "none"
+ },
+ "mystic_smith_(su)": {
+  "_why": "Foundry already ships the crafting skill bonuses as situational formula modifiers; this adds the missing conditional attack bonus.",
+  "effects": [
+   {
+    "name": "Mystic Smith (supercharge)",
+    "type": "untyped",
+    "effectType": "all-attacks",
+    "valueAffected": "",
+    "modifier": "1",
+    "modifierType": "formula",
+    "condition": "With hybrid weapons while your magical gear is supercharged (+2 at 9th level, +3 at 18th)",
+    "notes": ""
+   }
+  ]
+ },
+ "reactive_camouflage_(ex_exocortex)": {
+  "_why": "Foundry already ships this as a situational formula modifier (Stealth while stationary).",
+  "effects": "none"
+ },
+ "rover": {
+  "_why": "Unconditional insight bonus to Survival: +1, +1 more at 5th level and every 4 levels after (max +5 at 17th).",
+  "effects": [
+   {
+    "name": "Rover",
+    "type": "insight",
+    "effectType": "skill",
+    "valueAffected": "sur",
+    "modifier": "1+floor((@classes.soldier.levels-1)/4)",
+    "modifierType": "constant",
+    "condition": "",
+    "notes": "The ally Athletics bonus granted by the style is not a sheet effect"
+   }
+  ]
+ },
+ "shining_survival_(su)": {
+  "_why": "Bonuses go to creatures in the shelter.",
+  "effects": "none"
+ },
+ "skilled_blocker_(ex_7th_level)": {
+  "_why": "Conditional: block property bonus to you and an adjacent ally against one foe's melee attacks.",
+  "effects": [
+   {
+    "name": "Skilled Blocker",
+    "type": "enhancement",
+    "effectType": "ac",
+    "valueAffected": "both",
+    "modifier": "1",
+    "modifierType": "formula",
+    "condition": "Against melee attacks from the foe you struck with a block weapon, while the ally stays in reach",
+    "notes": ""
+   }
+  ]
+ },
+ "spell_countermeasures_(ex)": {
+  "_why": "Conditional: +2 to saves only against spells and other magical effects.",
+  "effects": [
+   {
+    "name": "Spell Countermeasures",
+    "type": "untyped",
+    "effectType": "saves",
+    "valueAffected": "",
+    "modifier": "2",
+    "modifierType": "formula",
+    "condition": "Against spells and other magical effects",
+    "notes": ""
+   }
+  ]
+ },
+ "spellbrawler": {
+  "_why": "Conditional: +1 enhancement AC only after draining a spell, until the end of your next turn.",
+  "effects": [
+   {
+    "name": "Spellbrawler",
+    "type": "enhancement",
+    "effectType": "ac",
+    "valueAffected": "both",
+    "modifier": "1",
+    "modifierType": "formula",
+    "condition": "After successfully draining a spell or spell-like ability, until the end of your next turn",
+    "notes": ""
+   }
+  ]
+ },
+ "trailblazer": {
+  "_why": "Conditional: only in the bonded biome.",
+  "effects": [
+   {
+    "name": "Trailblazer (initiative)",
+    "type": "insight",
+    "effectType": "initiative",
+    "valueAffected": "",
+    "modifier": "2",
+    "modifierType": "formula",
+    "condition": "While in your bonded biome",
+    "notes": ""
+   },
+   {
+    "name": "Trailblazer (hazards)",
+    "type": "resistance",
+    "effectType": "saves",
+    "valueAffected": "",
+    "modifier": "2",
+    "modifierType": "formula",
+    "condition": "To resist hazards while in your bonded biome",
+    "notes": ""
+   }
+  ]
+ },
+ "void_walker": {
+  "_why": "Bonus goes to allies linked by telepathic bond.",
+  "effects": "none"
+ },
+ "warmonger": {
+  "_why": "Conditional: planar armor lasts rounds equal to 1 + spell slot level; the summon bonus goes to summoned creatures.",
+  "effects": [
+   {
+    "name": "Planar Armor",
+    "type": "enhancement",
+    "effectType": "ac",
+    "valueAffected": "both",
+    "modifier": "1",
+    "modifierType": "formula",
+    "condition": "While your planar armor is active",
+    "notes": ""
+   },
+   {
+    "name": "Planar Armor (saves)",
+    "type": "resistance",
+    "effectType": "saves",
+    "valueAffected": "",
+    "modifier": "2",
+    "modifierType": "formula",
+    "condition": "While your planar armor is active",
+    "notes": ""
+   }
+  ]
+ },
+ "wrathful_warrior": {
+  "_why": "Conditional: +4 to saves only against pain effects while frenzied.",
+  "effects": [
+   {
+    "name": "Wrathful Warrior",
+    "type": "untyped",
+    "effectType": "saves",
+    "valueAffected": "",
+    "modifier": "4",
+    "modifierType": "formula",
+    "condition": "Against pain effects while frenzied",
+    "notes": ""
+   }
+  ]
+ },
+ "xenoambassador": {
+  "_why": "Conditional: +1 insight AC only against creatures sharing a language with you.",
+  "effects": [
+   {
+    "name": "Xenoambassador's Eye",
+    "type": "insight",
+    "effectType": "ac",
+    "valueAffected": "both",
+    "modifier": "1",
+    "modifierType": "formula",
+    "condition": "Against creatures with whom you share at least one language or pidgin language",
+    "notes": ""
+   }
+  ]
+ },
+ "zeitgeist": {
+  "_why": "Conditional: +2 insight to saves only against effects with the descriptor of the zeitgeist you embody.",
+  "effects": [
+   {
+    "name": "Resolve of the Ages",
+    "type": "insight",
+    "effectType": "saves",
+    "valueAffected": "",
+    "modifier": "2",
+    "modifierType": "formula",
+    "condition": "Against effects with a descriptor associated with the zeitgeist you currently embody",
+    "notes": ""
+   }
+  ]
+ },
+ "unyielding_bulwark_(ex)": {
+  "_why": "Foundry ships an unconditional constant but the text makes it situational: +4 insight to AC against bull rush, reposition and trip only while wearing heavy or powered armor.",
+  "replace": true,
+  "modifiers": [
+   {
+    "name": "Unyielding Bulwark (Ex)",
+    "type": "insight",
+    "effectType": "cmd",
+    "valueAffected": "both",
+    "modifier": "4",
+    "modifierType": "formula",
+    "condition": "While wearing heavy armor or powered armor, against bull rush, reposition and trip combat maneuvers",
+    "notes": ""
+   }
+  ]
+ },
+ "armored_advantage_(ex)": {
+  "_why": "Foundry ships an unconditional constant but the text makes it situational: +1 insight to KAC applies only while wearing armor.",
+  "replace": true,
+  "modifiers": [
+   {
+    "name": "Armored Advantage",
+    "type": "insight",
+    "effectType": "ac",
+    "valueAffected": "kac",
+    "modifier": "1",
+    "modifierType": "constant",
+    "condition": "",
+    "notes": "",
+    "when": "armor"
+   }
+  ]
+ },
+ "aerial_evasion_(combat)": {
+  "_why": "Foundry ships an unconditional constant but the text makes it situational: after a successful check, +2 AC against ranged attacks until your next turn.",
+  "replace": true,
+  "modifiers": [
+   {
+    "name": "Aerial Evasion (Combat)",
+    "type": "untyped",
+    "effectType": "ac",
+    "valueAffected": "both",
+    "modifier": "2",
+    "modifierType": "formula",
+    "condition": "After a successful check, against ranged attacks until the start of your next turn",
+    "notes": ""
+   }
+  ]
+ },
+ "backpedal_(combat)": {
+  "_why": "Foundry ships an unconditional constant but the text makes it situational: +1 AC against one enemy after a guarded step until your next turn.",
+  "replace": true,
+  "modifiers": [
+   {
+    "name": "Backpedal",
+    "type": "untyped",
+    "effectType": "ac",
+    "valueAffected": "both",
+    "modifier": "1",
+    "modifierType": "formula",
+    "condition": "After a guarded step away, against attacks made by that enemy until the start of your next turn",
+    "notes": "You can take a guarded step away from a foe as\na standard action. If you do, you gain a +1 bonus to AC until\nthe start of your next turn against any attacks made by that\nenemy. You must not be adjacent to that foe at the end of your\nguarded step."
+   }
+  ]
+ },
+ "balanced_charger_(combat)": {
+  "_why": "Foundry ships a constant -1 AC; the feat only lets you halve the -2 attack or AC penalty from charging after a successful check.",
+  "replace": true,
+  "modifiers": [
+   {
+    "name": "Balanced Charger",
+    "type": "untyped",
+    "effectType": "ac",
+    "valueAffected": "both",
+    "modifier": "1",
+    "modifierType": "formula",
+    "condition": "When charging, after succeeding at the check, if you halve the AC penalty from charging",
+    "notes": "Or halve the attack roll penalty instead"
+   }
+  ]
+ },
+ "read_foe": {
+  "_why": "Foundry ships an unconditional constant but the text makes it situational: either the attack or the AC bonus, after a successful check, until the start of your next turn.",
+  "replace": true,
+  "modifiers": [
+   {
+    "name": "Read Foe",
+    "type": "insight",
+    "effectType": "all-attacks",
+    "valueAffected": "",
+    "modifier": "2",
+    "modifierType": "formula",
+    "condition": "After a successful check, on your next attack of opportunity against that foe (either this or the AC bonus)",
+    "notes": ""
+   },
+   {
+    "name": "Read Foe",
+    "type": "insight",
+    "effectType": "ac",
+    "valueAffected": "both",
+    "modifier": "1",
+    "modifierType": "formula",
+    "condition": "After a successful check, against the next attack from that foe (either this or the attack bonus)",
+    "notes": ""
+   }
+  ]
+ },
+ "runner_gunner_(combat)": {
+  "_why": "Foundry ships an unconditional constant but the text makes it situational: ranged bonus once per minute after moving toward an enemy; speed bonus after moving following a ranged attack.",
+  "replace": true,
+  "modifiers": [
+   {
+    "name": "Runner Gunner (Combat)",
+    "type": "untyped",
+    "effectType": "ranged-attacks",
+    "valueAffected": "",
+    "modifier": "1",
+    "modifierType": "formula",
+    "condition": "Once per minute after moving at least half your speed toward an enemy, on your next ranged attack against it",
+    "notes": ""
+   },
+   {
+    "name": "Runner Gunner (Combat)",
+    "type": "untyped",
+    "effectType": "specific-speed",
+    "valueAffected": "land",
+    "modifier": "5",
+    "modifierType": "formula",
+    "condition": "If you move after using a standard action to make a ranged attack, until the end of your turn",
+    "notes": ""
+   }
+  ]
+ },
+ "sneaky_(halfling)": {
+  "_why": "Foundry ships +1 but the text gives +2 species bonus to Stealth; the movement and sniping penalty reductions are text-only.",
+  "replace": true,
+  "modifiers": [
+   {
+    "name": "Sneaky",
+    "type": "racial",
+    "effectType": "skill",
+    "valueAffected": "ste",
+    "modifier": "2",
+    "modifierType": "constant",
+    "condition": "",
+    "notes": ""
+   }
+  ]
+ },
+ "toughness": {
+  "_why": "Keeps the unconditional Stamina Points constant and adds the conditional Fortitude bonuses Foundry omits.",
+  "replace": true,
+  "modifiers": [
+   {
+    "name": "Toughness",
+    "type": "untyped",
+    "effectType": "stamina-points",
+    "valueAffected": "",
+    "modifier": "@details.level.value",
+    "modifierType": "constant",
+    "condition": "",
+    "notes": ""
+   },
+   {
+    "name": "Toughness (environment)",
+    "type": "untyped",
+    "effectType": "save",
+    "valueAffected": "fort",
+    "modifier": "4",
+    "modifierType": "formula",
+    "condition": "To avoid damage from hot or cold environments, withstand thick or thin atmospheres, avoid choking in heavy smoke, and avoid fatigue from sleep deprivation",
+    "notes": ""
+   }
+  ]
+ },
+ "deflecting_smash_(ex)": {
+  "_why": "Foundry ships an unconditional constant but the text makes it situational: +1 insight EAC (+2 on a critical hit) after a powered melee attack, until the start of your next turn.",
+  "replace": true,
+  "modifiers": [
+   {
+    "name": "Deflecting Smash (Ex)",
+    "type": "insight",
+    "effectType": "ac",
+    "valueAffected": "eac",
+    "modifier": "1",
+    "modifierType": "formula",
+    "condition": "After an attack with a melee weapon that has the powered special property, until the beginning of your next turn",
+    "notes": "When you make an attack with a melee weapon that has the powered weapon special property, you gain a +1 insight bonus to your EAC until the beginning of your next turn."
+   }
+  ]
+ },
+ "gravity_anchor_(su)": {
+  "_why": "Foundry ships an unconditional constant but the text makes it situational: graviton-mode ability; +4 to AC against bull rush, reposition and trip (surface) or disarm (objects).",
+  "replace": true,
+  "modifiers": [
+   {
+    "name": "Gravity Anchor (Su)",
+    "type": "untyped",
+    "effectType": "cmd",
+    "valueAffected": "",
+    "modifier": "4",
+    "modifierType": "formula",
+    "condition": "While in graviton mode, against bull rush, reposition and trip if you chose the surface (or disarm if you chose objects)",
+    "notes": "This grants you a +4 bonus to your AC against bull rush, reposition, and trip combat maneuvers if you choose the surface underfoot, or against disarm combat maneuvers if you choose objects."
+   }
+  ]
+ },
+ "gravity_shield_(su)": {
+  "_why": "Foundry ships an unconditional constant but the text makes it situational: +1 circumstance AC only until you leave graviton mode.",
+  "replace": true,
+  "modifiers": [
+   {
+    "name": "Gravity Shield (Su)",
+    "type": "circumstance",
+    "effectType": "ac",
+    "valueAffected": "both",
+    "modifier": "1",
+    "modifierType": "formula",
+    "condition": "For 1 round or until you leave graviton mode",
+    "notes": ""
+   }
+  ]
+ },
+ "hunter's_gloom_(su)": {
+  "_why": "Foundry ships an unconditional constant but the text makes it situational: activated full-action distortion lasting 10 minutes; second modifier is the extra sniping bonus.",
+  "replace": true,
+  "modifiers": [
+   {
+    "name": "Hunter's Gloom - Stealth",
+    "type": "circumstance",
+    "effectType": "skill",
+    "valueAffected": "ste",
+    "modifier": "2",
+    "modifierType": "formula",
+    "condition": "While your hunter's gloom distortion is active",
+    "notes": "As a full action, you can warp light around you, creating an area of visual distortion in your space for 10 minutes or until your leave your space. This grants you concealment and a +2 circumstance bonus to Stealth checks, and the bonus increases to +4 when you attempt Stealth checks to snipe."
+   },
+   {
+    "name": "Hunter's Gloom - Sniping",
+    "type": "circumstance",
+    "effectType": "skill",
+    "valueAffected": "ste",
+    "modifier": "2",
+    "modifierType": "formula",
+    "condition": "While your hunter's gloom distortion is active and you are sniping",
+    "notes": "If sniping, this will add an additional +2 circumstance bonus to stealth checks bringing the total to a +4 circumstance bonus from the Dark Matter (Su) revelation"
+   }
+  ]
+ },
+ "lethal_gambit_(ex)": {
+  "_why": "Foundry ships an unconditional constant but the text makes it situational: only when moving toward a significant foe.",
+  "replace": true,
+  "modifiers": [
+   {
+    "name": "Lethal Gambit (Ex) - Speed Increase",
+    "type": "enhancement",
+    "effectType": "all-speeds",
+    "valueAffected": "",
+    "modifier": "+10",
+    "modifierType": "formula",
+    "condition": "When you move toward a significant foe",
+    "notes": ""
+   },
+   {
+    "name": "Lethal Gambit (Ex) - Melee Attack Bonus",
+    "type": "circumstance",
+    "effectType": "melee-attacks",
+    "valueAffected": "",
+    "modifier": "+1",
+    "modifierType": "formula",
+    "condition": "Against significant foes when you move toward them",
+    "notes": ""
+   }
+  ]
+ },
+ "quick_movement_(ex)": {
+  "_why": "Foundry ships an unconditional constant but the text makes it situational: +10 feet land speed (scales with operative level) only while unencumbered and wearing light armor or no armor.",
+  "replace": true,
+  "modifiers": [
+   {
+    "name": "Quick Movement (Ex)",
+    "type": "untyped",
+    "effectType": "specific-speed",
+    "valueAffected": "land",
+    "modifier": "lookupRange(@classes.operative.levels, 10, 9, 20, 15, 30)",
+    "modifierType": "constant",
+    "condition": "",
+    "notes": "",
+    "when": "lightOrNoArmor"
+   }
+  ]
+ },
+ "ready_to_dance_(ex)": {
+  "_why": "Foundry ships an unconditional constant but the text makes it situational: reaction to raise AC like fighting defensively (+2) or total defense (+4 with 1 Resolve Point).",
+  "replace": true,
+  "modifiers": [
+   {
+    "name": "Ready to Dance (base)",
+    "type": "untyped",
+    "effectType": "ac",
+    "valueAffected": "both",
+    "modifier": "2",
+    "modifierType": "formula",
+    "condition": "As a reaction when an attack succeeds against your AC (as fighting defensively)",
+    "notes": ""
+   },
+   {
+    "name": "Ready to Dance (Resolve)",
+    "type": "untyped",
+    "effectType": "ac",
+    "valueAffected": "both",
+    "modifier": "4",
+    "modifierType": "formula",
+    "condition": "As a reaction when an attack succeeds against your AC, spending 1 Resolve Point (as total defense)",
+    "notes": ""
+   }
+  ]
+ },
+ "spell_trap_(ex)": {
+  "_why": "Foundry ships an unconditional constant but the text makes it situational: +1 enhancement AC only after trapping a spell, until the end of your next turn.",
+  "replace": true,
+  "modifiers": [
+   {
+    "name": "Spell Trap - AC Bonus",
+    "type": "enhancement",
+    "effectType": "ac",
+    "valueAffected": "both",
+    "modifier": "1",
+    "modifierType": "formula",
+    "condition": "After successfully trapping a spell or spell-like ability, until the end of your next turn",
+    "notes": ""
+   }
+  ]
+ },
+ "springboard_(ex)": {
+  "_why": "Foundry ships an unconditional constant but the text makes it situational: +10-foot circumstance speed bonus only until the end of your turn after using the ability.",
+  "replace": true,
+  "modifiers": [
+   {
+    "name": "Springboard (Ex)",
+    "type": "circumstance",
+    "effectType": "all-speeds",
+    "valueAffected": "acr",
+    "modifier": "10",
+    "modifierType": "formula",
+    "condition": "Until the end of your turn after using springboard",
+    "notes": ""
+   }
+  ]
+ },
+ "tidal_surge_(su)": {
+  "_why": "Foundry ships an unconditional constant but the text makes it situational: +4 only to the Athletics jump made during the surge movement.",
+  "replace": true,
+  "modifiers": [
+   {
+    "name": "Tidal Surge (Su)",
+    "type": "untyped",
+    "effectType": "skill",
+    "valueAffected": "ath",
+    "modifier": "4",
+    "modifierType": "formula",
+    "condition": "To the Athletics check to jump during the surge movement",
+    "notes": "You jump as if you had taken a 10-foot running start (even if you didn’t), and you gain a +4 bonus to the Athletics check."
+   }
+  ]
+ },
+ "stealth_warp_(su)": {
+  "_why": "Foundry ships an unconditional constant but the text makes it situational: lasts 1 round or until you leave graviton mode.",
+  "replace": true,
+  "modifiers": [
+   {
+    "name": "Stealth Warp (Su)",
+    "type": "untyped",
+    "effectType": "skill",
+    "valueAffected": "ste",
+    "modifier": "4",
+    "modifierType": "formula",
+    "condition": "For 1 round or until you leave graviton mode",
+    "notes": ""
+   }
+  ]
+ },
+ "integrated_follow-through_(ex)": {
+  "_why": "Foundry ships an unconditional constant but the text makes it situational: reduces the multiple-attack penalty by 2 only on a full attack with an augmentation or integrated weapon.",
+  "replace": true,
+  "modifiers": [
+   {
+    "name": "Multiple Attack Penalty Reduction",
+    "type": "untyped",
+    "effectType": "all-attacks",
+    "valueAffected": "",
+    "modifier": "2",
+    "modifierType": "formula",
+    "condition": "When making additional attacks in a full attack with an augmentation weapon or a weapon with the integrated property, until the end of your turn",
+    "notes": ""
+   }
+  ]
+ },
+ "particle_wave_(su)": {
+  "_why": "Foundry ships an unconditional constant but the text makes it situational: fly speed only while in the particle wave form.",
+  "replace": true,
+  "modifiers": [
+   {
+    "name": "Particle Wave (Su)",
+    "type": "untyped",
+    "effectType": "specific-speed",
+    "valueAffected": "flying",
+    "modifier": "@attributes.speed.land.value",
+    "modifierType": "formula",
+    "condition": "While in the particle wave form",
+    "notes": ""
+   }
+  ]
+ },
+ "explosive_meditation": {
+  "_why": "Foundry ships an unconditional constant but the text makes it situational: benefits last half Charisma modifier rounds after sidereal influence ends because combat begins.",
+  "replace": true,
+  "modifiers": [
+   {
+    "name": "Explosive Meditation - Temporary Hitpoints",
+    "type": "untyped",
+    "effectType": "hit-points",
+    "valueAffected": "",
+    "modifier": "@abilities.cha.mod",
+    "modifierType": "formula",
+    "condition": "For a number of rounds equal to half your Charisma modifier (min 1) after sidereal influence ends because combat begins",
+    "notes": "When the effects of your sidereal influence class ability end because combat begins, you gain the following benefits for a \nnumber of rounds equal to half your Charisma modifier (minimum 1 round). First, you gain a +3 insight bonus to the graviton or photon \nskills to which your sidereal influence applied.\n\nFinally, you gain a temporary Hit Points equal to your Charisma modifier"
+   },
+   {
+    "name": "Explosive Meditation - Initiative Bonus",
+    "type": "untyped",
+    "effectType": "initiative",
+    "valueAffected": "",
+    "modifier": "+@abilities.cha.mod - @abilities.dex.mod",
+    "modifierType": "formula",
+    "condition": "For a number of rounds equal to half your Charisma modifier (min 1) after sidereal influence ends because combat begins",
+    "notes": ""
+   }
+  ]
+ },
+ "fading_shadow_(su)": {
+  "_why": "Foundry ships a constant -10 Stealth; that is the penalty on one diversion-assisted hide check, not a standing modifier.",
+  "replace": true,
+  "modifiers": []
+ },
+ "attunement_surge_(su)_(graviton)": {
+  "_why": "Activated, mode-bound or temporary effect that Foundry ships as a standing constant: attunement surge until the start of your next turn.",
+  "replace": true,
+  "modifiers": [
+   {
+    "name": "Attunement Surge (Su) - Graviton",
+    "type": "insight",
+    "effectType": "saves",
+    "valueAffected": "",
+    "modifier": "(1 + floor(@classes.solarian.levels / 9))",
+    "modifierType": "formula",
+    "condition": "While you have expended 2 attunement points on your turn, until the beginning of your next turn",
+    "notes": "Your insight bonus to Reflex saves applies to all your saving throws."
+   }
+  ]
+ },
+ "attunement_surge_(su)_(resistance)": {
+  "_why": "Activated, mode-bound or temporary effect that Foundry ships as a standing constant: attunement surge until the start of your next turn.",
+  "replace": true,
+  "modifiers": [
+   {
+    "name": "Attunement Surge (Su) - Resistance - Acid",
+    "type": "untyped",
+    "effectType": "energy-resistance",
+    "valueAffected": "acid",
+    "modifier": "(1 + floor(@classes.solarian.levels / 6))",
+    "modifierType": "formula",
+    "condition": "While you have expended 2 attunement points on your turn, until the beginning of your next turn",
+    "notes": "There is currently no way to stack Energy Resistance modifiers. After applying damage, refund damage equal to the value of either the Energy Resistance of this feature, or the highest other functioning Energy Resistance available. Whichever is lower. (These values can be viewed by hovering over the Energy Resistance field in sheet's Attributes tab)"
+   },
+   {
+    "name": "Attunement Surge (Su) - Resistance - Cold",
+    "type": "untyped",
+    "effectType": "energy-resistance",
+    "valueAffected": "cold",
+    "modifier": "(1 + floor(@classes.solarian.levels / 6))",
+    "modifierType": "formula",
+    "condition": "While you have expended 2 attunement points on your turn, until the beginning of your next turn",
+    "notes": "There is currently no way to stack Energy Resistance modifiers. After applying damage, refund damage equal to the value of either the Energy Resistance of this feature, or the highest other functioning Energy Resistance available. Whichever is lower. (These values can be viewed by hovering over the Energy Resistance field in sheet's Attributes tab)"
+   },
+   {
+    "name": "Attunement Surge (Su) - Resistance - Electricity",
+    "type": "untyped",
+    "effectType": "energy-resistance",
+    "valueAffected": "electricity",
+    "modifier": "(1 + floor(@classes.solarian.levels / 6))",
+    "modifierType": "formula",
+    "condition": "While you have expended 2 attunement points on your turn, until the beginning of your next turn",
+    "notes": "There is currently no way to stack Energy Resistance modifiers. After applying damage, refund damage equal to the value of either the Energy Resistance of this feature, or the highest other functioning Energy Resistance available. Whichever is lower. (These values can be viewed by hovering over the Energy Resistance field in sheet's Attributes tab)"
+   },
+   {
+    "name": "Attunement Surge (Su) - Resistance - Fire",
+    "type": "untyped",
+    "effectType": "energy-resistance",
+    "valueAffected": "fire",
+    "modifier": "(1 + floor(@classes.solarian.levels / 6))",
+    "modifierType": "formula",
+    "condition": "While you have expended 2 attunement points on your turn, until the beginning of your next turn",
+    "notes": "There is currently no way to stack Energy Resistance modifiers. After applying damage, refund damage equal to the value of either the Energy Resistance of this feature, or the highest other functioning Energy Resistance available. Whichever is lower. (These values can be viewed by hovering over the Energy Resistance field in sheet's Attributes tab)"
+   },
+   {
+    "name": "Attunement Surge (Su) - Resistance - Sonic",
+    "type": "untyped",
+    "effectType": "energy-resistance",
+    "valueAffected": "sonic",
+    "modifier": "(1 + floor(@classes.solarian.levels / 6))",
+    "modifierType": "formula",
+    "condition": "While you have expended 2 attunement points on your turn, until the beginning of your next turn",
+    "notes": "There is currently no way to stack Energy Resistance modifiers. After applying damage, refund damage equal to the value of either the Energy Resistance of this feature, or the highest other functioning Energy Resistance available. Whichever is lower. (These values can be viewed by hovering over the Energy Resistance field in sheet's Attributes tab)"
+   },
+   {
+    "name": "Attunement Surge (Su) - Resistance - DR",
+    "type": "untyped",
+    "effectType": "damage-reduction",
+    "valueAffected": "",
+    "modifier": "(1 + floor(@classes.solarian.levels / 6))",
+    "modifierType": "formula",
+    "condition": "While you have expended 2 attunement points on your turn, until the beginning of your next turn",
+    "notes": "There is currently no way to stack DR modifiers. After applying damage, refund damage equal to the value of either the Damage Reduction of this feature, or the highest other functioning Damage Reduction available. Whichever is lower. (These values can be viewed by hovering over the Damage Reduction field in sheet's Attributes tab)"
+   }
+  ]
+ },
+ "broken_cycle": {
+  "_why": "Activated, mode-bound or temporary effect that Foundry ships as a standing constant: insight multiplier applies to graviton mode (Reflex) and photon mode (damage) bonuses only.",
+  "replace": true,
+  "modifiers": [
+   {
+    "name": "Broken Cycle - Graviton Mode",
+    "type": "insight",
+    "effectType": "save",
+    "valueAffected": "reflex",
+    "modifier": "(max(0, 0 - sign(@resources.solarian.stellarMode.value)) * (1 + floor((@classes.solarian.levels * 1.5) / 9)))",
+    "modifierType": "formula",
+    "condition": "While in graviton mode",
+    "notes": ""
+   },
+   {
+    "name": "Broken Cycle - Photon Mode",
+    "type": "insight",
+    "effectType": "all-damage",
+    "valueAffected": "acr",
+    "modifier": "(max(0, sign(@resources.solarian.stellarMode.value)) * (1 + floor((@classes.solarian.levels * 1.5) / 6)))",
+    "modifierType": "formula",
+    "condition": "While in photon mode",
+    "notes": ""
+   }
+  ]
+ },
+ "combat_tracking_(ex)": {
+  "_why": "Activated, mode-bound or temporary effect that Foundry ships as a standing constant: full BAB only against the foe designated as a move action while it is in sight.",
+  "replace": true,
+  "modifiers": [
+   {
+    "name": "Combat Tracking (Ex)",
+    "type": "untyped",
+    "effectType": "base-attack-bonus",
+    "valueAffected": "",
+    "modifier": "-floor(@classes.mechanic.levels * 0.75) + @classes.mechanic.levels",
+    "modifierType": "formula",
+    "condition": "Against the foe you designated for your exocortex to track, while it is in sight",
+    "notes": ""
+   }
+  ]
+ },
+ "corona_(su)": {
+  "_why": "Activated, mode-bound or temporary effect that Foundry ships as a standing constant: standard action, 1 round or until you leave photon mode.",
+  "replace": true,
+  "modifiers": [
+   {
+    "name": "New Modifier",
+    "type": "untyped",
+    "effectType": "energy-resistance",
+    "valueAffected": "cold",
+    "modifier": "(lookupRange(@classes.solarian.levels, 0, 6, 10, 12, 15, 18, 20))",
+    "modifierType": "formula",
+    "condition": "While your corona is active (1 round or until you leave photon mode)",
+    "notes": ""
+   }
+  ]
+ },
+ "dark_matter_(su)": {
+  "_why": "Activated, mode-bound or temporary effect that Foundry ships as a standing constant: move action, 1 round or until you leave graviton mode.",
+  "replace": true,
+  "modifiers": [
+   {
+    "name": "Dark Matter (Su)",
+    "type": "untyped",
+    "effectType": "damage-reduction",
+    "valueAffected": "",
+    "modifier": "(lookupRange(@resources.solarian.stellarMode.value, floor(@classes.solarian.levels / 2), 0, (lookupRange(@classes.solarian.levels, 0, 2, 1, 6, 2, 9, 3, 12, 4, 15, 5, 18, 6))))",
+    "modifierType": "formula",
+    "condition": "While dark matter is active (1 round or until you leave graviton mode)",
+    "notes": ""
+   }
+  ]
+ },
+ "eclipse_defense_(su)": {
+  "_why": "Activated, mode-bound or temporary effect that Foundry ships as a standing constant: +4 only when attuned or fully attuned, for the reaction attack roll.",
+  "replace": true,
+  "modifiers": [
+   {
+    "name": "Eclipse Defense (Su)",
+    "type": "untyped",
+    "effectType": "all-attacks",
+    "valueAffected": "",
+    "modifier": "(ternary(lt(@resources.solarian.stellarMode.value, 0), 4, 0))",
+    "modifierType": "formula",
+    "condition": "When attuned or fully attuned, on the attack roll made as a reaction with this revelation",
+    "notes": ""
+   }
+  ]
+ },
+ "plasma_sheath_(su)": {
+  "_why": "Activated, mode-bound or temporary effect that Foundry ships as a standing constant: move action, 1 round or until you leave photon mode.",
+  "replace": true,
+  "modifiers": [
+   {
+    "name": "Plasma Sheath (Su)",
+    "type": "untyped",
+    "effectType": "all-damage",
+    "valueAffected": "",
+    "modifier": "(lookupRange(@resources.solarian.stellarMode.value, 0, 1, floor(@classes.solarian.levels / 2)))",
+    "modifierType": "formula",
+    "condition": "While plasma sheath is active (1 round or until you leave photon mode)",
+    "notes": ""
+   }
+  ]
+ },
+ "reflection_(su)": {
+  "_why": "Activated, mode-bound or temporary effect that Foundry ships as a standing constant: penalty removed only when attuned or fully attuned, on the redirected ranged attack.",
+  "replace": true,
+  "modifiers": [
+   {
+    "name": "Reflection (Su)",
+    "type": "untyped",
+    "effectType": "ranged-attacks",
+    "valueAffected": "",
+    "modifier": "(lookupRange(@resources.solarian.stellarMode.value, 0, 0, -4))",
+    "modifierType": "formula",
+    "condition": "On the redirected ranged attack, when attuned or fully attuned",
+    "notes": ""
+   }
+  ]
+ },
+ "sunbolt_(su)": {
+  "_why": "Activated, mode-bound or temporary effect that Foundry ships as a standing constant: +2 only when attuned or fully attuned, on the sunbolt attack roll.",
+  "replace": true,
+  "modifiers": [
+   {
+    "name": "Sunbolt (Su)",
+    "type": "untyped",
+    "effectType": "ranged-attacks",
+    "valueAffected": "",
+    "modifier": "(ternary(gt(@resources.solarian.stellarMode.value, 0), 2, 0))",
+    "modifierType": "formula",
+    "condition": "When attuned or fully attuned, on the ranged attack roll to use sunbolt",
+    "notes": ""
+   }
+  ]
+ },
+ "stalwart_shield_(su)": {
+  "_why": "Activated, mode-bound or temporary effect that Foundry ships as a standing constant: move action holding a solar shield, 1 round or until you leave graviton mode.",
+  "replace": true,
+  "modifiers": [
+   {
+    "name": "Stalwart Shield (Su)",
+    "type": "enhancement",
+    "effectType": "energy-resistance",
+    "valueAffected": "cold",
+    "modifier": "lookupRange(@classes.solarian.levels, 0, 5, 5, 10, 10, 15, 15, 20, 20)",
+    "modifierType": "formula",
+    "condition": "While stalwart shield is active (1 round or until you leave graviton mode)",
+    "notes": ""
+   }
+  ]
+ },
+ "weapon_orbit_(su)": {
+  "_why": "Activated, mode-bound or temporary effect that Foundry ships as a standing constant: standard action ranged attack with a melee weapon.",
+  "replace": true,
+  "modifiers": [
+   {
+    "name": "Weapon Orbit (Su)",
+    "type": "untyped",
+    "effectType": "melee-damage",
+    "valueAffected": "",
+    "modifier": "-@abilities.str.mod",
+    "modifierType": "formula",
+    "condition": "On the ranged attack made with a melee weapon using weapon orbit",
+    "notes": ""
+   },
+   {
+    "name": "Weapon Orbit (Su)",
+    "type": "untyped",
+    "effectType": "melee-damage",
+    "valueAffected": "acr",
+    "modifier": "@abilities.cha.mod",
+    "modifierType": "formula",
+    "condition": "On the ranged attack made with a melee weapon using weapon orbit",
+    "notes": ""
+   },
+   {
+    "name": "Weapon Orbit (Su) with Flashing Strikes (Ex)",
+    "type": "untyped",
+    "effectType": "ranged-attacks",
+    "valueAffected": "",
+    "modifier": "-3",
+    "modifierType": "formula",
+    "condition": "On the ranged attack made with a melee weapon using weapon orbit",
+    "notes": "While attuned, you may use the Flashing Strikes (Ex) feature to make a full attack with Weapon Orbit (Su) with only a -3 penalty"
+   }
+  ]
+ },
+ "jump_jets_(ex_exocortex)": {
+  "_why": "The fly speed bonus is for a hover drone for 1 round after use; nothing on the character sheet.",
+  "replace": true,
+  "modifiers": []
+ },
+ "perfect_mirror_(ex)": {
+  "_why": "Foundry ships an all-damage constant, but the text reduces damage you take when using the Deflecting Armor gear boost; not a damage bonus.",
+  "replace": true,
+  "modifiers": []
+ },
+ "primal_defense_(ex)": {
+  "_why": "Placeholder zero values; the DR and resistance equal the cast spell level until your next turn (or 1 minute), so it is text-only.",
+  "replace": true,
+  "modifiers": []
+ },
+ "spell_thief_(su)": {
+  "_why": "Foundry ships Acrobatics +4, but the text grants no standing skill bonus; trick attack damage empowerment is text-only.",
+  "replace": true,
+  "modifiers": []
+ },
+ "trick_attack_(ex)": {
+  "_why": "Foundry ships Acrobatics +4 as a placeholder for the trick attack check; no standing skill bonus in the text.",
+  "replace": true,
+  "modifiers": []
+ },
+ "trick_attack_(ex)_(heavyweight_skirmisher)": {
+  "_why": "Foundry ships Acrobatics +4 as a placeholder for the trick attack check; no standing skill bonus in the text.",
+  "replace": true,
+  "modifiers": []
+ },
+ "twinned_tornado_(ex)": {
+  "_why": "Activated, mode-bound or temporary effect that Foundry ships as a standing constant: -6 penalty applies only to the twinned tornado full attack, instead of the normal -4.",
+  "replace": true,
+  "modifiers": [
+   {
+    "name": "Twinned Tornado (Ex)",
+    "type": "untyped",
+    "effectType": "all-attacks",
+    "valueAffected": "",
+    "modifier": "-6",
+    "modifierType": "formula",
+    "condition": "When making a full attack with two weapons using twinned tornado",
+    "notes": ""
+   }
+  ]
+ },
+ "flight_system_(ex_exocortex)": {
+  "_why": "Limited to 10 minutes per day in 1-minute increments, so it is not a standing speed.",
+  "replace": true,
+  "modifiers": [
+   {
+    "name": "Flight System (Ex; Exocortex)",
+    "type": "untyped",
+    "effectType": "specific-speed",
+    "valueAffected": "flying",
+    "modifier": "floor(@attributes.speed.land.value / 2)",
+    "modifierType": "formula",
+    "condition": "While flying with the flight system (10 minutes per day, 1-minute increments)",
+    "notes": ""
+   }
+  ]
+ },
+ "improved_quick_movement_(ex)": {
+  "_why": "Builds on quick movement, which only applies while unencumbered and in light armor or none.",
+  "replace": true,
+  "modifiers": [
+   {
+    "name": "Improved Quick Movement (Ex)",
+    "type": "untyped",
+    "effectType": "specific-speed",
+    "valueAffected": "land",
+    "modifier": "ternary(gte(@classes.operative.levels, 9), 20, 10)",
+    "modifierType": "constant",
+    "condition": "",
+    "notes": "",
+    "when": "lightOrNoArmor"
+   }
+  ]
+ },
+ "the_only_mech_for_me_(ex)": {
+  "_why": "Applies only once you have bonded to a mech (8 hours of work, once per day); replaces the standing constant.",
+  "replace": true,
+  "modifiers": [
+   {
+    "name": "The Only Mech for Me (Ex)",
+    "type": "insight",
+    "effectType": "skill",
+    "valueAffected": "pil",
+    "modifier": "lookupRange(@details.level.value, 1, 1, 3, 2, 7, 3, 11, 4, 15, 5, 19, 6)",
+    "modifierType": "formula",
+    "condition": "While bonded to a mech",
+    "notes": ""
+   }
+  ]
+ },
+ "biome_bond_(su)": {
+  "_why": "Conditional: the +2 insight initiative and +2 resistance saves apply only in the bonded biome (saves only against hazards).",
+  "replace": true,
+  "modifiers": [
+   {
+    "name": "Biome Bond",
+    "type": "insight",
+    "effectType": "initiative",
+    "valueAffected": "",
+    "modifier": "2",
+    "modifierType": "formula",
+    "condition": "While in your bonded biome",
+    "notes": ""
+   },
+   {
+    "name": "Biome Bond",
+    "type": "resistance",
+    "effectType": "saves",
+    "valueAffected": "",
+    "modifier": "2",
+    "modifierType": "formula",
+    "condition": "Against hazards while in your bonded biome",
+    "notes": ""
+   }
+  ]
+ },
+ "system_mastery_(su)": {
+  "_why": "Conditional: +4 enhancement to saves only against diseases.",
+  "replace": true,
+  "modifiers": [
+   {
+    "name": "System Mastery",
+    "type": "enhancement",
+    "effectType": "saves",
+    "valueAffected": "",
+    "modifier": "4",
+    "modifierType": "formula",
+    "condition": "Against diseases",
+    "notes": ""
+   }
+  ]
+ },
+ "blood_mark_(su)": {
+  "_why": "Activated after a kill; the chosen +1 morale bonus applies only against the attuned creature type.",
+  "effects": "none"
+ },
+ "calibrate_defenses_(ex)": {
+  "_why": "Move action against one enemy's next attack while wearing the armor prototype; nothing constant.",
+  "effects": "none"
+ },
+ "dancing_flame_(su)": {
+  "_why": "Reaction after a successful Reflex save; no numeric bonus.",
+  "effects": "none"
+ },
+ "divine_protection_(su)": {
+  "_why": "Conditional: +2 divine to saves only against fear and disease.",
+  "effects": [
+   {
+    "name": "Divine Protection",
+    "type": "divine",
+    "effectType": "saves",
+    "valueAffected": "",
+    "modifier": "2",
+    "modifierType": "formula",
+    "condition": "Against fear effects and diseases",
+    "notes": ""
+   }
+  ]
+ },
+ "empathy_(su)": {
+  "_why": "Full-action Sense Motive use; no bonus to the sheet.",
+  "effects": "none"
+ },
+ "feint_and_strike_(ex)_(2nd)": {
+  "_why": "Combat option while wielding two weapons; no numeric bonus.",
+  "effects": "none"
+ },
+ "hammer_fist_(ex)_(1st)": {
+  "_why": "Changes unarmed strike damage in heavy or powered armor; handled on the attack line, not as a modifier.",
+  "effects": "none"
+ },
+ "hunt_foe_(ex)_(2nd)": {
+  "_why": "Move action against one opponent; bonus depends on a Survival check against that target.",
+  "effects": "none"
+ },
+ "ignore_pain_(ex)_(2nd)": {
+  "_why": "Temporary Hit Points only while frenzied.",
+  "effects": "none"
+ },
+ "immortal_tutor_(su)_-_celestial": {
+  "_why": "Lesson benefits are spell-triggered and temporary; the +1 morale saves is an aura while the lesson is active.",
+  "effects": "none"
+ },
+ "immortal_tutor_(su)_-_protean": {
+  "_why": "Lesson benefits are spell-triggered and temporary.",
+  "effects": "none"
+ },
+ "impenetrable_defense_(ex)_(5th)": {
+  "_why": "Standard action that lasts until your next turn.",
+  "effects": "none"
+ },
+ "operations_specialist_(ex)": {
+  "_why": "The +1 applies to a skill the player chooses; not modelled as a fixed constant.",
+  "effects": "none"
+ },
+ "personal_modification_(ex)": {
+  "_why": "Benefit depends on the body system chosen for the augmentation.",
+  "effects": "none"
+ },
+ "protean_-_third_lesson": {
+  "_why": "Only while the first lesson is active, and only against attacks of opportunity, grapple and entangle.",
+  "effects": "none"
+ },
+ "resolve_of_the_ages_(su)": {
+  "_why": "Saves bonus applies only against the descriptor of the embodied zeitgeist.",
+  "effects": "none"
+ },
+ "smash_through_(ex)_(3rd)": {
+  "_why": "Conditional: +4 only to bull rush attack rolls in heavy or powered armor.",
+  "effects": [
+   {
+    "name": "Smash Through",
+    "type": "untyped",
+    "effectType": "all-attacks",
+    "valueAffected": "",
+    "modifier": "4",
+    "modifierType": "formula",
+    "condition": "Bull rush combat maneuvers while wearing heavy or powered armor",
+    "notes": ""
+   }
+  ]
+ },
+ "song_of_the_spheres_(su)": {
+  "_why": "Activated ally buff; nothing on the owner sheet.",
+  "effects": "none"
+ },
+ "suit_up_(su)": {
+  "_why": "Full action that lasts a few rounds and expends a spell slot.",
+  "effects": "none"
+ },
+ "summon_reinforcements_(su)": {
+  "_why": "Bonus goes to summoned creatures.",
+  "effects": "none"
+ },
+ "ward_off_the_end_(su)": {
+  "_why": "Activated bonus granted to allies.",
+  "effects": "none"
+ },
+ "xenoambassador's_eye_(ex)": {
+  "_why": "Conditional: +1 insight AC only against creatures that share a language with you.",
+  "effects": [
+   {
+    "name": "Xenoambassador's Eye",
+    "type": "insight",
+    "effectType": "ac",
+    "valueAffected": "",
+    "modifier": "1",
+    "modifierType": "formula",
+    "condition": "Against creatures with whom you share a language",
+    "notes": ""
+   }
+  ]
+ },
+ "stellar_mode_(su)": {
+  "_why": "Conditional: the insight bonuses apply only while attuned in combat (Reflex while graviton-attuned, damage while photon-attuned), rising at higher solarian levels.",
+  "effects": [
+   {
+    "name": "Stellar Mode (graviton)",
+    "type": "insight",
+    "effectType": "save",
+    "valueAffected": "reflex",
+    "modifier": "1 + floor(@classes.solarian.levels / 9)",
+    "modifierType": "formula",
+    "condition": "While graviton-attuned",
+    "notes": ""
+   },
+   {
+    "name": "Stellar Mode (photon)",
+    "type": "insight",
+    "effectType": "all-damage",
+    "valueAffected": "",
+    "modifier": "1 + floor(@classes.solarian.levels / 6)",
+    "modifierType": "formula",
+    "condition": "While photon-attuned",
+    "notes": ""
+   }
+  ]
+ },
+ "explorer": {
+  "_why": "The +4 Culture and Survival bonus is the 11th-level specialization power and the +4 Survival is only for trick attacks; the free skill ranks are computed from skillFocus by the engine.",
+  "effects": "none"
+ }
+}

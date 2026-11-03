@@ -1,0 +1,132 @@
+{
+ "skill_focus": {
+  "_why": "Foundry fixes acr; the player picks the skill, one pick per instance, and instances must name different skills.",
+  "param": {
+   "kind": "skill",
+   "count": 1,
+   "perInstance": true,
+   "distinct": true
+  }
+ },
+ "student": {
+  "_why": "Lashunta trait text: +2 species bonus to any two skills of their choice.",
+  "param": {
+   "kind": "skill",
+   "count": 2
+  }
+ },
+ "observant": {
+  "_why": "Trait text: select either Perception or Sense Motive.",
+  "param": {
+   "kind": "skill",
+   "count": 1,
+   "from": [
+    "per",
+    "sen"
+   ]
+  }
+ },
+ "channel_skill_(su)": {
+  "_why": "The two skills belong to the mystic connection, so they are derived, not picked.",
+  "param": {
+   "kind": "skill",
+   "derive": "connectionSkills"
+  }
+ },
+ "resistance_(ex_exocortex)": {
+  "_why": "Choose acid, cold, electricity, fire or sonic; each selection must use a different type.",
+  "param": {
+   "kind": "energy",
+   "count": 1,
+   "perInstance": true,
+   "distinct": true,
+   "bonusType": "resistance"
+  }
+ },
+ "greater_resistance_(ex_exocortex)": {
+  "_why": "Applies to a different type each time, and only to one that already has the Resistance mod.",
+  "param": {
+   "kind": "energy",
+   "count": 1,
+   "perInstance": true,
+   "distinct": true,
+   "within": "resistance_(ex_exocortex)"
+  }
+ },
+ "resistant_energy_(ex)": {
+  "_why": "Choose acid, cold, electricity, fire or sonic.",
+  "param": {
+   "kind": "energy",
+   "count": 1,
+   "bonusType": "resistance"
+  }
+ },
+ "improved_resistant_energy_(ex)": {
+  "_why": "Resistance 15 against the original type and one additional chosen type.",
+  "param": {
+   "kind": "energy",
+   "count": 2,
+   "bonusType": "resistance"
+  }
+ },
+ "weapon_focus_(combat)": {
+  "_why": "Weapon type is stored at levels[i].choices[featSlug] and applied by gear.attackLines through gear.FEAT_CHOICE."
+ },
+ "armor_ease": {
+  "_why": "Toggle for worn armor; handled by the armor condition on the modifiers."
+ },
+ "half-ryphorian": {
+  "_why": "Text asks to emulate stacking by hand; resistances are fixed cold and fire."
+ },
+ "steelskin": {
+  "_why": "Text asks to hand-edit DR for level and stacking; no player choice."
+ },
+ "hardened_systems": {
+  "_why": "Text asks to toggle and adjust for stacking; the electricity resistance is fixed."
+ },
+ "inured_to_the_grave": {
+  "_why": "Text asks to adjust for greater cold resistance from another source; no player choice."
+ },
+ "arcane_armor_(su)": {
+  "_why": "Toggle for the spell siphon save bonus; no player choice."
+ },
+ "celestial_-_first_lesson": {
+  "_why": "Damage reduction value depends on spell level at use time; no player choice."
+ },
+ "fiend_-_first_lesson": {
+  "_why": "Damage reduction value depends on spell level at use time; no player choice."
+ },
+ "deflecting_smash_(ex)": {
+  "_why": "Toggle between the +1 and +2 critical-hit bonus; no player choice."
+ },
+ "explosive_meditation": {
+  "_why": "Toggle for graviton or photon mode bonuses; no player choice."
+ },
+ "into_the_unknown_(ex)": {
+  "_why": "Toggle for the initiative bonus; the skill bonuses are fixed."
+ },
+ "solar_armor": {
+  "_why": "Cold or fire is switched as a move action in play; sheet keeps the fixed default."
+ },
+ "stalwart_shield_(su)": {
+  "_why": "Grants cold and fire resistance together while active; the type is not a choice."
+ },
+ "stellar_sage": {
+  "_why": "Replacement values are accounted for by the existing Solarian modifiers; no player choice."
+ },
+ "shaper": {
+  "_why": "Connection text: Channel Skill applies to two from among Computers, Engineering, Life Science, Mysticism, Physical Science or Profession (crafting), picked by the player.",
+  "param": {
+   "kind": "skill",
+   "count": 2,
+   "from": [
+    "com",
+    "eng",
+    "lsc",
+    "mys",
+    "phs",
+    "pro"
+   ]
+  }
+ }
+}

@@ -1,0 +1,127 @@
+{
+  "_src": "Hand-curated from the Core Rulebook racial traits as mirrored in the Foundry racial-features compendium (source 'CRB pg.' plus the generic 'Racial Feature'/'Species Feature' entries); alternate traits (COM/NS/AP sources) are excluded. Not fetched from AoN.",
+  "android": {
+    "_src": "CRB pg. 42; Upgrade Slot is not a Foundry feature item",
+    "core": [
+      "constructed",
+      "exceptional_vision",
+      "flat_affect"
+    ]
+  },
+  "human": {
+    "_src": "CRB pg. 44; Bonus Feat and Skilled",
+    "core": [
+      "bonus_feat",
+      "skilled"
+    ]
+  },
+  "kasatha": {
+    "_src": "CRB pg. 46",
+    "core": [
+      "desert_stride",
+      "four-armed",
+      "historian",
+      "natural_grace"
+    ]
+  },
+  "lashunta": {
+    "_src": "CRB pg. 48; Dimorphic requirement names Lashunta",
+    "core": [
+      "dimorphic_(lashunta)",
+      "lashunta_magic",
+      "limited_telepathy",
+      "student"
+    ]
+  },
+  "shirren": {
+    "_src": "CRB pg. 50",
+    "core": [
+      "blindsense",
+      "communalism",
+      "cultural_fascination",
+      "limited_telepathy"
+    ]
+  },
+  "vesk": {
+    "_src": "CRB pg. 52; Natural Weapons is a weapon item in Foundry, not a feature",
+    "core": [
+      "armor_savant_(vesk)",
+      "fearless",
+      "low-light_vision"
+    ]
+  },
+  "ysoki": {
+    "_src": "CRB pg. 54; Cheek Pouches is not a Foundry feature item",
+    "core": [
+      "darkvision",
+      "moxie",
+      "scrounger"
+    ]
+  },
+  "dwarf": {
+    "_src": "CRB pg. 506",
+    "core": [
+      "darkvision",
+      "slow_but_steady_(dwarf)",
+      "stonecunning",
+      "traditional_enemies",
+      "weapon_familiarity_(dwarf)"
+    ]
+  },
+  "elf": {
+    "_src": "CRB pg. 507",
+    "core": [
+      "elven_immunities",
+      "elven_magic",
+      "keen_senses",
+      "low-light_vision"
+    ]
+  },
+  "gnome": {
+    "_src": "CRB pg. 508; Dimorphic requires 'Gnome Feychild/Bleachling', Driftborn requires 'Gnome Driftborn'",
+    "core": [
+      "curious_(gnome)",
+      "eternal_hope",
+      "gnome_magic",
+      "low-light_vision"
+    ],
+    "byVariant": {
+      "feychild": [
+        "dimorphic_(gnome)"
+      ],
+      "bleachling": [
+        "dimorphic_(gnome)"
+      ],
+      "driftborn": [
+        "driftborn"
+      ]
+    }
+  },
+  "half-elf": {
+    "_src": "CRB pg. 509",
+    "core": [
+      "adaptability",
+      "elven_blood",
+      "keen_senses",
+      "low-light_vision"
+    ]
+  },
+  "halfling": {
+    "_src": "CRB pg. 511",
+    "core": [
+      "halfling_luck",
+      "keen_senses",
+      "sneaky_(halfling)",
+      "sure-footed"
+    ]
+  },
+  "half-orc": {
+    "_src": "CRB pg. 510; Self-Sufficient has no source in Foundry, included from the standard half-orc list (least certain)",
+    "core": [
+      "darkvision",
+      "intimidating",
+      "orc_ferocity_(half-orc)",
+      "self-sufficient"
+    ]
+  }
+}

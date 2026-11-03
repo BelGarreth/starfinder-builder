@@ -21,7 +21,7 @@
 - `data.js` target size is under 3 MB. Foundry descriptions get cut to a 1–2 sentence summary.
 - Look copies grimoire-ledger (`~/personal-repos/grimoire-ledger/index.html` `:root` tokens, `.top`, `.tabs`, `.card`, `.btn`, `.fld`, `table.t`, print sheet).
 - Blocked, not warned: an illegal pick can't be made. It's rendered disabled with its reason. Bulk over the limit is the one thing that warns, not blocks.
-- Every AoN link is by name: `https://www.aonsrd.com/{Races|Themes|Feats|SpellDisplay|Classes}.aspx?ItemName=<name>`. Anything else uses `https://www.aonsrd.com/Search.aspx?Query=<name>`. Nothing ever requests AoN.
+- Every AoN link is by name: `https://www.aonsrd.com/{Races|Themes|SpellDisplay|Classes}.aspx?ItemName=<name>`. Feats use `https://www.aonsrd.com/FeatDisplay.aspx?ItemName=<name>` with Foundry's trailing parenthetical suffix (such as "(Combat)" or "(Combat, Teamwork)") stripped, because `Feats.aspx` ignores `ItemName`. Anything else uses `https://www.aonsrd.com/Search.aspx?Query=<name>`. Nothing ever requests AoN.
 - Footer and README carry the OGL 1.0a Section 15 notice and the Paizo Community Use statement.
 - Commits: plain one-line Conventional Commit subject, no trailers, no AI attribution.
 
@@ -31,7 +31,7 @@
 2. **Editing level 1 after building to level 5.** Lowering Int at level 1 must re-flag over-spent ranks at every later level, and a feat whose prerequisite stopped holding must be flagged at the level it was taken. Test in Task 6.
 3. **Corrupt or foreign JSON imported**, such as a grimoire-ledger export or a truncated file. Import must refuse with a message and leave the current character untouched. Test in Task 11.
 4. **localStorage unavailable** (private window, blocked storage). The page must still render and build. Autosave silently no-ops and the top bar shows "Not saving: export to keep your work". Test in Task 11.
-5. **Multiclassing.** BAB and saves sum per class (Soldier 2/Operative 1: BAB = 2 + 0 = 2, Fort 3+0, Ref 0+2, Will 3+0). Class skills merge, and key ability for RP uses the highest key-ability modifier among the character's classes. Test in Task 4.
+5. **Multiclassing.** BAB and saves sum per class (Soldier 2/Operative 1: BAB = 2 + 0 = 2, Fort 3+0, Ref 0+2, Will 3+2). Class skills merge, and key ability for RP uses the highest key-ability modifier among the character's classes. Test in Task 4.
 
 ---
 
@@ -152,7 +152,7 @@ README.md, LICENSE-OGL.md, .gitignore (+ .cache/)
   - `rankBudget(levelIndex, char, data) -> int` = `max(1, classRanks + Int mod at that level) + (human ? 1 : 0)`.
   - `POINT_BUY = {base:10, points:10, maxAtCreation:18}`. `increaseAt = [5,10,15,20]`, which gives +2 to four different scores, or +1 if the score is already ≥ 17.
 
-- [ ] **Step 1: Write the failing tests** using fixture `vesk-soldier-1.json`: Vesk, Mercenary (+1 Str), Soldier 1, point buy Str+5 Dex+4 Con+1 (scores Str 18, Dex 14, Con 13, Int 8, Wis 10, Cha 10). Assert `baseScores` equal to those, `hp==13`, `sp==8`, `rp==5`, `bab==1`, base Fort/Ref/Will `2/0/2`, `rankBudget(0)==3`, `featSlots.length==1`. Multiclass fixture (Human Soldier 2 / Operative 1, scores all 10 with +2 Dex from human): `bab==2`, base saves Fort `3`, Ref `0+2=2`, Will `3`. Increases: a Soldier 5 with Str 18 picking Str/Dex/Con/Wis comes out Str 19, Dex 16, Con 15, Wis 12. Point buy over 10 points, or a score over 18 at creation, makes `pointBuyErrors(char,data)` return a non-empty list.
+- [ ] **Step 1: Write the failing tests** using fixture `vesk-soldier-1.json`: Vesk, Mercenary (+1 Str), Soldier 1, point buy Str+5 Dex+4 Con+1 (scores Str 18, Dex 14, Con 13, Int 8, Wis 10, Cha 10). Assert `baseScores` equal to those, `hp==13`, `sp==8`, `rp==5`, `bab==1`, base Fort/Ref/Will `2/0/2`, `rankBudget(0)==3`, `featSlots.length==1`. Multiclass fixture (Human Soldier 2 / Operative 1, scores all 10 with +2 Dex from human): `bab==2`, base saves Fort `3`, Ref `0+2=2`, Will `3+2=5`. Increases: a Soldier 5 with Str 18 picking Str/Dex/Con/Wis comes out Str 19, Dex 16, Con 15, Wis 12. Point buy over 10 points, or a score over 18 at creation, makes `pointBuyErrors(char,data)` return a non-empty list.
 - [ ] **Step 2: Run** `node --test tests/rules.test.js`. Expected: FAIL.
 - [ ] **Step 3: Implement** in `js/rules.js`.
 - [ ] **Step 4: Run** the tests. Expected: PASS.
@@ -281,6 +281,6 @@ README.md, LICENSE-OGL.md, .gitignore (+ .cache/)
 **Files:**
 - Modify: `README.md` (confirm live URL)
 
-- [ ] **Step 1:** Run every test (`node --test tests/` and `python3 -m unittest discover -s tools -p 'test_*.py'`) and `python3 tools/build_data.py --check`. `--check` rebuilds in memory and fails if `data.js` differs. Expected: all PASS, and no diff.
+- [ ] **Step 1:** Run every test (`node --test 'tests/*.test.js'` and `python3 -m unittest discover -s tools -p 'test_*.py'`) and `python3 tools/build_data.py --check`. `--check` rebuilds in memory and fails, naming the file, if any `data/*.js` differs (ignoring `meta.built`). Expected: all PASS, and no diff.
 - [ ] **Step 2: Ask Gareth before this step**, since it's outward-facing: `gh repo create BelGarreth/starfinder-builder --public --source . --push`. Then enable Pages from `main` `/`: `gh api -X POST repos/BelGarreth/starfinder-builder/pages -f 'source[branch]=main' -f 'source[path]=/'`.
 - [ ] **Step 3:** Once the Pages build finishes (`gh api repos/BelGarreth/starfinder-builder/pages --jq .status` → `built`), open `https://belgarreth.github.io/starfinder-builder/` and repeat the Task 10 Step 1 check against the live site.

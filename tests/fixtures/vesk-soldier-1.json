@@ -1,0 +1,13 @@
+{
+  "v": 1,
+  "name": "Vesk Soldier",
+  "race": "vesk",
+  "variant": null,
+  "theme": "mercenary",
+  "abilities": { "pb": { "str": 5, "dex": 4, "con": 1, "int": 0, "wis": 0, "cha": 0 } },
+  "levels": [
+    { "class": "soldier", "skills": {}, "feats": [], "choices": {}, "spells": {} }
+  ],
+  "gear": [],
+  "notes": ""
+}

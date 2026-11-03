@@ -3,3 +3,5 @@
 *.pat
 .claude/settings.local.json
 .superpowers/
+.cache/
+__pycache__/

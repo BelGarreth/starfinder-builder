@@ -1,0 +1,15 @@
+{
+  "v": 1,
+  "name": "Multiclass",
+  "race": "human",
+  "variant": null,
+  "theme": null,
+  "abilities": { "pb": { "str": 0, "dex": 0, "con": 0, "int": 0, "wis": 0, "cha": 0 }, "raceAny": "dex" },
+  "levels": [
+    { "class": "soldier", "skills": {}, "feats": [], "choices": {}, "spells": {} },
+    { "class": "soldier", "skills": {}, "feats": [], "choices": {}, "spells": {} },
+    { "class": "operative", "skills": {}, "feats": [], "choices": {}, "spells": {} }
+  ],
+  "gear": [],
+  "notes": ""
+}

@@ -1,0 +1,1698 @@
+{
+ "_sources": "Levels follow the Core Rulebook class tables on aonsrd.com (Classes.aspx?ItemName=<class>) cross-checked against the class feature text in the pinned Foundry data; Enhanced entries follow Enhanced (EN) as listed on the same AoN pages.",
+ "_minLevels": {
+  "_why": "Exocortex mods unlocked at 11th level per the Exocortex Mods text; Foundry gives every mod a 7th Level requirement.",
+  "echolocators_(ex_exocortex)": 11,
+  "excavator_(ex_exocortex)": 11,
+  "flight_system_(ex_exocortex)": 11,
+  "greater_resistance_(ex_exocortex)": 11,
+  "invisibility_field_(ex_exocortex)": 11,
+  "reactive_camouflage_(ex_exocortex)": 11
+ },
+ "soldier": {
+  "levels": {
+   "1": [
+    {
+     "fixed": "fighting_style"
+    },
+    {
+     "choice": "fightingStyle",
+     "label": "Primary fighting style",
+     "pool": {
+      "category": "fightingStyle"
+     },
+     "count": 1,
+     "minLevelFrom": "requirements"
+    },
+    {
+     "fixed": "primary_style_technique"
+    },
+    {
+     "fixedOf": "fightingStyle",
+     "tier": 1
+    }
+   ],
+   "2": [
+    {
+     "bonusFeat": true,
+     "pool": "combat"
+    },
+    {
+     "fixed": "combat_feat"
+    }
+   ],
+   "3": [
+    {
+     "fixed": "gear_boost"
+    },
+    {
+     "fixed": "weapon_specialization_(ex)_(soldier)"
+    },
+    {
+     "choice": "gearBoost",
+     "label": "Gear boost",
+     "pool": {
+      "category": "gearBoost"
+     },
+     "count": 1,
+     "minLevelFrom": "requirements"
+    }
+   ],
+   "4": [
+    {
+     "bonusFeat": true,
+     "pool": "combat"
+    }
+   ],
+   "5": [
+    {
+     "fixedOf": "fightingStyle",
+     "tier": 5
+    }
+   ],
+   "6": [
+    {
+     "bonusFeat": true,
+     "pool": "combat"
+    }
+   ],
+   "7": [
+    {
+     "choice": "gearBoost",
+     "label": "Gear boost",
+     "pool": {
+      "category": "gearBoost"
+     },
+     "count": 1,
+     "minLevelFrom": "requirements"
+    }
+   ],
+   "8": [
+    {
+     "bonusFeat": true,
+     "pool": "combat"
+    }
+   ],
+   "9": [
+    {
+     "fixedOf": "fightingStyle",
+     "tier": 9
+    },
+    {
+     "choice": "secondaryStyle",
+     "label": "Secondary fighting style",
+     "pool": {
+      "poolOf": "fightingStyle"
+     },
+     "count": 1
+    },
+    {
+     "fixed": "secondary_style_technique"
+    },
+    {
+     "fixedOf": "secondaryStyle",
+     "tier": 1
+    }
+   ],
+   "10": [
+    {
+     "bonusFeat": true,
+     "pool": "combat"
+    }
+   ],
+   "11": [
+    {
+     "choice": "gearBoost",
+     "label": "Gear boost",
+     "pool": {
+      "category": "gearBoost"
+     },
+     "count": 1,
+     "minLevelFrom": "requirements"
+    },
+    {
+     "fixed": "soldier's_onslaught_(ex)"
+    }
+   ],
+   "12": [
+    {
+     "bonusFeat": true,
+     "pool": "combat"
+    }
+   ],
+   "13": [
+    {
+     "fixedOf": "fightingStyle",
+     "tier": 13
+    },
+    {
+     "fixedOf": "secondaryStyle",
+     "tier": 5
+    }
+   ],
+   "14": [
+    {
+     "bonusFeat": true,
+     "pool": "combat"
+    }
+   ],
+   "15": [
+    {
+     "choice": "gearBoost",
+     "label": "Gear boost",
+     "pool": {
+      "category": "gearBoost"
+     },
+     "count": 1,
+     "minLevelFrom": "requirements"
+    }
+   ],
+   "16": [
+    {
+     "bonusFeat": true,
+     "pool": "combat"
+    }
+   ],
+   "17": [
+    {
+     "fixedOf": "fightingStyle",
+     "tier": 17
+    },
+    {
+     "fixedOf": "secondaryStyle",
+     "tier": 9
+    }
+   ],
+   "18": [
+    {
+     "bonusFeat": true,
+     "pool": "combat"
+    }
+   ],
+   "19": [
+    {
+     "choice": "gearBoost",
+     "label": "Gear boost",
+     "pool": {
+      "category": "gearBoost"
+     },
+     "count": 1,
+     "minLevelFrom": "requirements"
+    }
+   ],
+   "20": [
+    {
+     "bonusFeat": true,
+     "pool": "combat"
+    },
+    {
+     "fixed": "kill_shot_(ex)"
+    }
+   ]
+  }
+ },
+ "operative": {
+  "levels": {
+   "1": [
+    {
+     "fixed": "operative's_edge_(ex)"
+    },
+    {
+     "fixed": "specialization"
+    },
+    {
+     "choice": "specialization",
+     "label": "Specialization",
+     "pool": {
+      "category": "specialization"
+     },
+     "count": 1,
+     "minLevelFrom": "requirements"
+    },
+    {
+     "fixed": "trick_attack_(ex)"
+    }
+   ],
+   "2": [
+    {
+     "fixed": "evasion_(ex)_(operative)"
+    },
+    {
+     "fixed": "operative_exploit"
+    },
+    {
+     "choice": "exploit",
+     "label": "Operative exploit",
+     "pool": {
+      "category": "exploit"
+     },
+     "count": 1,
+     "minLevelFrom": "requirements"
+    }
+   ],
+   "3": [
+    {
+     "fixed": "quick_movement_(ex)"
+    },
+    {
+     "fixed": "weapon_specialization_(ex)_(operative)"
+    }
+   ],
+   "4": [
+    {
+     "choice": "exploit",
+     "label": "Operative exploit",
+     "pool": {
+      "category": "exploit"
+     },
+     "count": 1,
+     "minLevelFrom": "requirements"
+    },
+    {
+     "fixed": "debilitating_trick_(ex)"
+    }
+   ],
+   "5": [
+    {
+     "fixedOf": "specialization",
+     "tier": 5
+    }
+   ],
+   "6": [
+    {
+     "choice": "exploit",
+     "label": "Operative exploit",
+     "pool": {
+      "category": "exploit"
+     },
+     "count": 1,
+     "minLevelFrom": "requirements"
+    }
+   ],
+   "7": [
+    {
+     "fixed": "uncanny_agility_(ex)_(operative)"
+    }
+   ],
+   "8": [
+    {
+     "choice": "exploit",
+     "label": "Operative exploit",
+     "pool": {
+      "category": "exploit"
+     },
+     "count": 1,
+     "minLevelFrom": "requirements"
+    },
+    {
+     "fixed": "triple_attack_(ex)"
+    }
+   ],
+   "9": [],
+   "10": [
+    {
+     "choice": "exploit",
+     "label": "Operative exploit",
+     "pool": {
+      "category": "exploit"
+     },
+     "count": 1,
+     "minLevelFrom": "requirements"
+    }
+   ],
+   "11": [
+    {
+     "fixedOf": "specialization",
+     "tier": 11
+    }
+   ],
+   "12": [
+    {
+     "choice": "exploit",
+     "label": "Operative exploit",
+     "pool": {
+      "category": "exploit"
+     },
+     "count": 1,
+     "minLevelFrom": "requirements"
+    }
+   ],
+   "13": [
+    {
+     "fixed": "quad_attack_(ex)"
+    }
+   ],
+   "14": [
+    {
+     "choice": "exploit",
+     "label": "Operative exploit",
+     "pool": {
+      "category": "exploit"
+     },
+     "count": 1,
+     "minLevelFrom": "requirements"
+    }
+   ],
+   "15": [],
+   "16": [
+    {
+     "choice": "exploit",
+     "label": "Operative exploit",
+     "pool": {
+      "category": "exploit"
+     },
+     "count": 1,
+     "minLevelFrom": "requirements"
+    }
+   ],
+   "17": [
+    {
+     "fixed": "double_debilitation_(ex)"
+    }
+   ],
+   "18": [
+    {
+     "choice": "exploit",
+     "label": "Operative exploit",
+     "pool": {
+      "category": "exploit"
+     },
+     "count": 1,
+     "minLevelFrom": "requirements"
+    }
+   ],
+   "19": [],
+   "20": [
+    {
+     "choice": "exploit",
+     "label": "Operative exploit",
+     "pool": {
+      "category": "exploit"
+     },
+     "count": 1,
+     "minLevelFrom": "requirements"
+    },
+    {
+     "fixed": "supreme_operative_(ex)"
+    }
+   ]
+  }
+ },
+ "envoy": {
+  "levels": {
+   "1": [
+    {
+     "fixed": "envoy_improvisation"
+    },
+    {
+     "fixed": "expertise_(ex)"
+    },
+    {
+     "fixed": "skill_expertise_(ex)"
+    },
+    {
+     "choice": "improvisation",
+     "label": "Envoy improvisation",
+     "pool": {
+      "category": "improvisation"
+     },
+     "count": 1,
+     "minLevelFrom": "requirements"
+    },
+    {
+     "skillPick": "skillExpertise",
+     "label": "Skill expertise",
+     "count": 1,
+     "from": [
+      "blu",
+      "com",
+      "cul",
+      "dip",
+      "dis",
+      "eng",
+      "int",
+      "med"
+     ],
+     "minRanks": 1
+    }
+   ],
+   "2": [
+    {
+     "choice": "improvisation",
+     "label": "Envoy improvisation",
+     "pool": {
+      "category": "improvisation"
+     },
+     "count": 1,
+     "minLevelFrom": "requirements"
+    }
+   ],
+   "3": [
+    {
+     "fixed": "expertise_talent"
+    },
+    {
+     "fixed": "weapon_specialization_(ex)_(envoy)"
+    },
+    {
+     "choice": "expertiseTalent",
+     "label": "Expertise talent",
+     "pool": {
+      "category": "expertiseTalent"
+     },
+     "count": 1,
+     "minLevelFrom": "requirements"
+    }
+   ],
+   "4": [
+    {
+     "choice": "improvisation",
+     "label": "Envoy improvisation",
+     "pool": {
+      "category": "improvisation"
+     },
+     "count": 1,
+     "minLevelFrom": "requirements"
+    }
+   ],
+   "5": [
+    {
+     "skillPick": "skillExpertise",
+     "label": "Skill expertise",
+     "count": 1,
+     "from": [
+      "blu",
+      "com",
+      "cul",
+      "dip",
+      "dis",
+      "eng",
+      "int",
+      "med"
+     ],
+     "minRanks": 1
+    }
+   ],
+   "6": [
+    {
+     "choice": "improvisation",
+     "label": "Envoy improvisation",
+     "pool": {
+      "category": "improvisation"
+     },
+     "count": 1,
+     "minLevelFrom": "requirements"
+    }
+   ],
+   "7": [
+    {
+     "choice": "expertiseTalent",
+     "label": "Expertise talent",
+     "pool": {
+      "category": "expertiseTalent"
+     },
+     "count": 1,
+     "minLevelFrom": "requirements"
+    }
+   ],
+   "8": [
+    {
+     "choice": "improvisation",
+     "label": "Envoy improvisation",
+     "pool": {
+      "category": "improvisation"
+     },
+     "count": 1,
+     "minLevelFrom": "requirements"
+    }
+   ],
+   "9": [
+    {
+     "skillPick": "skillExpertise",
+     "label": "Skill expertise",
+     "count": 1,
+     "from": [
+      "blu",
+      "com",
+      "cul",
+      "dip",
+      "dis",
+      "eng",
+      "int",
+      "med"
+     ],
+     "minRanks": 1
+    }
+   ],
+   "10": [
+    {
+     "choice": "improvisation",
+     "label": "Envoy improvisation",
+     "pool": {
+      "category": "improvisation"
+     },
+     "count": 1,
+     "minLevelFrom": "requirements"
+    }
+   ],
+   "11": [
+    {
+     "choice": "expertiseTalent",
+     "label": "Expertise talent",
+     "pool": {
+      "category": "expertiseTalent"
+     },
+     "count": 1,
+     "minLevelFrom": "requirements"
+    }
+   ],
+   "12": [
+    {
+     "choice": "improvisation",
+     "label": "Envoy improvisation",
+     "pool": {
+      "category": "improvisation"
+     },
+     "count": 1,
+     "minLevelFrom": "requirements"
+    }
+   ],
+   "13": [
+    {
+     "skillPick": "skillExpertise",
+     "label": "Skill expertise",
+     "count": 1,
+     "from": [
+      "blu",
+      "com",
+      "cul",
+      "dip",
+      "dis",
+      "eng",
+      "int",
+      "med"
+     ],
+     "minRanks": 1
+    }
+   ],
+   "14": [
+    {
+     "choice": "improvisation",
+     "label": "Envoy improvisation",
+     "pool": {
+      "category": "improvisation"
+     },
+     "count": 1,
+     "minLevelFrom": "requirements"
+    }
+   ],
+   "15": [
+    {
+     "choice": "expertiseTalent",
+     "label": "Expertise talent",
+     "pool": {
+      "category": "expertiseTalent"
+     },
+     "count": 1,
+     "minLevelFrom": "requirements"
+    }
+   ],
+   "16": [
+    {
+     "choice": "improvisation",
+     "label": "Envoy improvisation",
+     "pool": {
+      "category": "improvisation"
+     },
+     "count": 1,
+     "minLevelFrom": "requirements"
+    }
+   ],
+   "17": [
+    {
+     "skillPick": "skillExpertise",
+     "label": "Skill expertise",
+     "count": 1,
+     "from": [
+      "blu",
+      "com",
+      "cul",
+      "dip",
+      "dis",
+      "eng",
+      "int",
+      "med"
+     ],
+     "minRanks": 1
+    }
+   ],
+   "18": [
+    {
+     "choice": "improvisation",
+     "label": "Envoy improvisation",
+     "pool": {
+      "category": "improvisation"
+     },
+     "count": 1,
+     "minLevelFrom": "requirements"
+    }
+   ],
+   "19": [
+    {
+     "choice": "expertiseTalent",
+     "label": "Expertise talent",
+     "pool": {
+      "category": "expertiseTalent"
+     },
+     "count": 1,
+     "minLevelFrom": "requirements"
+    }
+   ],
+   "20": [
+    {
+     "choice": "improvisation",
+     "label": "Envoy improvisation",
+     "pool": {
+      "category": "improvisation"
+     },
+     "count": 1,
+     "minLevelFrom": "requirements"
+    },
+    {
+     "fixed": "true_expertise_(ex)"
+    }
+   ]
+  },
+  "enhanced": {
+   "levels": {
+    "2": [
+     {
+      "fixed": "inspiring_combo_(ex)"
+     },
+     {
+      "fixed": "signature_support_(ex)"
+     },
+     {
+      "choice": "signatureSupport",
+      "label": "Signature support improvisation",
+      "pool": [
+       "clever_feint_(ex)",
+       "dispiriting_taunt_(ex)",
+       "get_'em_(ex)",
+       "inspiring_boost_(ex)"
+      ],
+      "count": 1,
+      "allowKnown": true
+     }
+    ],
+    "11": [
+     {
+      "fixed": "lead_by_example_(ex)"
+     }
+    ],
+    "14": [
+     {
+      "fixed": "success_breeds_success_(ex)"
+     }
+    ]
+   }
+  }
+ },
+ "mystic": {
+  "levels": {
+   "1": [
+    {
+     "fixed": "spells_(mystic)"
+    },
+    {
+     "fixed": "connection"
+    },
+    {
+     "choice": "connection",
+     "label": "Connection",
+     "pool": {
+      "category": "connection"
+     },
+     "count": 1,
+     "minLevelFrom": "requirements"
+    },
+    {
+     "fixed": "healing_touch_(su)"
+    },
+    {
+     "fixedOf": "connection",
+     "tier": 1
+    }
+   ],
+   "2": [
+    {
+     "fixed": "channel_skill_(su)"
+    },
+    {
+     "fixed": "mindlink_(sp)"
+    }
+   ],
+   "3": [
+    {
+     "fixedOf": "connection",
+     "tier": 3
+    },
+    {
+     "fixed": "weapon_specialization_(ex)_(mystic)"
+    }
+   ],
+   "4": [],
+   "5": [],
+   "6": [
+    {
+     "fixedOf": "connection",
+     "tier": 6
+    }
+   ],
+   "7": [],
+   "8": [],
+   "9": [
+    {
+     "fixedOf": "connection",
+     "tier": 9
+    }
+   ],
+   "10": [],
+   "11": [
+    {
+     "fixed": "telepathic_bond_(sp)"
+    }
+   ],
+   "12": [
+    {
+     "fixedOf": "connection",
+     "tier": 12
+    }
+   ],
+   "13": [],
+   "14": [],
+   "15": [
+    {
+     "fixedOf": "connection",
+     "tier": 15
+    }
+   ],
+   "16": [],
+   "17": [],
+   "18": [
+    {
+     "fixedOf": "connection",
+     "tier": 18
+    }
+   ],
+   "19": [
+    {
+     "fixed": "transcendence_(sp)"
+    }
+   ],
+   "20": [
+    {
+     "fixed": "enlightenment_(su)"
+    }
+   ]
+  }
+ },
+ "technomancer": {
+  "levels": {
+   "1": [
+    {
+     "fixed": "spells_(technomancer)"
+    },
+    {
+     "fixed": "spell_cache_(su)"
+    }
+   ],
+   "2": [
+    {
+     "fixed": "magic_hack"
+    },
+    {
+     "choice": "hack",
+     "label": "Magic hack",
+     "pool": {
+      "category": "hack"
+     },
+     "count": 1,
+     "minLevelFrom": "requirements"
+    }
+   ],
+   "3": [
+    {
+     "fixedFeat": "spell_focus"
+    },
+    {
+     "fixed": "techlore_(ex)"
+    },
+    {
+     "fixed": "weapon_specialization_(ex)_(technomancer)"
+    }
+   ],
+   "4": [],
+   "5": [
+    {
+     "choice": "hack",
+     "label": "Magic hack",
+     "pool": {
+      "category": "hack"
+     },
+     "count": 1,
+     "minLevelFrom": "requirements"
+    }
+   ],
+   "6": [
+    {
+     "fixed": "cache_capacitor_(su)"
+    }
+   ],
+   "7": [],
+   "8": [
+    {
+     "choice": "hack",
+     "label": "Magic hack",
+     "pool": {
+      "category": "hack"
+     },
+     "count": 1,
+     "minLevelFrom": "requirements"
+    }
+   ],
+   "9": [],
+   "10": [],
+   "11": [
+    {
+     "choice": "hack",
+     "label": "Magic hack",
+     "pool": {
+      "category": "hack"
+     },
+     "count": 1,
+     "minLevelFrom": "requirements"
+    }
+   ],
+   "12": [],
+   "13": [],
+   "14": [
+    {
+     "choice": "hack",
+     "label": "Magic hack",
+     "pool": {
+      "category": "hack"
+     },
+     "count": 1,
+     "minLevelFrom": "requirements"
+    }
+   ],
+   "15": [],
+   "16": [],
+   "17": [
+    {
+     "choice": "hack",
+     "label": "Magic hack",
+     "pool": {
+      "category": "hack"
+     },
+     "count": 1,
+     "minLevelFrom": "requirements"
+    }
+   ],
+   "18": [],
+   "19": [
+    {
+     "fixed": "resolve_attunement_(ex)"
+    }
+   ],
+   "20": [
+    {
+     "choice": "hack",
+     "label": "Magic hack",
+     "pool": {
+      "category": "hack"
+     },
+     "count": 1,
+     "minLevelFrom": "requirements"
+    },
+    {
+     "fixed": "fuse_spells_(ex)"
+    }
+   ]
+  },
+  "enhanced": {
+   "levels": {
+    "1": [
+     {
+      "fixed": "technomantic_talent"
+     },
+     {
+      "choice": "technomanticTalent",
+      "label": "Technomantic talent",
+      "pool": {
+       "category": "technomanticTalent",
+       "enhanced": true
+      },
+      "count": 1,
+      "minLevelFrom": "requirements"
+     }
+    ],
+    "2": [
+     {
+      "fixed": "deconstructivist"
+     }
+    ],
+    "4": [
+     {
+      "choice": "technomanticTalent",
+      "label": "Technomantic talent",
+      "pool": {
+       "category": "technomanticTalent",
+       "enhanced": true
+      },
+      "count": 1,
+      "minLevelFrom": "requirements"
+     }
+    ],
+    "7": [
+     {
+      "choice": "technomanticTalent",
+      "label": "Technomantic talent",
+      "pool": {
+       "category": "technomanticTalent",
+       "enhanced": true
+      },
+      "count": 1,
+      "minLevelFrom": "requirements"
+     }
+    ],
+    "10": [
+     {
+      "choice": "technomanticTalent",
+      "label": "Technomantic talent",
+      "pool": {
+       "category": "technomanticTalent",
+       "enhanced": true
+      },
+      "count": 1,
+      "minLevelFrom": "requirements"
+     }
+    ],
+    "13": [
+     {
+      "choice": "technomanticTalent",
+      "label": "Technomantic talent",
+      "pool": {
+       "category": "technomanticTalent",
+       "enhanced": true
+      },
+      "count": 1,
+      "minLevelFrom": "requirements"
+     }
+    ],
+    "16": [
+     {
+      "choice": "technomanticTalent",
+      "label": "Technomantic talent",
+      "pool": {
+       "category": "technomanticTalent",
+       "enhanced": true
+      },
+      "count": 1,
+      "minLevelFrom": "requirements"
+     }
+    ],
+    "19": [
+     {
+      "choice": "technomanticTalent",
+      "label": "Technomantic talent",
+      "pool": {
+       "category": "technomanticTalent",
+       "enhanced": true
+      },
+      "count": 1,
+      "minLevelFrom": "requirements"
+     }
+    ]
+   }
+  }
+ },
+ "solarian": {
+  "levels": {
+   "1": [
+    {
+     "fixed": "skill_adept"
+    },
+    {
+     "skillPick": "skillAdept",
+     "label": "Skill adept class skills",
+     "count": 2,
+     "classSkill": true
+    },
+    {
+     "fixed": "solar_manifestation_(su)"
+    },
+    {
+     "fixed": "stellar_mode_(su)"
+    },
+    {
+     "fixed": "stellar_revelation"
+    },
+    {
+     "fixed": "black_hole_(su)"
+    },
+    {
+     "fixed": "supernova_(su)"
+    }
+   ],
+   "2": [
+    {
+     "choice": "revelation",
+     "label": "Stellar revelation",
+     "pool": {
+      "category": "revelation",
+      "exclude": [
+       "black_hole_(su)",
+       "supernova_(su)",
+       "destructive_discharge_(su)",
+       "energy_sink_(su)"
+      ]
+     },
+     "count": 1,
+     "minLevelFrom": "requirements"
+    }
+   ],
+   "3": [
+    {
+     "fixed": "sidereal_influence_(su)"
+    },
+    {
+     "fixed": "weapon_specialization_(ex)_(solarian)"
+    },
+    {
+     "skillPick": "siderealInfluence",
+     "label": "Sidereal influence skills",
+     "count": 2,
+     "from": [
+      "blu",
+      "dis",
+      "mys",
+      "sen",
+      "ste",
+      "cul",
+      "dip",
+      "int",
+      "med",
+      "sur"
+     ]
+    }
+   ],
+   "4": [
+    {
+     "choice": "revelation",
+     "label": "Stellar revelation",
+     "pool": {
+      "category": "revelation",
+      "exclude": [
+       "black_hole_(su)",
+       "supernova_(su)",
+       "destructive_discharge_(su)",
+       "energy_sink_(su)"
+      ]
+     },
+     "count": 1,
+     "minLevelFrom": "requirements"
+    }
+   ],
+   "5": [],
+   "6": [
+    {
+     "choice": "revelation",
+     "label": "Stellar revelation",
+     "pool": {
+      "category": "revelation",
+      "exclude": [
+       "black_hole_(su)",
+       "supernova_(su)",
+       "destructive_discharge_(su)",
+       "energy_sink_(su)"
+      ]
+     },
+     "count": 1,
+     "minLevelFrom": "requirements"
+    }
+   ],
+   "7": [
+    {
+     "fixed": "flashing_strikes_(ex)_(solarian)"
+    }
+   ],
+   "8": [
+    {
+     "choice": "revelation",
+     "label": "Stellar revelation",
+     "pool": {
+      "category": "revelation",
+      "exclude": [
+       "black_hole_(su)",
+       "supernova_(su)",
+       "destructive_discharge_(su)",
+       "energy_sink_(su)"
+      ]
+     },
+     "count": 1,
+     "minLevelFrom": "requirements"
+    }
+   ],
+   "9": [
+    {
+     "fixed": "zenith_revelation"
+    },
+    {
+     "choice": "zenithRevelation",
+     "label": "Zenith revelations (one graviton, one photon)",
+     "pool": {
+      "category": "zenithRevelation"
+     },
+     "count": 2,
+     "distinct": "stellarType",
+     "minLevelFrom": "requirements"
+    }
+   ],
+   "10": [
+    {
+     "choice": "revelation",
+     "label": "Stellar revelation",
+     "pool": {
+      "category": "revelation",
+      "exclude": [
+       "black_hole_(su)",
+       "supernova_(su)",
+       "destructive_discharge_(su)",
+       "energy_sink_(su)"
+      ]
+     },
+     "count": 1,
+     "minLevelFrom": "requirements"
+    }
+   ],
+   "11": [
+    {
+     "skillPick": "siderealInfluence",
+     "label": "Sidereal influence skills",
+     "count": 2,
+     "from": [
+      "blu",
+      "dis",
+      "mys",
+      "sen",
+      "ste",
+      "cul",
+      "dip",
+      "int",
+      "med",
+      "sur"
+     ]
+    }
+   ],
+   "12": [
+    {
+     "choice": "revelation",
+     "label": "Stellar revelation",
+     "pool": {
+      "category": "revelation",
+      "exclude": [
+       "black_hole_(su)",
+       "supernova_(su)",
+       "destructive_discharge_(su)",
+       "energy_sink_(su)"
+      ]
+     },
+     "count": 1,
+     "minLevelFrom": "requirements"
+    }
+   ],
+   "13": [
+    {
+     "fixed": "solarian's_onslaught_(ex)"
+    }
+   ],
+   "14": [
+    {
+     "choice": "revelation",
+     "label": "Stellar revelation",
+     "pool": {
+      "category": "revelation",
+      "exclude": [
+       "black_hole_(su)",
+       "supernova_(su)",
+       "destructive_discharge_(su)",
+       "energy_sink_(su)"
+      ]
+     },
+     "count": 1,
+     "minLevelFrom": "requirements"
+    }
+   ],
+   "15": [],
+   "16": [
+    {
+     "choice": "revelation",
+     "label": "Stellar revelation",
+     "pool": {
+      "category": "revelation",
+      "exclude": [
+       "black_hole_(su)",
+       "supernova_(su)",
+       "destructive_discharge_(su)",
+       "energy_sink_(su)"
+      ]
+     },
+     "count": 1,
+     "minLevelFrom": "requirements"
+    }
+   ],
+   "17": [
+    {
+     "choice": "zenithRevelation",
+     "label": "Zenith revelations (one graviton, one photon)",
+     "pool": {
+      "category": "zenithRevelation"
+     },
+     "count": 2,
+     "distinct": "stellarType",
+     "minLevelFrom": "requirements"
+    }
+   ],
+   "18": [
+    {
+     "choice": "revelation",
+     "label": "Stellar revelation",
+     "pool": {
+      "category": "revelation",
+      "exclude": [
+       "black_hole_(su)",
+       "supernova_(su)",
+       "destructive_discharge_(su)",
+       "energy_sink_(su)"
+      ]
+     },
+     "count": 1,
+     "minLevelFrom": "requirements"
+    }
+   ],
+   "19": [
+    {
+     "skillPick": "siderealInfluence",
+     "label": "Sidereal influence skills",
+     "count": 2,
+     "from": [
+      "blu",
+      "dis",
+      "mys",
+      "sen",
+      "ste",
+      "cul",
+      "dip",
+      "int",
+      "med",
+      "sur"
+     ]
+    }
+   ],
+   "20": [
+    {
+     "choice": "revelation",
+     "label": "Stellar revelation",
+     "pool": {
+      "category": "revelation",
+      "exclude": [
+       "black_hole_(su)",
+       "supernova_(su)",
+       "destructive_discharge_(su)",
+       "energy_sink_(su)"
+      ]
+     },
+     "count": 1,
+     "minLevelFrom": "requirements"
+    },
+    {
+     "fixed": "stellar_paragon_(su)"
+    }
+   ]
+  },
+  "enhanced": {
+   "levels": {
+    "2": [
+     {
+      "fixed": "attunement_surge_(su)"
+     }
+    ],
+    "3": [
+     {
+      "fixed": "combat_meditation_(su)"
+     }
+    ],
+    "8": [
+     {
+      "fixed": "aftershock_(su)"
+     }
+    ]
+   }
+  }
+ },
+ "mechanic": {
+  "levels": {
+   "1": [
+    {
+     "fixed": "artificial_intelligence_(ex)"
+    },
+    {
+     "choice": "ai",
+     "label": "Artificial intelligence",
+     "pool": [
+      "exocortex"
+     ],
+     "count": 1
+    },
+    {
+     "fixed": "bypass_(ex)"
+    },
+    {
+     "fixed": "custom_rig_(ex)"
+    },
+    {
+     "fixed": "combat_tracking_(ex)"
+    },
+    {
+     "fixed": "memory_module_(ex)"
+    },
+    {
+     "skillPick": "memoryModule",
+     "label": "Memory module Skill Focus",
+     "count": 1,
+     "skillFocus": true
+    }
+   ],
+   "2": [
+    {
+     "fixed": "mechanic_trick"
+    },
+    {
+     "choice": "trick",
+     "label": "Mechanic trick",
+     "pool": {
+      "category": "mechanicTrick",
+      "excludeNeeds": [
+       "drone"
+      ],
+      "exclude": [
+       "drone_meld_(ex)",
+       "melded_mod_(ex)",
+       "experimental_cortex_design_(ex)"
+      ]
+     },
+     "count": 1,
+     "minLevelFrom": "requirements"
+    }
+   ],
+   "3": [
+    {
+     "fixed": "overload_(ex)"
+    },
+    {
+     "fixed": "weapon_specialization_(ex)_(mechanic)"
+    }
+   ],
+   "4": [
+    {
+     "choice": "trick",
+     "label": "Mechanic trick",
+     "pool": {
+      "category": "mechanicTrick",
+      "excludeNeeds": [
+       "drone"
+      ],
+      "exclude": [
+       "drone_meld_(ex)",
+       "melded_mod_(ex)",
+       "experimental_cortex_design_(ex)"
+      ]
+     },
+     "count": 1,
+     "minLevelFrom": "requirements"
+    }
+   ],
+   "5": [
+    {
+     "fixed": "remote_hack_(ex)"
+    },
+    {
+     "fixed": "wireless_hack_(ex)"
+    }
+   ],
+   "6": [
+    {
+     "choice": "trick",
+     "label": "Mechanic trick",
+     "pool": {
+      "category": "mechanicTrick",
+      "excludeNeeds": [
+       "drone"
+      ],
+      "exclude": [
+       "drone_meld_(ex)",
+       "melded_mod_(ex)",
+       "experimental_cortex_design_(ex)"
+      ]
+     },
+     "count": 1,
+     "minLevelFrom": "requirements"
+    }
+   ],
+   "7": [
+    {
+     "fixed": "expert_rig_(ex)"
+    },
+    {
+     "fixed": "miracle_worker_(ex)"
+    },
+    {
+     "fixed": "exocortex_mods_(ex)"
+    },
+    {
+     "choice": "exocortexMod",
+     "label": "Exocortex mod",
+     "pool": {
+      "category": "exocortexMod"
+     },
+     "count": 1,
+     "minLevelFrom": "requirements"
+    }
+   ],
+   "8": [
+    {
+     "choice": "trick",
+     "label": "Mechanic trick",
+     "pool": {
+      "category": "mechanicTrick",
+      "excludeNeeds": [
+       "drone"
+      ],
+      "exclude": [
+       "drone_meld_(ex)",
+       "melded_mod_(ex)",
+       "experimental_cortex_design_(ex)"
+      ]
+     },
+     "count": 1,
+     "minLevelFrom": "requirements"
+    }
+   ],
+   "9": [
+    {
+     "fixed": "override_(ex)"
+    }
+   ],
+   "10": [
+    {
+     "choice": "trick",
+     "label": "Mechanic trick",
+     "pool": {
+      "category": "mechanicTrick",
+      "excludeNeeds": [
+       "drone"
+      ],
+      "exclude": [
+       "drone_meld_(ex)",
+       "melded_mod_(ex)",
+       "experimental_cortex_design_(ex)"
+      ]
+     },
+     "count": 1,
+     "minLevelFrom": "requirements"
+    },
+    {
+     "fixed": "twin_tracking_(ex)"
+    }
+   ],
+   "11": [
+    {
+     "choice": "exocortexMod",
+     "label": "Exocortex mod",
+     "pool": {
+      "category": "exocortexMod"
+     },
+     "count": 1,
+     "minLevelFrom": "requirements"
+    },
+    {
+     "fixed": "coordinated_assault_(ex)"
+    }
+   ],
+   "12": [
+    {
+     "choice": "trick",
+     "label": "Mechanic trick",
+     "pool": {
+      "category": "mechanicTrick",
+      "excludeNeeds": [
+       "drone"
+      ],
+      "exclude": [
+       "drone_meld_(ex)",
+       "melded_mod_(ex)",
+       "experimental_cortex_design_(ex)"
+      ]
+     },
+     "count": 1,
+     "minLevelFrom": "requirements"
+    }
+   ],
+   "13": [
+    {
+     "fixed": "advanced_rig_(ex)"
+    }
+   ],
+   "14": [
+    {
+     "choice": "trick",
+     "label": "Mechanic trick",
+     "pool": {
+      "category": "mechanicTrick",
+      "excludeNeeds": [
+       "drone"
+      ],
+      "exclude": [
+       "drone_meld_(ex)",
+       "melded_mod_(ex)",
+       "experimental_cortex_design_(ex)"
+      ]
+     },
+     "count": 1,
+     "minLevelFrom": "requirements"
+    },
+    {
+     "choice": "exocortexMod",
+     "label": "Exocortex mod",
+     "pool": {
+      "category": "exocortexMod"
+     },
+     "count": 1,
+     "minLevelFrom": "requirements"
+    }
+   ],
+   "15": [
+    {
+     "fixed": "multitasking_(ex)"
+    }
+   ],
+   "16": [
+    {
+     "choice": "trick",
+     "label": "Mechanic trick",
+     "pool": {
+      "category": "mechanicTrick",
+      "excludeNeeds": [
+       "drone"
+      ],
+      "exclude": [
+       "drone_meld_(ex)",
+       "melded_mod_(ex)",
+       "experimental_cortex_design_(ex)"
+      ]
+     },
+     "count": 1,
+     "minLevelFrom": "requirements"
+    }
+   ],
+   "17": [
+    {
+     "choice": "exocortexMod",
+     "label": "Exocortex mod",
+     "pool": {
+      "category": "exocortexMod"
+     },
+     "count": 1,
+     "minLevelFrom": "requirements"
+    },
+    {
+     "fixed": "control_net_(ex)"
+    }
+   ],
+   "18": [
+    {
+     "choice": "trick",
+     "label": "Mechanic trick",
+     "pool": {
+      "category": "mechanicTrick",
+      "excludeNeeds": [
+       "drone"
+      ],
+      "exclude": [
+       "drone_meld_(ex)",
+       "melded_mod_(ex)",
+       "experimental_cortex_design_(ex)"
+      ]
+     },
+     "count": 1,
+     "minLevelFrom": "requirements"
+    }
+   ],
+   "19": [
+    {
+     "fixed": "ghost_in_the_machine_(ex)"
+    },
+    {
+     "fixed": "superior_rig_(ex)"
+    }
+   ],
+   "20": [
+    {
+     "choice": "trick",
+     "label": "Mechanic trick",
+     "pool": {
+      "category": "mechanicTrick",
+      "excludeNeeds": [
+       "drone"
+      ],
+      "exclude": [
+       "drone_meld_(ex)",
+       "melded_mod_(ex)",
+       "experimental_cortex_design_(ex)"
+      ]
+     },
+     "count": 1,
+     "minLevelFrom": "requirements"
+    },
+    {
+     "fixed": "tech_master_(ex)"
+    },
+    {
+     "fixed": "quad_tracking_(ex)"
+    }
+   ]
+  }
+ }
+}
