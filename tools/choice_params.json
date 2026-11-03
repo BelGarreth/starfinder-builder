@@ -39,7 +39,8 @@
    "kind": "energy",
    "count": 1,
    "perInstance": true,
-   "distinct": true
+   "distinct": true,
+   "bonusType": "resistance"
   }
  },
  "greater_resistance_(ex_exocortex)": {
@@ -56,14 +57,16 @@
   "_why": "Choose acid, cold, electricity, fire or sonic.",
   "param": {
    "kind": "energy",
-   "count": 1
+   "count": 1,
+   "bonusType": "resistance"
   }
  },
  "improved_resistant_energy_(ex)": {
   "_why": "Resistance 15 against the original type and one additional chosen type.",
   "param": {
    "kind": "energy",
-   "count": 2
+   "count": 2,
+   "bonusType": "resistance"
   }
  },
  "weapon_focus_(combat)": {
@@ -110,5 +113,20 @@
  },
  "stellar_sage": {
   "_why": "Replacement values are accounted for by the existing Solarian modifiers; no player choice."
+ },
+ "shaper": {
+  "_why": "Connection text: Channel Skill applies to two from among Computers, Engineering, Life Science, Mysticism, Physical Science or Profession (crafting), picked by the player.",
+  "param": {
+   "kind": "skill",
+   "count": 2,
+   "from": [
+    "com",
+    "eng",
+    "lsc",
+    "mys",
+    "phs",
+    "pro"
+   ]
+  }
  }
 }

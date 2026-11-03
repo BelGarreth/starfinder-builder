@@ -152,7 +152,48 @@ test('resistant energy and its improvement follow the picks', () => {
   c.levels[3].choices.trick = 'improved_resistant_energy_(ex)';
   c.levels[3].choices['improved_resistant_energy_(ex)'] = ['sonic', 'cold'];
   assert.strictEqual(total(c, 'resist.cold'), 15);
+  assert.strictEqual(total(c, 'resist.sonic'), 15);
   assert.strictEqual(total(c, 'resist.fire'), 0);
+});
+
+test('exocortex resistance plus greater resistance adds 5 to the base', () => {
+  const c = build('vesk', 'mechanic', 11);
+  c.levels[0].choices.ai = 'exocortex';
+  c.levels[6].choices.exocortexMod = 'resistance_(ex_exocortex)';
+  c.levels[6].choices['resistance_(ex_exocortex)'] = 'fire';
+  c.levels[10].choices.exocortexMod = 'greater_resistance_(ex_exocortex)';
+  c.levels[10].choices['greater_resistance_(ex_exocortex)'] = 'fire';
+  assert.strictEqual(total(c, 'resist.fire'), 10 + 5);
+  assert.strictEqual(blockersOf(c, 'invalid-choice').length, 0);
+});
+
+test('resistance from different sources takes the highest, not the sum', () => {
+  const c = build('vesk', 'mechanic', 7);
+  c.levels[0].choices.ai = 'exocortex';
+  c.levels[1].choices.trick = 'resistant_energy_(ex)';
+  c.levels[1].choices['resistant_energy_(ex)'] = 'fire';
+  c.levels[6].choices.exocortexMod = 'resistance_(ex_exocortex)';
+  c.levels[6].choices['resistance_(ex_exocortex)'] = 'fire';
+  assert.strictEqual(total(c, 'resist.fire'), 7);
+  c.levels[6].choices['resistance_(ex_exocortex)'] = 'cold';
+  assert.strictEqual(total(c, 'resist.fire'), 5);
+  assert.strictEqual(total(c, 'resist.cold'), 7);
+});
+
+test('shaper channel skill is two picks from its list', () => {
+  const noChannel = build('vesk', 'mystic', 1);
+  noChannel.levels[0].choices.connection = 'shaper';
+  const c = build('vesk', 'mystic', 2);
+  c.levels[0].choices.connection = 'shaper';
+  assert.strictEqual(blockersOf(c, 'unspent', 'shaper').length, 1);
+  assert.strictEqual(total(c, 'skill.com'), total(noChannel, 'skill.com'));
+  c.levels[0].choices.shaper = ['com', 'eng'];
+  assert.strictEqual(blockersOf(c, 'unspent', 'shaper').length, 0);
+  assert.strictEqual(total(c, 'skill.com') - total(noChannel, 'skill.com'), 1);
+  assert.strictEqual(total(c, 'skill.eng') - total(noChannel, 'skill.eng'), 1);
+  assert.strictEqual(total(c, 'skill.acr') - total(noChannel, 'skill.acr'), 0);
+  c.levels[0].choices.shaper = ['com', 'per'];
+  assert.strictEqual(blockersOf(c, 'invalid-choice', 'shaper').length, 1);
 });
 
 test('greater resistance must name an energy type that already has resistance', () => {

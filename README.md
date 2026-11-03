@@ -48,8 +48,14 @@ has no `_why`, or if a `param` is malformed; a record without `param` is an expl
 are more picks than modifiers), and a record with no pick contributes nothing. `perInstance` records (repeatable feats and exocortex
 mods) are counted once per instance, `distinct` forbids repeating a value across instances, and `within` limits the pick to values already
 picked for another record (Greater Resistance needs an energy type that already has Resistance). `derive: "connectionSkills"` (Channel Skill)
-uses the mystic connection's `associatedSkills`; Shaper and Zeitgeist have none because their skills are picked per character or per day,
-so Channel Skill adds nothing for them.
+uses the mystic connection's `associatedSkills`; Shaper has none, so it carries its own param (two skills from a list) and Channel Skill reads
+that pick. Zeitgeist's skills change daily, so Channel Skill adds nothing for it and the class tab says so.
+
+`bonusType` on a param sets the type of the rewritten modifiers. Resistance (exocortex), Resistant Energy and Improved Resistant Energy use
+`"resistance"`, so `stack` keeps the highest per energy type: resistances from different sources don't sum, and Improved Resistant Energy
+(15) replaces Resistant Energy (5) instead of adding to it. Greater Resistance has no `bonusType`, stays untyped and adds 5 on top of its
+Resistance base. If a character also has Improved Resistant Energy on that same type the +5 still adds, which the rules don't forbid
+but is an edge case.
 
 Picks live at `levels[i].choices[slug]`, a flat list (a bare string when there is only one), where `i` is the level that grants the feat or
 feature (level 1 for racial traits). Instance `k` owns entries `k*count` to `k*count + count - 1`, and `k` is the order of that slug

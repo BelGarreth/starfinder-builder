@@ -115,6 +115,14 @@ test('skill focus shows a skill picker that disables a skill already chosen and 
   assert.strictEqual(c.levels[2].choices.skill_focus, undefined);
 });
 
+test('replacing the first of two skill focus feats keeps the second pick', () => {
+  const c = vesk();
+  c.levels[0].feats = ['skill_focus', 'skill_focus'];
+  c.levels[0].choices.skill_focus = ['per', 'sen'];
+  U.actions.takeFeat(c, ui(), data, '0', 'toughness', '0');
+  assert.strictEqual(c.levels[0].choices.skill_focus, 'sen');
+});
+
 test('lashunta student shows two skill pickers on the character tab', () => {
   const c = vesk();
   U.actions.race(c, ui(), data, 'lashunta');

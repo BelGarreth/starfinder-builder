@@ -187,7 +187,7 @@
     const matching = mods.filter((m) => m.effectType === effectType);
     if (!matching.length) return mods;
     const values = params.valuesFor(entry, char, data);
-    const chosen = values.map((v, j) => Object.assign({}, matching[j] || matching[0], { valueAffected: v }));
+    const chosen = values.map((v, j) => Object.assign({}, matching[j] || matching[0], { valueAffected: v }, param.bonusType ? { type: param.bonusType } : {}));
     return mods.filter((m) => m.effectType !== effectType).concat(chosen);
   }
 

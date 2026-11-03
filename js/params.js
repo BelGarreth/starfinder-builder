@@ -50,7 +50,9 @@
     if (param.derive === 'connectionSkills') {
       const conn = rules.pickedFor(rules.levelPlan(char, data), entry.cls, 'connection')[0];
       const rec = has(table(data, 'features'), conn) ? data.features[conn] : null;
-      return asList(rec && rec.associatedSkills);
+      if (rec && asList(rec.associatedSkills).length) return rec.associatedSkills;
+      const picked = rec && rec.param ? entriesOf(char, data).find((e) => e.key === conn) : null;
+      return picked ? valuesFor(picked, char, data) : [];
     }
     const allowed = optionKeys(param);
     return picksOf(char, entry).filter((v) => filled(v) && allowed.indexOf(v) !== -1);

@@ -72,6 +72,16 @@
     return here ? here.entries.find((e) => e.choice === id || e.skillPick === id) : null;
   }
 
+  function dropInstancePicks(C, data, lvl, slug, k) {
+    const rec = SF().paramOf(data, slug);
+    const width = rec ? rec.count : SF().FEAT_CHOICE[slug] ? 1 : 0;
+    if (!width || !lvl.choices || lvl.choices[slug] === undefined) return;
+    const list = asList(lvl.choices[slug]).slice();
+    list.splice(k * width, width);
+    if (!list.some(Boolean)) delete lvl.choices[slug];
+    else lvl.choices[slug] = list.length > 1 ? list : list[0];
+  }
+
   U.actions = {
     tab: (C, UI, data, a) => { UI.tab = a; },
     goto: (C, UI, data, a, b) => { UI.tab = a; if (b !== undefined && b !== null && b !== '') UI.lvl = Number(b); },
@@ -136,6 +146,8 @@
       const j = Number(slot);
       const feats = asList(C.levels[i].feats).slice();
       if (j > feats.length || !SF().allowed('feat', slug, i, C, data, j).ok) return;
+      const old = feats[j];
+      if (old && old !== slug) dropInstancePicks(C, data, C.levels[i], old, feats.slice(0, j).filter((f) => f === old).length);
       feats[j] = slug;
       C.levels[i].feats = feats;
       UI.featSlot = null;

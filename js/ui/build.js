@@ -210,7 +210,7 @@
     classFeatureEntries.forEach((e) => parts.push('<h3>' + esc(e.rec.name) + ' <span class="mute">(' + esc(e.rec.param.kind === 'skill' ? 'skills' : 'energy types') + ')</span></h3>' + U.paramPicker(C, data, i, e)));
     rules.classFeatures(C, data).filter((f) => f.levelIndex === i && features[f.slug].param && features[f.slug].param.derive).forEach((f) => {
       const skills = rules.valuesFor({ rec: features[f.slug], cls: f.cls }, C, data).map((k) => rules.SKILLS[k].name);
-      parts.push('<p class="note">' + esc(features[f.slug].name) + ': ' + (skills.length ? 'applies to ' + esc(skills.join(' and ')) + ' from your connection.' : 'no skills are fixed by your connection, so it adds nothing to the sheet.') + '</p>');
+      parts.push('<p class="note">' + esc(features[f.slug].name) + ': ' + (skills.length ? 'applies to ' + esc(skills.join(' and ')) + ' from your connection.' : 'your connection fixes no skills (Zeitgeist changes daily, Shaper picks its two above), so it adds nothing to the sheet yet.') + '</p>');
     });
     const head = '<h2>Level ' + (i + 1) + ': ' + esc(className(data, here.cls)) + ' ' + here.classLevel + '</h2>';
     return U.levelTabs(C, UI, data, ctx, 'class') + '<div class="card">' + head

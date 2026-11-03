@@ -741,6 +741,8 @@ def check_param(slug, param, records):
             raise ValueError(f'choice param {slug}: unknown derive {param["derive"]}')
     elif not isinstance(param.get('count'), int) or param['count'] < 1:
         raise ValueError(f'choice param {slug}: count must be a positive integer')
+    if 'bonusType' in param and not isinstance(param['bonusType'], str):
+        raise ValueError(f'choice param {slug}: bonusType must be a string')
     for key in param.get('from', []):
         if key not in PARAM_KINDS[kind]:
             raise ValueError(f'choice param {slug}: {key} is not a {kind}')
