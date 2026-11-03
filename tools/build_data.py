@@ -171,7 +171,29 @@ def build_features(racial, theme):
     return features
 
 
-def build_races(items, racial):
+def load_core_traits(path, all_features):
+    core = json.loads(Path(path).read_text(encoding='utf-8'))
+    for base in RACES:
+        if base not in core:
+            raise ValueError(f'race_traits.json is missing base race {base}')
+        slugs = list(core[base]['core']) + [s for group in core[base].get('byVariant', {}).values() for s in group]
+        for slug in slugs:
+            if slug not in all_features:
+                raise ValueError(f'race_traits.json: {base} names unknown feature {slug}')
+    return core
+
+
+def core_traits_for(core, base, variant):
+    entry = core[base]
+    tokens = {t.casefold() for t in re.split(r'[\s,]+', variant or '') if t}
+    out = list(entry['core'])
+    for key, group in entry.get('byVariant', {}).items():
+        if key in tokens:
+            out += [s for s in group if s not in out]
+    return out
+
+
+def build_races(items, racial, core):
     id_to_slug = {i['_id']: s for s, i in racial.items() if i['type'] == 'feat'}
     by_name = {s: (s, i['system'].get('requirements', '')) for s, i in racial.items() if i['type'] == 'feat'}
     races = {}
@@ -180,10 +202,12 @@ def build_races(items, racial):
         if base.casefold() not in RACES:
             continue
         s = item['system']
+        core_traits = core_traits_for(core, slug_base(slug), variant)
+        linked = traits_for_race(base, variant, description(item), id_to_slug, by_name)
         races[slug] = {
             'name': item['name'], 'base': slug_base(slug), 'variant': variant, 'size': s.get('size', 'medium'),
             'hp': s.get('hp', {}).get('value'), 'abilityMods': s.get('abilityMods', {}).get('parts', []),
-            'traits': traits_for_race(base, variant, description(item), id_to_slug, by_name),
+            'coreTraits': core_traits, 'altTraits': [t for t in linked if t not in core_traits],
             'aon': aon('Races', base), 'src': s.get('source', ''), 'summary': summarize(description(item)),
             'modifiers': modifiers(s),
         }
@@ -333,14 +357,14 @@ def build_items(items):
     return out
 
 
-def build(src, sha=None, built=None):
+def build(src, sha=None, built=None, core_path=ROOT / 'tools' / 'race_traits.json'):
     src = Path(src)
     racial = load_dir(src / 'racial-features')
     theme = load_dir(src / 'theme-features')
     features = build_features(racial, theme)
-    races = build_races(load_dir(src / 'races'), racial)
+    races = build_races(load_dir(src / 'races'), racial, load_core_traits(core_path, features))
     themes = build_themes(load_dir(src / 'themes'), theme, features)
-    used = {t for r in races.values() for t in r['traits']} | {f for t in themes.values() for f in t['features']}
+    used = {t for r in races.values() for t in r['coreTraits'] + r['altTraits']} | {f for t in themes.values() for f in t['features']}
     return {
         'meta': {'foundrySha': sha, 'built': built},
         'races': races,

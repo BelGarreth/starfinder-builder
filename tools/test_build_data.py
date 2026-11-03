@@ -40,11 +40,41 @@ class BuildDataTest(unittest.TestCase):
 
     def test_race_traits_resolve_to_features(self):
         for slug, race in self.d['races'].items():
-            for trait in race['traits']:
+            self.assertNotIn('traits', race)
+            for trait in race['coreTraits'] + race['altTraits']:
                 self.assertIn(trait, self.d['features'], slug)
-        self.assertIn('fearless', self.d['races']['vesk']['traits'])
-        self.assertTrue(self.d['races']['lashunta_(damaya)']['traits'])
-        self.assertTrue(self.d['races']['gnome_(driftborn)']['traits'])
+            self.assertFalse(set(race['coreTraits']) & set(race['altTraits']), slug)
+            self.assertTrue(race['coreTraits'], slug)
+
+    def test_core_traits(self):
+        races = self.d['races']
+        vesk = races['vesk']['coreTraits']
+        for slug in ('armor_savant_(vesk)', 'fearless', 'low-light_vision'):
+            self.assertIn(slug, vesk)
+        for slug in ('vesk_venom', 'cave_senses', 'frilled'):
+            self.assertNotIn(slug, vesk)
+            self.assertIn(slug, races['vesk']['altTraits'])
+        self.assertEqual(races['vesk_(cave)']['coreTraits'], vesk)
+        self.assertEqual(races['human']['coreTraits'], ['bonus_feat', 'skilled'])
+        self.assertIn('adopted', races['human']['altTraits'])
+        self.assertIn('driftborn', races['gnome_(driftborn)']['coreTraits'])
+        self.assertNotIn('dimorphic_(gnome)', races['gnome_(driftborn)']['coreTraits'])
+        self.assertNotIn('driftborn', races['gnome_(feychild)']['coreTraits'])
+        self.assertIn('dimorphic_(gnome)', races['gnome_(feychild)']['coreTraits'])
+        self.assertIn('dimorphic_(gnome)', races['gnome_(bleachling_gnebling)']['coreTraits'])
+        self.assertIn('student', races['lashunta_(damaya)']['coreTraits'])
+
+    def test_core_trait_map_is_validated(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            good = json.loads((ROOT / 'tools' / 'race_traits.json').read_text())
+            missing_base = {k: v for k, v in good.items() if k != 'vesk'}
+            bad_slug = json.loads(json.dumps(good))
+            bad_slug['vesk']['core'].append('no_such_feature')
+            for name, payload in (('missing.json', missing_base), ('bad.json', bad_slug)):
+                path = Path(tmp) / name
+                path.write_text(json.dumps(payload))
+                with self.assertRaises(ValueError):
+                    build_data.build(self.src, core_path=path)
 
     def test_race_traits_fall_back_to_requirements(self):
         traits = build_data.traits_for_race(
