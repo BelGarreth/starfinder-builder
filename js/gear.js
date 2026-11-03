@@ -436,7 +436,7 @@
     function addLine(name, line, parts, rec) {
       const ability = line.melee
         ? (line.operative ? Math.max(s.abilities.str.mod, s.abilities.dex.mod) : s.abilities.str.mod)
-        : s.abilities.dex.mod;
+        : line.thrown ? s.abilities.str.mod : s.abilities.dex.mod;
       const mods = build(line);
       const key = WEAPON_PROFICIENCY[line.type];
       const trained = line.alwaysProficient || (key !== undefined && !!prof.weapon[key])
@@ -470,7 +470,7 @@
       const sources = [g.item].concat(asList(g.slots).map((x) => x && x.item), asList(g.fusions).map(fusionSlug));
       const operative = properties.indexOf('operative') !== -1;
       const thrown = properties.indexOf('thrown') !== -1;
-      const base = { type: w.type, properties, propertyMap, sources, operative, types: asList(w.damage).reduce((a, p) => a.concat(asList(p.types)), []) };
+      const base = { type: w.type, properties, propertyMap, sources, operative, thrown, types: asList(w.damage).reduce((a, p) => a.concat(asList(p.types)), []) };
       const melee = MELEE_TYPES.indexOf(w.type) !== -1 || (w.type === 'special' && !w.range);
       addLine(rec.name, Object.assign({}, base, { melee }), w.damage, rec);
       if (melee && thrown) addLine(rec.name + ' (thrown)', Object.assign({}, base, { melee: false, operative: false }), w.damage, rec);

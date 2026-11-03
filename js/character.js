@@ -245,6 +245,10 @@
       (report || toast)(e instanceof ImportError ? e.message : 'Could not read that file.');
       return false;
     }
+    return applyChar(c, report);
+  }
+
+  function applyChar(c, report) {
     const u = UI();
     const prev = root.C ? clone(root.C) : null;
     try {
@@ -618,7 +622,7 @@
     tabBBCode,
     actions,
     toBBCode, featDetail, paramDetail,
-    VERSION, KEY, ImportError, defaultChar, migrate, exportJSON, importJSON, saveLocal, loadLocal, exportName, applyImport, probeStorage, recoveredBackup: () => recovered
+    VERSION, KEY, ImportError, defaultChar, migrate, exportJSON, importJSON, saveLocal, loadLocal, exportName, applyImport, applyChar, download, toast, probeStorage, recoveredBackup: () => recovered
   };
   probeStorage();
   root.SFCHAR = hook;

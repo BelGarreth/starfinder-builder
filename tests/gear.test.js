@@ -30,8 +30,21 @@ test('baton line counts Str once', () => {
   assert.strictEqual(l.attack, 5);
   assert.strictEqual(l.damage, '1d4+4');
   const thrown = line(c, 'Baton, tactical (thrown)');
-  assert.strictEqual(thrown.attack, 3);
+  assert.strictEqual(thrown.attack, 5);
   assert.strictEqual(thrown.damage, '1d4+4');
+});
+
+test('thrown attacks use Str to hit and ranged non-thrown attacks use Dex', () => {
+  const c = withGear([{ id: 'b', item: 'baton_tactical', qty: 1 }, { id: 's', item: 'frag_grenade_i', qty: 1 }, { id: 'p', item: 'laser_pistol_azimuth', qty: 1 }]);
+  const s = rules.derive(c, data);
+  const str = s.abilities.str.mod;
+  const dex = s.abilities.dex.mod;
+  assert.notStrictEqual(str, dex);
+  assert.strictEqual(line(c, 'Baton, tactical').attack, s.bab + str);
+  assert.strictEqual(line(c, 'Baton, tactical (thrown)').attack, s.bab + str);
+  assert.strictEqual(line(c, data.items.frag_grenade_i.name).attack, s.bab + str);
+  const pistol = gear.attackLines(c, data, s).find((l) => l.name === data.items.laser_pistol_azimuth.name);
+  assert.strictEqual(pistol.attack, s.bab + dex);
 });
 
 test('wealth table covers 1 to 20', () => {

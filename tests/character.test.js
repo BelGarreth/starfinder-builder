@@ -423,6 +423,6 @@ test('the BBCode tab shows an escaped read-only textarea and a Copy button', () 
   assert.ok(html.indexOf('<textarea') !== -1 && html.indexOf(' readonly') !== -1);
   assert.ok(html.indexOf('data-act="copyBBCode"') !== -1);
   assert.ok(html.indexOf('A &lt;i&gt;&amp;&lt;/i&gt;') !== -1);
-  assert.ok(U.TABS.map((t) => t[0]).join().endsWith('io,bbcode'));
+  assert.ok(U.TABS.map((t) => t[0]).join().endsWith('io,bbcode,mythweavers'));
   assert.ok(U.renderMain(c, Object.assign(U.blankUI(), { tab: 'bbcode' }), data).indexOf('copyBBCode') !== -1);
 });
