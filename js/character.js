@@ -21,6 +21,7 @@
   const asList = (v) => (Array.isArray(v) ? v : v === undefined || v === null || v === '' ? [] : [v]);
   const isObject = (v) => !!v && typeof v === 'object' && !Array.isArray(v);
   const clone = (o) => JSON.parse(JSON.stringify(o));
+  const own = (o, k) => (!!o && Object.prototype.hasOwnProperty.call(o, k) ? o[k] : undefined);
 
   function defaultChar() {
     return {
@@ -28,6 +29,94 @@
       abilities: { pb: { str: 0, dex: 0, con: 0, int: 0, wis: 0, cha: 0 } },
       levels: [], gear: [], notes: ''
     };
+  }
+
+  const ABILITY_KEYS = ['str', 'dex', 'con', 'int', 'wis', 'cha'];
+  const PRO_ABILITIES = ['cha', 'int', 'wis'];
+  const isAbilityKey = (v) => ABILITY_KEYS.indexOf(v) !== -1;
+  const safeKey = (k) => k !== '__proto__';
+  const text = (v) => (typeof v === 'string' ? v : typeof v === 'number' && Number.isFinite(v) ? String(v) : undefined);
+  const slug = (v) => (typeof v === 'string' ? v : undefined);
+  const num = (v) => {
+    if (typeof v === 'number') return Number.isFinite(v) ? v : undefined;
+    if (typeof v !== 'string' || v.trim() === '') return undefined;
+    const n = Number(v);
+    return Number.isFinite(n) ? n : undefined;
+  };
+  const strings = (v) => (Array.isArray(v) ? v.filter((x) => typeof x === 'string') : typeof v === 'string' ? [v] : []);
+
+  function put(out, key, value) {
+    if (value !== undefined) out[key] = value;
+    return out;
+  }
+
+  function cleanMap(v, fn) {
+    const out = {};
+    if (!isObject(v)) return out;
+    Object.keys(v).filter(safeKey).forEach((k) => put(out, k, fn(v[k])));
+    return out;
+  }
+
+  function cleanChoice(v) {
+    if (typeof v === 'string') return v;
+    if (Array.isArray(v)) return v.map((x) => (typeof x === 'string' ? x : ''));
+    return undefined;
+  }
+
+  function cleanSpells(v) {
+    if (!isObject(v)) return {};
+    const out = {};
+    if (v.learn !== undefined) out.learn = strings(v.learn);
+    if (isObject(v.swap) && typeof v.swap.from === 'string') out.swap = put({ from: v.swap.from }, 'to', slug(v.swap.to));
+    return out;
+  }
+
+  function cleanLevel(l) {
+    const out = { class: slug(l.class) || '' };
+    if (l.increases !== undefined) out.increases = strings(l.increases).filter(isAbilityKey);
+    if (l.skills !== undefined) out.skills = cleanMap(l.skills, num);
+    if (l.feats !== undefined) out.feats = strings(l.feats);
+    if (l.choices !== undefined) out.choices = cleanMap(l.choices, cleanChoice);
+    if (l.spells !== undefined) out.spells = cleanSpells(l.spells);
+    return out;
+  }
+
+  function cleanAttachment(x) {
+    if (typeof x === 'string') return { item: x };
+    return isObject(x) && typeof x.item === 'string' ? { item: x.item } : null;
+  }
+
+  function cleanFusion(x) {
+    if (typeof x === 'string') return x;
+    if (!isObject(x) || typeof x.item !== 'string') return null;
+    const out = { item: x.item };
+    put(out, 'level', num(x.level));
+    if (x.seal === true) out.seal = true;
+    return out;
+  }
+
+  function cleanGear(g) {
+    const out = {};
+    put(out, 'id', text(g.id));
+    out.item = g.item;
+    if (g.qty !== undefined) put(out, 'qty', num(g.qty));
+    if (g.equipped !== undefined) out.equipped = g.equipped === true;
+    if (typeof g.carried === 'boolean') out.carried = g.carried;
+    put(out, 'system', slug(g.system));
+    if (isAbilityKey(g.ability)) out.ability = g.ability;
+    if (g.slots !== undefined) out.slots = (Array.isArray(g.slots) ? g.slots : [g.slots]).map(cleanAttachment).filter(Boolean);
+    if (g.fusions !== undefined) out.fusions = (Array.isArray(g.fusions) ? g.fusions : [g.fusions]).map(cleanFusion).filter(Boolean);
+    return out;
+  }
+
+  function cleanAbilities(a) {
+    const src = isObject(a) ? a : {};
+    const pb = isObject(src.pb) ? src.pb : {};
+    const out = { pb: {} };
+    ABILITY_KEYS.forEach((k) => { if (pb[k] !== undefined) out.pb[k] = num(pb[k]) === undefined ? 0 : num(pb[k]); });
+    if (isAbilityKey(src.raceAny)) out.raceAny = src.raceAny;
+    if (isAbilityKey(src.themeAny)) out.themeAny = src.themeAny;
+    return out;
   }
 
   function migrate(raw) {
@@ -39,10 +128,16 @@
     raw.levels.forEach((l, i) => {
       if (!isObject(l)) throw new ImportError('Level ' + (i + 1) + ' in that file is not a valid level.');
     });
-    const c = Object.assign(defaultChar(), clone(raw), { v: VERSION });
-    if (!isObject(c.abilities)) c.abilities = defaultChar().abilities;
-    if (!isObject(c.abilities.pb)) c.abilities.pb = {};
-    if (!Array.isArray(c.gear)) c.gear = [];
+    const c = defaultChar();
+    put(c, 'name', text(raw.name));
+    put(c, 'race', slug(raw.race));
+    if (raw.variant === null || typeof raw.variant === 'string') c.variant = raw.variant;
+    put(c, 'theme', slug(raw.theme));
+    if (PRO_ABILITIES.indexOf(raw.proAbility) !== -1) c.proAbility = raw.proAbility;
+    if (raw.abilities !== undefined) c.abilities = cleanAbilities(raw.abilities);
+    c.levels = raw.levels.map(cleanLevel);
+    c.gear = (Array.isArray(raw.gear) ? raw.gear : []).filter((g) => isObject(g) && typeof g.item === 'string').map(cleanGear);
+    put(c, 'notes', text(raw.notes));
     return c;
   }
 
@@ -155,8 +250,18 @@
       (report || toast)(e instanceof ImportError ? e.message : 'Could not read that file.');
       return false;
     }
+    const u = UI();
+    const prev = root.C ? clone(root.C) : null;
+    try {
+      const trial = u.normalize(clone(c), root.SFDATA);
+      u.TABS.forEach((t) => u.view(trial, Object.assign(u.blankUI(), { tab: t[0] }), root.SFDATA));
+      u.setCharacter(c);
+    } catch (e) {
+      if (prev) { try { u.setCharacter(prev); } catch (e2) { } }
+      (report || toast)('That file could not be shown, so your character was not changed.');
+      return false;
+    }
     recovered = null;
-    UI().setCharacter(c);
     return true;
   }
 
@@ -210,8 +315,8 @@
   function pageOne(C, data, s) {
     const u = UI();
     const sign = u.sign;
-    const race = u.table(data, 'races')[C.race];
-    const theme = u.table(data, 'themes')[C.theme];
+    const race = own(u.table(data, 'races'), C.race);
+    const theme = own(u.table(data, 'themes'), C.theme);
     const sub = [race && race.name, theme && theme.name, u.classSummary(C, data)].filter(Boolean).join(' · ');
     const abs = SF().ABILITIES.map((a) => '<div class="pp-ab"><b>' + esc(a.toUpperCase()) + '</b><span class="v">' + esc(s.abilities[a].score) + '</span><span class="m">' + esc(sign(s.abilities[a].mod)) + '</span></div>').join('');
     return '<section class="pp-page"><div class="pp-head"><div><h1>' + esc(C.name || 'Unnamed character') + '</h1><div class="pp-sub">' + esc(sub || 'No race, theme or class yet') + '</div></div>'
@@ -232,12 +337,12 @@
   function featDetail(C, data, levelIndex, slug, k) {
     const rules = SF();
     const choices = (C.levels[levelIndex] && C.levels[levelIndex].choices) || {};
-    const def = rules.FEAT_CHOICE[slug];
+    const def = own(rules.FEAT_CHOICE, slug);
     if (def) {
       const v = asList(choices[slug])[k];
       if (!v) return '';
-      if (def.kind === 'special') return (UI().table(data, 'items')[v] || {}).name || v;
-      return rules.TYPE_NAME[v] || v;
+      if (def.kind === 'special') return (own(UI().table(data, 'items'), v) || {}).name || v;
+      return own(rules.TYPE_NAME, v) || v;
     }
     return paramDetail(data, choices, slug, k);
   }
@@ -258,7 +363,7 @@
       asList(l.feats).forEach((slug) => {
         const k = seen[slug] || 0;
         seen[slug] = k + 1;
-        const rec = u.table(data, 'feats')[slug];
+        const rec = own(u.table(data, 'feats'), slug);
         const detail = featDetail(C, data, i, slug, k);
         feats.push(li((rec ? rec.name : slug) + (detail ? ' (' + detail + ')' : ''), rec && rec.summary, 'level ' + (i + 1)));
       });
@@ -270,7 +375,7 @@
     };
     const counts = {};
     const features = rules.classFeatures(C, data).map((f) => {
-      const rec = u.table(data, 'features')[f.slug];
+      const rec = own(u.table(data, 'features'), f.slug);
       const key = f.levelIndex + '|' + f.slug;
       const k = counts[key] || 0;
       counts[key] = k + 1;
@@ -281,7 +386,7 @@
     });
     plan.forEach((p) => p.entries.forEach((e) => {
       if (!e.skillPick) return;
-      const names = asList(p.choices[e.skillPick]).filter((v) => rules.SKILLS[v]).map((v) => rules.SKILLS[v].name);
+      const names = asList(p.choices[e.skillPick]).filter((v) => own(rules.SKILLS, v)).map((v) => rules.SKILLS[v].name);
       if (names.length) features.push(li((e.label || 'Skill choice') + ': ' + names.join(', '), '', u.className(data, p.cls) + ' (level ' + (p.levelIndex + 1) + ')'));
     }));
     if (!feats.length && !features.length) return '';
@@ -292,12 +397,12 @@
   function spellPage(C, data) {
     const u = UI();
     const spells = u.table(data, 'spells');
-    const name = (slug) => (spells[slug] ? spells[slug].name : slug);
+    const name = (slug) => (own(spells, slug) ? spells[slug].name : slug);
     const rows = [];
     u.levelsOf(C).forEach((l, i) => {
       const sp = l.spells || {};
       asList(sp.learn).forEach((slug) => {
-        const rec = spells[slug];
+        const rec = own(spells, slug);
         rows.push(li(name(slug), rec && rec.summary, (rec && Number.isFinite(rec.level) ? 'spell level ' + rec.level + ', ' : '') + 'learned at level ' + (i + 1)));
       });
       if (sp.swap && sp.swap.to) rows.push(li(name(sp.swap.to), 'Replaces ' + name(sp.swap.from), 'swapped at level ' + (i + 1)));
@@ -308,7 +413,7 @@
 
   function gearPage(C, data) {
     const items = UI().table(data, 'items');
-    const nm = (slug) => (items[slug] ? items[slug].name : slug);
+    const nm = (slug) => (own(items, slug) ? items[slug].name : slug);
     const rows = asList(C.gear).filter(Boolean).map((g) => {
       const parts = asList(g.slots).map((x) => nm(x && x.item)).concat(asList(g.fusions).map((x) => nm(typeof x === 'string' ? x : x && x.item)));
       return '<tr><td>' + esc(nm(g.item)) + (parts.length ? '<div class="pp-note">' + esc(parts.join(', ')) + '</div>' : '') + '</td><td class="num">' + esc(g.qty) + '</td><td>' + (g.equipped ? 'equipped' : '') + '</td></tr>';

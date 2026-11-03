@@ -1,7 +1,7 @@
 (function(root){
   const U = root.SFUI = root.SFUI || {};
   const SF = () => root.SF;
-  const { esc, sign, asList, levelsOf, table, btn, input, select, fld, pickRow, pickTable, matches, className } = U;
+  const { esc, sign, own, asList, levelsOf, table, btn, input, select, fld, pickRow, pickTable, matches, className } = U;
   const ABILITY_NAME = { str: 'Strength', dex: 'Dexterity', con: 'Constitution', int: 'Intelligence', wis: 'Wisdom', cha: 'Charisma' };
   const cap = (s) => String(s).charAt(0).toUpperCase() + String(s).slice(1);
 
@@ -17,7 +17,7 @@
   }
 
   function baseRaceRec(data, base, slugs) {
-    return table(data, 'races')[base] || Object.assign({}, data.races[slugs[0]], { name: cap(base) });
+    return own(table(data, 'races'), base) || Object.assign({}, data.races[slugs[0]], { name: cap(base) });
   }
 
   function baseClasses(data) {
@@ -27,25 +27,25 @@
   const enhancedOf = (data, base) => Object.keys(table(data, 'classes')).find((k) => data.classes[k].enhancedOf === base) || null;
 
   function enhancedOn(C, UI, data, base) {
-    const held = levelsOf(C).find((l) => l && (l.class === base || (table(data, 'classes')[l.class] || {}).enhancedOf === base));
+    const held = levelsOf(C).find((l) => l && (l.class === base || (own(table(data, 'classes'), l.class) || {}).enhancedOf === base));
     if (held) return held.class !== base;
     return !!(UI.enh && UI.enh[base]);
   }
 
   function raceCard(C, UI, data) {
     const { fam, order } = raceFamilies(data);
-    const current = table(data, 'races')[C.race];
+    const current = own(table(data, 'races'), C.race);
     const rows = order.map((base) => {
       const rec = baseRaceRec(data, base, fam[base]);
       const on = !!current && current.base === base;
-      const note = table(data, 'races')[base] ? '' : 'pick a variant';
+      const note = own(table(data, 'races'), base) ? '' : 'pick a variant';
       return pickRow(rec, { act: 'race', a: base, on, extra: note });
     });
     let variant = '';
     if (current) {
       const slugs = fam[current.base];
       const opts = slugs.map((k) => [k, data.races[k].variant || 'Standard']);
-      const traits = asList(current.coreTraits).map((k) => (table(data, 'features')[k] || {}).name || k);
+      const traits = asList(current.coreTraits).map((k) => (own(table(data, 'features'), k) || {}).name || k);
       const mods = asList(current.abilityMods).map(([n, a]) => sign(n) + ' ' + (a === 'any' ? 'any one' : a.toUpperCase())).join(', ');
       variant = '<div class="row c" style="margin-top:10px">' + fld('Variant', select('race', C.race, opts)) + '<span class="note">' + esc(current.name) + ': ' + esc(mods) + ', ' + esc(current.hp) + ' HP</span></div>'
         + (traits.length ? '<p class="note">Racial traits: ' + esc(traits.join(', ')) + '</p>' : '') + traitPickers(C, data);
@@ -92,9 +92,9 @@
         const ans = SF().allowed('class', k, i, C, data);
         return [k, data.classes[k].name + (ans.ok ? '' : ' (' + ans.why + ')'), !ans.ok && k !== l.class];
       });
-      if (!table(data, 'classes')[l.class]) opts.unshift([l.class, "Missing class '" + l.class + "'", true]);
+      if (!own(table(data, 'classes'), l.class)) opts.unshift([l.class, "Missing class '" + l.class + "'", true]);
       const last = i === lv.length - 1 ? btn('removeLevel', 'Remove last level', { c: 'sm x' }) : '';
-      return '<tr><td class="num">' + (i + 1) + '</td><td>' + select('levels.' + i + '.class', l.class, opts) + '</td><td class="mute">' + esc(className(data, l.class)) + ' ' + ((plan[i] || {}).classLevel || '') + '</td><td class="acts">' + last + '</td></tr>';
+      return '<tr><td class="num">' + (i + 1) + '</td><td>' + select('levels.' + i + '.class', l.class, opts) + '</td><td class="mute">' + esc(className(data, l.class)) + ' ' + esc((plan[i] || {}).classLevel || '') + '</td><td class="acts">' + last + '</td></tr>';
     });
     return '<div class="card"><h2>Levels</h2><div class="scroll"><table class="t"><thead><tr><th class="num">Level</th><th>Class</th><th>Class level</th><th></th></tr></thead><tbody>' + rows.join('') + '</tbody></table></div></div>';
   }
@@ -119,16 +119,16 @@
       const s = ctx.sheet.abilities[a];
       const adj = creation[a] - rules.POINT_BUY.base - (Number(pb[a]) || 0);
       return '<tr><td><b>' + ABILITY_NAME[a] + '</b></td><td class="num">' + rules.POINT_BUY.base + '</td><td class="num">' + (adj ? sign(adj) : '') + '</td><td>' + input(C, UI, 'abilities.pb.' + a, { t: 'n', min: 0, max: rules.pointBuyMax(C, data, a), c: 's' })
-        + '</td><td class="num">' + (now[a] - creation[a] ? sign(now[a] - creation[a]) : '') + '</td><td class="num"><b>' + s.score + '</b></td><td class="num brass">' + sign(s.mod) + '</td></tr>';
+        + '</td><td class="num">' + (now[a] - creation[a] ? sign(now[a] - creation[a]) : '') + '</td><td class="num"><b>' + esc(s.score) + '</b></td><td class="num brass">' + esc(sign(s.mod)) + '</td></tr>';
     });
-    const race = table(data, 'races')[C.race];
-    const theme = table(data, 'themes')[C.theme];
+    const race = own(table(data, 'races'), C.race);
+    const theme = own(table(data, 'themes'), C.theme);
     const anyRace = race && asList(race.abilityMods).some((m) => m[1] === 'any');
     const anyTheme = theme && (C.theme === 'themeless' || rules.ABILITIES.indexOf(theme.ability) === -1);
     const picks = (anyRace ? fld('Racial bonus ability', select('abilities.raceAny', C.abilities && C.abilities.raceAny, abilityAnyOptions())) : '')
       + (anyTheme ? fld('Theme bonus ability', select('abilities.themeAny', C.abilities && C.abilities.themeAny, abilityAnyOptions())) : '');
     const left = rules.POINT_BUY.points - spent;
-    const pointsCard = '<div class="card"><h2>Point buy</h2><p class="note">Every score starts at ' + rules.POINT_BUY.base + '. Spend ' + rules.POINT_BUY.points + ' points; no score above ' + rules.POINT_BUY.maxAtCreation + ' at creation. Points left: <b class="' + (left < 0 ? 'bad' : 'ok') + '">' + left + '</b></p>'
+    const pointsCard = '<div class="card"><h2>Point buy</h2><p class="note">Every score starts at ' + rules.POINT_BUY.base + '. Spend ' + rules.POINT_BUY.points + ' points; no score above ' + rules.POINT_BUY.maxAtCreation + ' at creation. Points left: <b class="' + (left < 0 ? 'bad' : 'ok') + '">' + esc(left) + '</b></p>'
       + (picks ? '<div class="row">' + picks + '</div>' : '')
       + '<div class="scroll"><table class="t"><thead><tr><th>Ability</th><th class="num">Base</th><th class="num">Race/theme</th><th>Points</th><th class="num">Increases</th><th class="num">Score</th><th class="num">Mod</th></tr></thead><tbody>' + rows.join('') + '</tbody></table></div></div>';
     const incLevels = rules.increaseAt.filter((n) => n <= levelsOf(C).length);
@@ -139,7 +139,7 @@
         return '<div class="row c"><b>Level ' + n + '</b>' + rules.ABILITIES.map((a) => {
           const on = chosen.indexOf(a) !== -1;
           return '<label class="note tog"><input type="checkbox" data-act="inc" data-a="' + (n - 1) + '" data-b2="' + a + '"' + (on ? ' checked' : '') + (!on && full ? ' disabled title="' + rules.INCREASE_COUNT + ' already chosen"' : '') + '> ' + a.toUpperCase() + '</label>';
-        }).join('') + '<span class="mute">' + chosen.length + ' of ' + rules.INCREASE_COUNT + '</span></div>';
+        }).join('') + '<span class="mute">' + esc(chosen.length) + ' of ' + rules.INCREASE_COUNT + '</span></div>';
       }).join('') + '</div>' : '';
     return pointsCard + incCard;
   };
@@ -159,10 +159,10 @@
       if (!on && count === 1 && picks.length) ans = rules.allowed('choice', slug, i, cleared, data, { id });
       else if (!on && picks.length >= count) ans = { ok: false, why: 'Unpick one to choose another' };
       else ans = rules.allowed('choice', slug, i, C, data, { id });
-      return pickRow(features[slug] || { name: slug }, { act: 'pick', a: i, b: slug, cc: id, on, ans });
+      return pickRow(own(features, slug) || { name: slug }, { act: 'pick', a: i, b: slug, cc: id, on, ans });
     });
-    const stale = picks.filter((k) => pool.indexOf(k) === -1).map((k) => pickRow(features[k] || { name: k }, { act: 'pick', a: i, b: k, cc: id, on: true, ans: { ok: false, why: 'Not an option here' } }));
-    return '<h3>' + esc(entry.label || id) + ' <span class="mute">(' + picks.length + ' of ' + count + ')</span></h3>' + pickTable(stale.concat(rows), 'tall');
+    const stale = picks.filter((k) => pool.indexOf(k) === -1).map((k) => pickRow(own(features, k) || { name: k }, { act: 'pick', a: i, b: k, cc: id, on: true, ans: { ok: false, why: 'Not an option here' } }));
+    return '<h3>' + esc(entry.label || id) + ' <span class="mute">(' + esc(picks.length) + ' of ' + esc(count) + ')</span></h3>' + pickTable(stale.concat(rows), 'tall');
   }
 
   function skillPicker(C, UI, data, i, entry, here) {
@@ -178,7 +178,7 @@
       return '<label class="' + (ans.ok || on ? '' : 'dis') + '"><input type="' + (count === 1 ? 'radio' : 'checkbox') + '" data-act="skillPick" data-a="' + i + '" data-b2="' + esc(k) + '" data-c="' + esc(entry.skillPick) + '"' + (on ? ' checked' : '') + (!ans.ok && !on ? ' disabled' : '') + '> ' + esc(SKILLS[k].name) + why + '</label>';
     }).join('');
     const notes = [entry.classSkill ? 'they become class skills' : '', entry.skillFocus ? 'they gain the Skill Focus bonus' : '', entry.minRanks ? 'needs ' + entry.minRanks + ' rank in the skill' : ''].filter(Boolean).join('; ');
-    return '<h3>' + esc(entry.label || entry.skillPick) + ' <span class="mute">(' + picks.length + ' of ' + (entry.count || 1) + ')</span></h3>' + (notes ? '<p class="note">' + esc(cap(notes)) + '</p>' : '') + '<div class="csgrid">' + boxes + '</div>';
+    return '<h3>' + esc(entry.label || entry.skillPick) + ' <span class="mute">(' + esc(picks.length) + ' of ' + esc(entry.count || 1) + ')</span></h3>' + (notes ? '<p class="note">' + esc(cap(notes)) + '</p>' : '') + '<div class="csgrid">' + boxes + '</div>';
   }
 
   function featureLine(rec, tag) {
@@ -212,7 +212,7 @@
       const skills = rules.valuesFor({ rec: features[f.slug], cls: f.cls }, C, data).map((k) => rules.SKILLS[k].name);
       parts.push('<p class="note">' + esc(features[f.slug].name) + ': ' + (skills.length ? 'applies to ' + esc(skills.join(' and ')) + ' from your connection.' : 'your connection fixes no skills (Zeitgeist changes daily, Shaper picks its two above), so it adds nothing to the sheet yet.') + '</p>');
     });
-    const head = '<h2>Level ' + (i + 1) + ': ' + esc(className(data, here.cls)) + ' ' + here.classLevel + '</h2>';
+    const head = '<h2>Level ' + (i + 1) + ': ' + esc(className(data, here.cls)) + ' ' + esc(here.classLevel) + '</h2>';
     return U.levelTabs(C, UI, data, ctx, 'class') + '<div class="card">' + head
       + (fixed.length ? '<h3>Features gained</h3>' + pickTable(fixed) : '<p class="note">No new fixed features at this level.</p>')
       + parts.join('') + '</div>';

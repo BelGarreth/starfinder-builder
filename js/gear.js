@@ -60,6 +60,7 @@
 
   const has = (o, k) => !!o && Object.prototype.hasOwnProperty.call(o, k);
   const table = (data, name) => (data && data[name]) || {};
+  const own = (o, k) => (has(o, k) ? o[k] : undefined);
   const asList = (v) => (Array.isArray(v) ? v : v === undefined || v === null || v === '' ? [] : [v]);
   const gearOf = (char) => (Array.isArray(char && char.gear) ? char.gear.filter((g) => g && typeof g === 'object') : []);
   const levelsOf = (char) => (char && Array.isArray(char.levels) ? char.levels : []);
@@ -311,7 +312,7 @@
     const acpPenalty = armorUntrained ? Math.min(0, s.acp) : 0;
     const resolved = bonus.resolve(char, data, { state: { encumbered: !!s.bulk && s.bulk.state !== 'ok' } });
     const baseCtx = formula.formulaCtx(char, data);
-    const raceRec = table(data, 'races')[char.race];
+    const raceRec = own(table(data, 'races'), char.race);
     const features = rules.classFeatures(char, data).map((f) => f.slug);
     const mechanicLevels = rules.classLevels(char).mechanic || 0;
 

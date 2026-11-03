@@ -37,7 +37,7 @@
   };
 
   U.normalize = function (C, data) {
-    const race = (data.races || {})[C.race];
+    const race = U.own(data.races || {}, C.race);
     C.variant = race ? race.variant || null : null;
     if (!C.abilities) C.abilities = { pb: {} };
     if (!C.abilities.pb) C.abilities.pb = {};
@@ -74,7 +74,7 @@
 
   function dropInstancePicks(C, data, lvl, slug, k) {
     const rec = SF().paramOf(data, slug);
-    const width = rec ? rec.count : SF().FEAT_CHOICE[slug] ? 1 : 0;
+    const width = rec ? rec.count : U.own(SF().FEAT_CHOICE, slug) ? 1 : 0;
     if (!width || !lvl.choices || lvl.choices[slug] === undefined) return;
     const list = asList(lvl.choices[slug]).slice();
     list.splice(k * width, width);
@@ -88,9 +88,9 @@
     lvl: (C, UI, data, a) => { UI.lvl = Number(a); UI.featSlot = null; },
     race: (C, UI, data, base) => {
       const races = data.races || {};
-      const cur = races[C.race];
+      const cur = U.own(races, C.race);
       if (cur && cur.base === base) return;
-      C.race = races[base] ? base : Object.keys(races).find((k) => races[k].base === base) || '';
+      C.race = U.own(races, base) ? base : Object.keys(races).find((k) => races[k].base === base) || '';
     },
     theme: (C, UI, data, slug) => { C.theme = slug; },
     enh: (C, UI, data, base) => {

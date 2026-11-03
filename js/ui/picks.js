@@ -1,7 +1,7 @@
 (function(root){
   const U = root.SFUI = root.SFUI || {};
   const SF = () => root.SF;
-  const { esc, sign, asList, levelsOf, table, btn, input, select, fld, pickRow, pickTable, capped, matches, className } = U;
+  const { esc, sign, own, asList, levelsOf, table, btn, input, select, fld, pickRow, pickTable, capped, matches, className } = U;
 
   const noLevels = '<div class="card"><p class="note">Add a class level on the Character tab first.</p></div>';
 
@@ -17,11 +17,11 @@
       const untrained = s.trainedOnly && s.ranks === 0;
       const pro = k === 'pro' ? ' ' + select('proAbility', C.proAbility || s.ability, rules.SKILLS.pro.variable.map((a) => [a, a.toUpperCase()]), { c: 'sm' }) : '';
       return '<tr><td>' + esc(s.name) + (s.trainedOnly ? ' <span class="mute" title="Trained only">*</span>' : '') + '</td><td class="mute">' + esc(s.ability.toUpperCase()) + pro + '</td><td>' + (s.classSkill ? '<span class="ok">class</span>' : '') + '</td><td>'
-        + input(C, UI, 'levels.' + i + '.skills.' + k, { t: 'n', min: 0, max: rules.rankMax(i, C, data, k), z: true, c: 's' }) + '</td><td class="num">' + s.ranks + '</td><td class="num"><b>' + (untrained ? '—' : sign(s.total)) + '</b></td></tr>';
+        + input(C, UI, 'levels.' + i + '.skills.' + k, { t: 'n', min: 0, max: rules.rankMax(i, C, data, k), z: true, c: 's' }) + '</td><td class="num">' + esc(s.ranks) + '</td><td class="num"><b>' + esc(untrained ? '—' : sign(s.total)) + '</b></td></tr>';
     });
     const left = budget - spent;
-    return U.levelTabs(C, UI, data, ctx, 'skills') + '<div class="card"><h2>Skill ranks at level ' + (i + 1) + '</h2><p class="note">Ranks this level: ' + spent + ' of ' + budget
-      + ' (<b class="' + (left < 0 ? 'bad' : left > 0 ? 'brass' : 'ok') + '">' + left + ' left</b>). Ranks in a skill can\'t exceed your character level. * trained only: shown as — until it has a rank.</p>'
+    return U.levelTabs(C, UI, data, ctx, 'skills') + '<div class="card"><h2>Skill ranks at level ' + (i + 1) + '</h2><p class="note">Ranks this level: ' + esc(spent) + ' of ' + esc(budget)
+      + ' (<b class="' + (left < 0 ? 'bad' : left > 0 ? 'brass' : 'ok') + '">' + esc(left) + ' left</b>). Ranks in a skill can\'t exceed your character level. * trained only: shown as — until it has a rank.</p>'
       + '<div class="scroll"><table class="t"><thead><tr><th>Skill</th><th>Ability</th><th>Class</th><th>Ranks here</th><th class="num">Total ranks</th><th class="num">Bonus</th></tr></thead><tbody>' + rows.join('') + '</tbody></table></div></div>';
   };
 
@@ -30,13 +30,13 @@
     if (slot.source === 'human') return 'Human bonus feat';
     const who = className(data, slot.source);
     if (slot.pool === 'combat') return who + ' bonus feat (combat)';
-    if (Array.isArray(slot.pool)) return who + ' bonus feat (' + slot.pool.map((k) => (table(data, 'feats')[k] || {}).name || k).join(' or ') + ')';
+    if (Array.isArray(slot.pool)) return who + ' bonus feat (' + slot.pool.map((k) => (own(table(data, 'feats'), k) || {}).name || k).join(' or ') + ')';
     return who + ' bonus feat';
   }
 
   function featChoiceSelect(C, data, i, j, slug) {
     const rules = SF();
-    const def = rules.FEAT_CHOICE[slug];
+    const def = own(rules.FEAT_CHOICE, slug);
     const feats = asList(C.levels[i].feats);
     const k = feats.slice(0, j).filter((f) => f === slug).length;
     const value = asList((C.levels[i].choices || {})[slug])[k];
@@ -65,7 +65,7 @@
     });
     const cats = [['all', 'All feats'], ['combat', 'Combat'], ['general', 'Non-combat']];
     return '<div class="card"><h2>Choose for slot ' + (j + 1) + '</h2><div class="row">' + fld('Search feats', input(C, UI, '$featQ', { ph: 'Name' })) + fld('Category', select('$featCat', cat, cats)) + '</div>'
-      + '<p class="note">' + out.count + ' feats. Ones you can\'t take yet are greyed out with the reason.</p>' + pickTable(out.rows, 'tall') + out.note + '</div>';
+      + '<p class="note">' + esc(out.count) + ' feats. Ones you can\'t take yet are greyed out with the reason.</p>' + pickTable(out.rows, 'tall') + out.note + '</div>';
   }
 
   U.tabFeats = function (C, UI, data, ctx) {
@@ -84,16 +84,16 @@
     for (let j = 0; j < count; j++) {
       const slug = feats[j];
       const label = slots[j] ? slotLabel(slots[j], data) : 'Extra feat (no slot)';
-      const rec = slug ? all[slug] || { name: "Missing feat '" + slug + "'" } : null;
+      const rec = slug ? own(all, slug) || { name: "Missing feat '" + slug + "'" } : null;
       const acts = [];
       if (slug) acts.push(btn('featSlot', 'Change', { c: 'sm' + (target === j ? ' pri' : ''), a: j }));
       if (slug && j === feats.length - 1) acts.push(btn('dropFeat', 'Remove', { c: 'sm x', a: i }));
       if (!slug && j === feats.length) acts.push(btn('featSlot', 'Choose', { c: 'sm' + (target === j ? ' pri' : ''), a: j }));
       if (!slug && j > feats.length) acts.push('<span class="mute">Fill slot ' + (feats.length + 1) + ' first</span>');
-      const body = rec ? '<b>' + esc(rec.name) + '</b> ' + U.aon(all[slug]) + (rec.summary ? '<div class="note">' + esc(rec.summary) + '</div>' : '') : '<span class="mute">Empty</span>';
+      const body = rec ? '<b>' + esc(rec.name) + '</b> ' + U.aon(own(all, slug)) + (rec.summary ? '<div class="note">' + esc(rec.summary) + '</div>' : '') : '<span class="mute">Empty</span>';
       const held = feats.slice(0, j).filter((f) => f === slug).length;
-      const entry = slug && !rules.FEAT_CHOICE[slug] ? rules.entriesAt(C, data, i, slug).find((e) => e.k === held) : null;
-      const choice = slug && rules.FEAT_CHOICE[slug] ? featChoiceSelect(C, data, i, j, slug) : entry ? U.paramPicker(C, data, i, entry) : '';
+      const entry = slug && !own(rules.FEAT_CHOICE, slug) ? rules.entriesAt(C, data, i, slug).find((e) => e.k === held) : null;
+      const choice = slug && own(rules.FEAT_CHOICE, slug) ? featChoiceSelect(C, data, i, j, slug) : entry ? U.paramPicker(C, data, i, entry) : '';
       rows.push('<tr><td><div class="note">' + esc(label) + '</div>' + body + choice + '</td><td class="acts">' + acts.join(' ') + '</td></tr>');
     }
     const browser = target >= 0 ? featBrowser(C, UI, data, i, target) : '';
@@ -122,11 +122,11 @@
       const known = slots[cls].known;
       const perDay = slots[cls].perDay;
       const levels = Object.keys(known).sort((a, b) => a - b);
-      const head = levels.map((l) => '<th class="num">' + (l === '0' ? '0' : l) + '</th>').join('');
-      const conns = asList(conn[cls]).map((c) => esc((table(data, 'spells')[c.slug] || { name: c.slug }).name) + ' (' + c.level + ')');
+      const head = levels.map((l) => '<th class="num">' + esc(l) + '</th>').join('');
+      const conns = asList(conn[cls]).map((c) => esc((own(table(data, 'spells'), c.slug) || { name: c.slug }).name) + ' (' + esc(c.level) + ')');
       return '<div class="card"><h2>' + esc(className(data, cls)) + ' spells</h2><div class="scroll"><table class="t"><thead><tr><th>Spell level</th>' + head + '</tr></thead><tbody>'
-        + '<tr><td>Known</td>' + levels.map((l) => '<td class="num">' + known[l] + '</td>').join('') + '</tr>'
-        + '<tr><td>Per day</td>' + levels.map((l) => '<td class="num">' + (l === '0' ? '∞' : perDay[l] || 0) + '</td>').join('') + '</tr></tbody></table></div>'
+        + '<tr><td>Known</td>' + levels.map((l) => '<td class="num">' + esc(known[l]) + '</td>').join('') + '</tr>'
+        + '<tr><td>Per day</td>' + levels.map((l) => '<td class="num">' + esc(l === '0' ? '∞' : perDay[l] || 0) + '</td>').join('') + '</tr></tbody></table></div>'
         + (conns.length ? '<p class="note">Connection spells (not counted as known): ' + conns.join(', ') + '</p>' : '') + '</div>';
     }).join('');
   }
@@ -144,10 +144,10 @@
     const swap = lvl.spells && lvl.spells.swap;
     const held = heldSpells(C, i, lvl.class);
     const from = swap ? swap.from : (UI.swapFrom || {})[i];
-    const learned = learn.map((k) => '<span class="pill on">' + esc((spells[k] || { name: k }).name) + ' ' + btn('learn', '×', { c: 'sm x', a: i, b: k }) + '</span>').join(' ');
-    const swapOpts = [['', '(no swap)']].concat(held.map((k) => [k, (spells[k] || { name: k }).name]));
+    const learned = learn.map((k) => '<span class="pill on">' + esc((own(spells, k) || { name: k }).name) + ' ' + btn('learn', '×', { c: 'sm x', a: i, b: k }) + '</span>').join(' ');
+    const swapOpts = [['', '(no swap)']].concat(held.map((k) => [k, (own(spells, k) || { name: k }).name]));
     const swapLine = held.length ? '<div class="row c">' + fld('Swap out a known spell', select(null, from || '', swapOpts, { sel: 'swapFrom', a: i }))
-      + (swap && swap.to ? '<span class="note">Swapping ' + esc((spells[swap.from] || { name: swap.from }).name) + ' for <b>' + esc((spells[swap.to] || { name: swap.to }).name) + '</b></span>' : from ? '<span class="note">Pick the replacement below</span>' : '') + '</div>' : '';
+      + (swap && swap.to ? '<span class="note">Swapping ' + esc((own(spells, swap.from) || { name: swap.from }).name) + ' for <b>' + esc((own(spells, swap.to) || { name: swap.to }).name) + '</b></span>' : from ? '<span class="note">Pick the replacement below</span>' : '') + '</div>' : '';
     const q = UI.spellQ || '';
     const lvF = UI.spellLvl === undefined ? 'all' : String(UI.spellLvl);
     const listF = UI.spellList || 'class';

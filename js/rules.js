@@ -7,9 +7,10 @@
 
   const mod = (score) => Math.floor((score - 10) / 2);
   const levelsOf = (char) => (char && Array.isArray(char.levels) ? char.levels : []);
-  const classRec = (data, slug) => (data.classes && data.classes[slug]) || null;
-  const raceRec = (char, data) => (data.races && data.races[char.race]) || null;
-  const themeRec = (char, data) => (char.theme && data.themes && data.themes[char.theme]) || null;
+  const ownRec = (tbl, k) => (tbl && typeof k === 'string' && Object.prototype.hasOwnProperty.call(tbl, k) ? tbl[k] : null);
+  const classRec = (data, slug) => ownRec(data.classes, slug);
+  const raceRec = (char, data) => ownRec(data.races, char.race);
+  const themeRec = (char, data) => (char.theme ? ownRec(data.themes, char.theme) : null);
   const isAbility = (a) => ABILITIES.indexOf(a) !== -1;
   const pbOf = (char) => (char.abilities && char.abilities.pb) || {};
 
@@ -24,7 +25,7 @@
   function creationScores(char, data) {
     const scores = {};
     const pb = pbOf(char);
-    ABILITIES.forEach((a) => { scores[a] = POINT_BUY.base + (pb[a] || 0); });
+    ABILITIES.forEach((a) => { scores[a] = POINT_BUY.base + (Number(pb[a]) || 0); });
     const race = raceRec(char, data);
     if (race) {
       (race.abilityMods || []).forEach(([amount, ability]) => {
@@ -58,7 +59,7 @@
     const pb = pbOf(char);
     let spent = 0;
     ABILITIES.forEach((a) => {
-      const n = pb[a] || 0;
+      const n = pb[a] === undefined || pb[a] === null ? 0 : Number(pb[a]);
       if (!Number.isInteger(n) || n < 0) errors.push('Point buy for ' + a + ' must be a whole number of 0 or more');
       else spent += n;
     });
@@ -72,7 +73,11 @@
 
   function classLevels(char) {
     const out = {};
-    levelsOf(char).forEach((l) => { out[l.class] = (out[l.class] || 0) + 1; });
+    levelsOf(char).forEach((l) => {
+      const k = l && l.class;
+      if (k === '__proto__') return;
+      out[k] = (Object.prototype.hasOwnProperty.call(out, k) ? out[k] : 0) + 1;
+    });
     return out;
   }
 

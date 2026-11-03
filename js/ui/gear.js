@@ -1,7 +1,7 @@
 (function(root){
   const U = root.SFUI = root.SFUI || {};
   const SF = () => root.SF;
-  const { esc, sign, asList, levelsOf, table, fmt, btn, input, select, fld, pickRow, pickTable, capped, matches } = U;
+  const { esc, sign, own, asList, levelsOf, table, fmt, btn, input, select, fld, pickRow, pickTable, capped, matches } = U;
 
   const TYPE_LABEL = {
     weapon: 'Weapons', equipment: 'Armor and equipment', shield: 'Shields', upgrade: 'Armor upgrades', fusion: 'Weapon fusions',
@@ -36,20 +36,20 @@
     const gear = Array.isArray(C.gear) ? C.gear : [];
     if (!gear.length) return '<p class="note">Nothing yet. Buy from the shop below.</p>';
     const rows = gear.map((g, k) => {
-      const rec = items[g.item];
+      const rec = own(items, g.item);
       if (!rec) return '<tr><td colspan="6" class="bad">Item \'' + esc(g.item) + '\' no longer exists</td><td class="acts">' + btn('dropGear', 'Remove', { c: 'sm x', a: k }) + '</td></tr>';
-      const attached = asList(g.slots).map((s, j) => '<div class="note">Upgrade: ' + esc((items[s && s.item] || { name: s && s.item }).name) + ' ' + btn('detach', '×', { c: 'sm x', a: k, b: 'slots', cc: j }) + '</div>')
-        .concat(asList(g.fusions).map((f, j) => '<div class="note">Fusion: ' + esc((items[f && f.item] || { name: f && f.item }).name) + ' ' + btn('detach', '×', { c: 'sm x', a: k, b: 'fusions', cc: j }) + '</div>'));
-      const slots = rec.armor ? ' <span class="mute">' + asList(g.slots).length + ' of ' + (Number(rec.slots) || 0) + ' upgrade slots</span>' : '';
+      const attached = asList(g.slots).map((s, j) => '<div class="note">Upgrade: ' + esc((own(items, s && s.item) || { name: s && s.item }).name) + ' ' + btn('detach', '×', { c: 'sm x', a: k, b: 'slots', cc: j }) + '</div>')
+        .concat(asList(g.fusions).map((f, j) => '<div class="note">Fusion: ' + esc((own(items, f && f.item) || { name: f && f.item }).name) + ' ' + btn('detach', '×', { c: 'sm x', a: k, b: 'fusions', cc: j }) + '</div>'));
+      const slots = rec.armor ? ' <span class="mute">' + esc(asList(g.slots).length) + ' of ' + esc(Number(rec.slots) || 0) + ' upgrade slots</span>' : '';
       const per = Number(rec.perPack) > 1 ? ' <span class="mute">(' + esc(rec.perPack) + ' per pack)</span>' : '';
       return '<tr><td><b>' + esc(rec.name) + '</b> ' + U.aon(rec) + slots + attached.join('') + '</td><td class="num">' + esc(rec.level) + '</td><td>' + input(C, UI, 'gear.' + k + '.qty', { t: 'n', min: 1, c: 's' }) + per
-        + '</td><td><input type="checkbox" data-b="gear.' + k + '.equipped" data-t="b"' + (g.equipped ? ' checked' : '') + ' title="Equipped"></td><td class="num">' + fmt(rec.price) + '</td><td class="num">' + esc(bulkText(rec.bulk)) + '</td><td class="acts">' + btn('dropGear', 'Remove', { c: 'sm x', a: k }) + '</td></tr>';
+        + '</td><td><input type="checkbox" data-b="gear.' + k + '.equipped" data-t="b"' + (g.equipped ? ' checked' : '') + ' title="Equipped"></td><td class="num">' + esc(fmt(rec.price)) + '</td><td class="num">' + esc(bulkText(rec.bulk)) + '</td><td class="acts">' + btn('dropGear', 'Remove', { c: 'sm x', a: k }) + '</td></tr>';
     });
     return '<div class="scroll"><table class="t"><thead><tr><th>Item</th><th class="num">Level</th><th>Qty</th><th>Equipped</th><th class="num">Price</th><th class="num">Bulk</th><th></th></tr></thead><tbody>' + rows.join('') + '</tbody></table></div>';
   }
 
   function attacks(ctx) {
-    const rows = asList(ctx.sheet.attacks).map((a) => '<tr><td><b>' + esc(a.name) + '</b></td><td class="num brass"><b>' + sign(a.attack) + '</b></td><td>' + esc(a.damage) + '</td><td>' + esc(a.crit) + '</td><td>' + esc(a.range) + '</td><td class="note">' + esc(a.notes) + '</td></tr>');
+    const rows = asList(ctx.sheet.attacks).map((a) => '<tr><td><b>' + esc(a.name) + '</b></td><td class="num brass"><b>' + esc(sign(a.attack)) + '</b></td><td>' + esc(a.damage) + '</td><td>' + esc(a.crit) + '</td><td>' + esc(a.range) + '</td><td class="note">' + esc(a.notes) + '</td></tr>');
     return '<div class="card"><h2>Attacks</h2><div class="scroll"><table class="t"><thead><tr><th>Weapon</th><th class="num">Attack</th><th>Damage</th><th>Critical</th><th>Range</th><th>Notes</th></tr></thead><tbody>' + rows.join('') + '</tbody></table></div></div>';
   }
 
@@ -59,7 +59,7 @@
     const q = UI.shopQ || '';
     const cat = UI.shopCat || 'all';
     const gear = Array.isArray(C.gear) ? C.gear : [];
-    const targets = gear.filter((g) => items[g.item] && (items[g.item].armor || items[g.item].weapon));
+    const targets = gear.filter((g) => own(items, g.item) && (items[g.item].armor || items[g.item].weapon));
     const into = targets.some((g) => g.id === UI.into) ? UI.into : '';
     const li = Math.max(0, levelsOf(C).length - 1);
     const list = Object.keys(items).filter((k) => matches(items[k], q) && inCategory(items[k], cat));
@@ -72,7 +72,7 @@
     });
     const targetOpts = [['', 'Inventory']].concat(targets.map((g) => [g.id, items[g.item].name]));
     return '<div class="card"><h2>Shop</h2><div class="row">' + fld('Search items', input(C, UI, '$shopQ', { ph: 'Name' })) + fld('Category', select('$shopCat', cat, categories(data)))
-      + fld('Put upgrades and fusions into', select('$into', into, targetOpts)) + '</div><p class="note">' + fmt(out.count) + ' items. Item level is capped at your character level.</p>' + pickTable(out.rows, 'tall') + out.note + '</div>';
+      + fld('Put upgrades and fusions into', select('$into', into, targetOpts)) + '</div><p class="note">' + esc(fmt(out.count)) + ' items. Item level is capped at your character level.</p>' + pickTable(out.rows, 'tall') + out.note + '</div>';
   }
 
   U.tabGear = function (C, UI, data, ctx) {
@@ -80,7 +80,7 @@
     const b = rules.budget(C, data);
     const bulk = ctx.sheet.bulk;
     const bulkPill = bulk.state === 'ok' ? '<span class="pill on">Unencumbered</span>' : '<span class="pill warn">' + (bulk.state === 'overburdened' ? 'Overburdened' : 'Encumbered') + '</span> <span class="note">Allowed, but it slows you down.</span>';
-    const summary = '<div class="card"><h2>Gear</h2><div class="wallet"><span>Credits <b>' + fmt(b.credits) + '</b></span><span>Spent <b>' + fmt(b.spent) + '</b></span><span>Left <b class="' + (b.left < 0 ? 'bad' : '') + '">' + fmt(b.left) + '</b></span><span>Bulk <b>' + bulk.carried + '</b> of ' + bulk.limit + '</span>' + bulkPill + '</div>'
+    const summary = '<div class="card"><h2>Gear</h2><div class="wallet"><span>Credits <b>' + esc(fmt(b.credits)) + '</b></span><span>Spent <b>' + esc(fmt(b.spent)) + '</b></span><span>Left <b class="' + (b.left < 0 ? 'bad' : '') + '">' + esc(fmt(b.left)) + '</b></span><span>Bulk <b>' + esc(bulk.carried) + '</b> of ' + esc(bulk.limit) + '</span>' + bulkPill + '</div>'
       + inventory(C, UI, data) + '</div>';
     return summary + attacks(ctx) + shop(C, UI, data);
   };

@@ -6,6 +6,7 @@
 
   const has = (o, k) => !!o && Object.prototype.hasOwnProperty.call(o, k);
   const table = (data, name) => (data && data[name]) || {};
+  const own = (o, k) => (has(o, k) ? o[k] : undefined);
   const levelsOf = (char) => (char && Array.isArray(char.levels) ? char.levels : []);
   const asList = (v) => (Array.isArray(v) ? v : v === undefined || v === null || v === '' ? [] : [v]);
   const cap = (s) => s.charAt(0).toUpperCase() + s.slice(1);
@@ -42,13 +43,13 @@
   function featureSet(char, data) {
     const set = {};
     const add = (k) => { if (typeof k === 'string') set[k] = true; };
-    const race = table(data, 'races')[char.race];
+    const race = own(table(data, 'races'), char.race);
     if (race) asList(race.coreTraits).forEach(add);
-    const theme = char.theme && table(data, 'themes')[char.theme];
+    const theme = char.theme && own(table(data, 'themes'), char.theme);
     const features = table(data, 'features');
     const total = rules.charLevel(char);
     if (theme) asList(theme.features).forEach((k) => {
-      const f = features[k];
+      const f = own(features, k);
       if (!f || typeof f.level !== 'number' || f.level <= total) add(k);
     });
     rules.classFeatures(char, data).forEach((f) => add(f.slug));
@@ -68,7 +69,7 @@
     if (!p) return true;
     if (feats.indexOf(p.feat) !== -1) return true;
     return Object.keys(rules.classLevels(char)).some((slug) => {
-      const rec = table(data, 'classes')[slug];
+      const rec = own(table(data, 'classes'), slug);
       return !!(rec && rec.prof && rec.prof[p.cls[0]] && rec.prof[p.cls[0]][p.cls[1]]);
     });
   }
@@ -98,7 +99,7 @@
       case 'any': return check.of.some((c) => holds(c, st));
       case 'proficiency': return hasProficiency(check.group, st.char, st.data, st.feats);
       case 'feature': return !!st.features[check.feature];
-      case 'race': return !!(table(st.data, 'races')[st.char.race] && table(st.data, 'races')[st.char.race].base === check.race);
+      case 'race': return !!(own(table(st.data, 'races'), st.char.race) && own(table(st.data, 'races'), st.char.race).base === check.race);
       default: return true;
     }
   }
@@ -108,15 +109,15 @@
       case 'ability': return cap(check.a) + ' ' + check.min;
       case 'bab': return 'base attack bonus +' + check.min;
       case 'level': return 'character level ' + check.min;
-      case 'classLevel': return ((table(data, 'classes')[check.cls] || {}).name || check.cls) + ' level ' + check.min;
-      case 'feat': return ((table(data, 'feats')[check.feat] || {}).name || check.feat);
-      case 'feature': return ((table(data, 'features')[check.feature] || {}).name || check.feature);
+      case 'classLevel': return ((own(table(data, 'classes'), check.cls) || {}).name || check.cls) + ' level ' + check.min;
+      case 'feat': return ((own(table(data, 'feats'), check.feat) || {}).name || check.feat);
+      case 'feature': return ((own(table(data, 'features'), check.feature) || {}).name || check.feature);
       case 'race': return cap(check.race);
       case 'proficiency': return 'proficiency with ' + check.group;
-      case 'ranks': return check.min + ' ranks in ' + ((rules.SKILLS[check.skill] || {}).name || check.skill);
+      case 'ranks': return check.min + ' ranks in ' + ((own(rules.SKILLS, check.skill) || {}).name || check.skill);
       case 'any': {
         const ofRanks = check.of.every((c) => c.k === 'ranks' && c.min === check.of[0].min);
-        if (ofRanks) return check.of[0].min + ' ranks in ' + check.of.map((c) => (rules.SKILLS[c.skill] || {}).name || c.skill).join(' or ');
+        if (ofRanks) return check.of[0].min + ' ranks in ' + check.of.map((c) => (own(rules.SKILLS, c.skill) || {}).name || c.skill).join(' or ');
         return check.of.map((c) => phrase(c, data)).join(' or ');
       }
       default: return '';
@@ -159,17 +160,17 @@
 
   function slotProblem(slot, slug, data) {
     if (!slot || !slot.pool || !has(table(data, 'feats'), slug)) return null;
-    const feat = table(data, 'feats')[slug];
+    const feat = own(table(data, 'feats'), slug);
     const who = cap(className(slot.source, data));
     if (slot.pool === 'combat') return feat.combat ? null : { code: 'pool', why: who + ' bonus feats must be combat feats' };
     if (Array.isArray(slot.pool) && slot.pool.indexOf(slug) === -1) {
-      return { code: 'pool', why: who + ' bonus feat must be ' + slot.pool.map((k) => (table(data, 'feats')[k] || {}).name || k).join(' or ') };
+      return { code: 'pool', why: who + ' bonus feat must be ' + slot.pool.map((k) => (own(table(data, 'feats'), k) || {}).name || k).join(' or ') };
     }
     return null;
   }
 
   function className(cls, data) {
-    return (table(data, 'classes')[cls] || {}).name || String(cls);
+    return (own(table(data, 'classes'), cls) || {}).name || String(cls);
   }
 
   function choicePlan(char, data, levelIndex) {
@@ -192,12 +193,12 @@
     }
     const unmet = asList(f.needs).filter((need) => !asList(need).some((k) => ctx.has[k]));
     if (unmet.length) {
-      const name = (k) => (features[k] || {}).name || k;
+      const name = (k) => (own(features, k) || {}).name || k;
       return { code: 'prereq', why: 'Requires ' + unmet.map((need) => asList(need).map(name).join(' or ')).join(', ') };
     }
     const skills = asList(f.needsClassSkill).filter((k) => !ctx.classSkills[k]);
-    if (skills.length) return { code: 'prereq', why: 'Requires ' + skills.map((k) => (rules.SKILLS[k] || {}).name || k).join(', ') + ' as a class skill' };
-    if (entry.distinct && f[entry.distinct] && ctx.siblings.some((k) => k !== slug && (features[k] || {})[entry.distinct] === f[entry.distinct])) {
+    if (skills.length) return { code: 'prereq', why: 'Requires ' + skills.map((k) => (own(rules.SKILLS, k) || {}).name || k).join(', ') + ' as a class skill' };
+    if (entry.distinct && f[entry.distinct] && ctx.siblings.some((k) => k !== slug && (own(features, k) || {})[entry.distinct] === f[entry.distinct])) {
       return { code: 'split', why: (entry.label || entry.choice) + ': only one ' + f[entry.distinct] + ' pick at this level' };
     }
     return null;
@@ -205,7 +206,7 @@
 
   function classSkillsOf(char, data) {
     const set = Object.assign({}, rules.classSkillSet(char, data));
-    const theme = char.theme && table(data, 'themes')[char.theme];
+    const theme = char.theme && own(table(data, 'themes'), char.theme);
     if (theme && theme.skill) set[theme.skill] = true;
     return set;
   }
@@ -248,7 +249,7 @@
   }
 
   function baseClassOf(cls, data) {
-    const rec = table(data, 'classes')[cls];
+    const rec = own(table(data, 'classes'), cls);
     return rec && rec.enhancedOf ? rec.enhancedOf : String(cls).replace(/_enhanced$/, '');
   }
 
@@ -285,7 +286,7 @@
       if (!entry) return { ok: false, why: 'No ' + id + ' choice at this level' };
       const problem = choiceProblem(entry, slug, levelIndex, char, data, slot && typeof slot === 'object' ? slot.index : undefined, true);
       if (problem) return { ok: false, why: problem.why };
-      const text = asList((table(data, 'features')[slug] || {}).needsText);
+      const text = asList((own(table(data, 'features'), slug) || {}).needsText);
       return text.length ? { ok: true, why: 'Not checked: ' + text.join(' ') } : { ok: true };
     }
     if (kind === 'item') return gear.itemAllowed(char, data, slug, slot);
@@ -306,7 +307,7 @@
     const here = rules.levelPlan(char, data)[levelIndex];
     const lvl = levelsOf(char)[levelIndex];
     if (!here || !lvl || !rules.spellListOf(here.cls, data)) return null;
-    const rec = table(data, 'classes')[here.cls];
+    const rec = own(table(data, 'classes'), here.cls);
     const score = rules.baseScores(char, data, levelIndex + 1)[rec.spellAbility] || 0;
     const slots = rules.spellSlotsFor(char, data, here.cls, here.classLevel, score);
     return { cls: here.cls, key: rules.spellListOf(here.cls, data), classLevel: here.classLevel, ability: rec.spellAbility, score, known: slots.known };
@@ -443,7 +444,7 @@
   }
 
   function skillPickProblem(entry, here, plan, char, k) {
-    const name = (rules.SKILLS[k] || {}).name || k;
+    const name = (own(rules.SKILLS, k) || {}).name || k;
     if (!has(rules.SKILLS, k)) return { code: 'invalid', why: "Skill '" + k + "' does not exist" };
     if (Array.isArray(entry.from) && entry.from.indexOf(k) === -1) return { code: 'pool', why: name + ' is not an option for ' + entry.label };
     if (earlierSkillPicks(entry, here, plan).indexOf(k) !== -1) return { code: 'duplicate', why: name + ' is already chosen for ' + entry.label };
@@ -455,7 +456,7 @@
   function skillProblems(entry, here, plan, char, push) {
     const picks = asList(here.choices[entry.skillPick]);
     picks.forEach((k, j) => {
-      const name = (rules.SKILLS[k] || {}).name || k;
+      const name = (own(rules.SKILLS, k) || {}).name || k;
       let problem = skillPickProblem(entry, here, plan, char, k);
       if ((!problem || problem.code === 'ranks') && picks.indexOf(k) !== j) problem = { code: 'duplicate', why: name + ' is already chosen for ' + entry.label };
       if (problem) push(problem.code, problem.why, k);
@@ -521,13 +522,13 @@
     const isAbility = (a) => rules.ABILITIES.indexOf(a) !== -1;
     const levels = levelsOf(char);
 
-    const race = table(data, 'races')[char && char.race];
+    const race = own(table(data, 'races'), char && char.race);
     if (!race) push(null, 'char', 'missing', "Race '" + (char && char.race) + "' no longer exists", char && char.race);
     else if ((race.abilityMods || []).some((x) => x[1] === 'any') && !isAbility(abilities.raceAny)) {
       push(null, 'abilities', 'missing', 'Choose the ability for your racial bonus', 'raceAny');
     }
     if (char && char.theme) {
-      const theme = table(data, 'themes')[char.theme];
+      const theme = own(table(data, 'themes'), char.theme);
       if (!theme) push(null, 'char', 'missing', "Theme '" + char.theme + "' no longer exists", char.theme);
       else if ((char.theme === 'themeless' || !isAbility(theme.ability)) && !isAbility(abilities.themeAny)) {
         push(null, 'abilities', 'missing', 'Choose the ability for your theme bonus', 'themeAny');

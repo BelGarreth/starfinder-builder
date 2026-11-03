@@ -24,7 +24,7 @@
   }
 
   function optionName(kind, key) {
-    if (kind === 'skill') return (rules.SKILLS[key] || {}).name || String(key);
+    if (kind === 'skill') return (has(rules.SKILLS, key) ? rules.SKILLS[key].name : '') || String(key);
     return String(key).charAt(0).toUpperCase() + String(key).slice(1);
   }
 

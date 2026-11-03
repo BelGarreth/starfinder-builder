@@ -4,8 +4,9 @@
 
   const ESC = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' };
   const esc = (s) => String(s === undefined || s === null ? '' : s).replace(/[&<>"']/g, (c) => ESC[c]);
-  const sign = (n) => (Number(n) >= 0 ? '+' : '') + n;
+  const sign = (n) => { const v = Number(n) || 0; return (v >= 0 ? '+' : '') + v; };
   const has = (o, k) => !!o && Object.prototype.hasOwnProperty.call(o, k);
+  const own = (o, k) => (has(o, k) ? o[k] : undefined);
   const asList = (v) => (Array.isArray(v) ? v : v === undefined || v === null || v === '' ? [] : [v]);
   const levelsOf = (C) => (C && Array.isArray(C.levels) ? C.levels : []);
   const fmt = (n) => Number(n || 0).toLocaleString('en-US');
@@ -102,7 +103,7 @@
 
   const ctxOf = (C, data) => ({ sheet: SF().derive(C, data), blockers: SF().validate(C, data) });
 
-  const className = (data, slug) => (table(data, 'classes')[slug] || {}).name || String(slug);
+  const className = (data, slug) => (own(table(data, 'classes'), slug) || {}).name || String(slug);
 
   function classSummary(C, data) {
     const out = [];
@@ -123,13 +124,13 @@
   function renderTop(C, UI, data, ctx) {
     const x = ctx || ctxOf(C, data);
     const s = x.sheet;
-    const race = table(data, 'races')[C.race];
-    const theme = table(data, 'themes')[C.theme];
+    const race = own(table(data, 'races'), C.race);
+    const theme = own(table(data, 'themes'), C.theme);
     const lvl = levelsOf(C).length;
     const sub = [race && race.name, theme && theme.name, classSummary(C, data), lvl ? 'level ' + lvl : ''].filter(Boolean);
     const stat = (k, v) => '<span>' + k + ' <b>' + esc(v) + '</b></span>';
     const bulk = s.bulk && s.bulk.state !== 'ok'
-      ? '<span class="pill warn" title="Carrying too much is legal but slows you down">' + (s.bulk.state === 'overburdened' ? 'Overburdened' : 'Encumbered') + ' (bulk ' + s.bulk.carried + ' of ' + s.bulk.limit + ')</span>'
+      ? '<span class="pill warn" title="Carrying too much is legal but slows you down">' + (s.bulk.state === 'overburdened' ? 'Overburdened' : 'Encumbered') + ' (bulk ' + esc(s.bulk.carried) + ' of ' + esc(s.bulk.limit) + ')</span>'
       : '';
     const store = root.SFCHAR;
     const status = store && typeof store.statusLine === 'function' ? store.statusLine(C, UI, data) : '';
@@ -143,7 +144,7 @@
     const x = ctx || ctxOf(C, data);
     const counts = {};
     x.blockers.forEach((b) => { counts[b.tab] = (counts[b.tab] || 0) + 1; });
-    return visibleTabs(C, data).map(([k, l]) => '<button data-act="tab" data-a="' + k + '" class="' + (UI.tab === k ? 'on' : '') + '">' + l + (counts[k] ? ' <span class="cnt">' + counts[k] + '</span>' : '') + '</button>').join('');
+    return visibleTabs(C, data).map(([k, l]) => '<button data-act="tab" data-a="' + k + '" class="' + (UI.tab === k ? 'on' : '') + '">' + l + (counts[k] ? ' <span class="cnt">' + esc(counts[k]) + '</span>' : '') + '</button>').join('');
   }
 
   function renderBlockers(C, UI, data, ctx) {
@@ -162,13 +163,13 @@
     const flagged = {};
     ctx.blockers.forEach((b) => { if (b.tab === tab && b.level) flagged[b.level - 1] = true; });
     const plan = SF().levelPlan(C, data);
-    return '<div class="sub-tabs">' + lv.map((l, i) => '<button data-act="lvl" data-a="' + i + '" class="' + (U.levelIndex(C, UI) === i ? 'on' : '') + '">' + (i + 1) + ' · ' + esc(className(data, l && l.class)) + ' ' + ((plan[i] || {}).classLevel || '') + (flagged[i] ? ' <span class="bad">•</span>' : '') + '</button>').join('') + '</div>';
+    return '<div class="sub-tabs">' + lv.map((l, i) => '<button data-act="lvl" data-a="' + i + '" class="' + (U.levelIndex(C, UI) === i ? 'on' : '') + '">' + (i + 1) + ' · ' + esc(className(data, l && l.class)) + ' ' + esc((plan[i] || {}).classLevel || '') + (flagged[i] ? ' <span class="bad">•</span>' : '') + '</button>').join('') + '</div>';
   }
 
   U.levelIndex = (C, UI) => Math.max(0, Math.min(levelsOf(C).length - 1, Number(UI.lvl) || 0));
 
   Object.assign(U, {
-    esc, sign, has, asList, levelsOf, fmt, table, ROW_CAP, TABS, TAB_LABEL, aon, attrs, btn, getPath, input, select, fld,
+    esc, sign, has, own, asList, levelsOf, fmt, table, ROW_CAP, TABS, TAB_LABEL, aon, attrs, btn, getPath, input, select, fld,
     paramPicker, pickRow, pickTable, capped, matches, isCaster, visibleTabs, ctxOf, className, classSummary, blockerMsg,
     renderTop, renderTabs, renderBlockers, levelTabs
   });
