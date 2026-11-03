@@ -1,8 +1,10 @@
 (function(root){
   const VERSION = 1;
   const KEY = 'sfbuilder.v1';
+  const BACKUP_PREFIX = KEY + '.backup-';
   const PROBE = 'sfbuilder.probe';
   const RECOVERED = 'Your saved character could not be read. A copy was kept.';
+  const UNBACKED = 'Your saved character could not be read and could not be backed up. Download it before editing.';
   const NOT_SAVING = 'Not saving: export to keep your work';
 
   class ImportError extends Error {
@@ -11,6 +13,7 @@
 
   let available = false;
   let recovered = null;
+  let olderBackup = null;
 
   const UI = () => root.SFUI || {};
   const SF = () => root.SF;
@@ -66,7 +69,10 @@
     return available;
   }
 
+  const unbackedPending = () => !!recovered && !recovered.backed;
+
   function saveLocal(char) {
+    if (unbackedPending()) return false;
     try {
       const s = storage();
       if (!s) throw new Error('no storage');
@@ -80,22 +86,41 @@
 
   function keepBackup(text) {
     const key = KEY + '.backup-' + Date.now();
-    recovered = { key, text };
-    try { storage().setItem(key, text); } catch (e) { }
+    recovered = { key, text, backed: false };
+    try {
+      storage().setItem(key, text);
+      recovered.backed = true;
+    } catch (e) { }
+  }
+
+  function newestBackupKey() {
+    try {
+      const s = storage();
+      let best = null;
+      let bestAt = -1;
+      for (let i = 0; i < s.length; i++) {
+        const k = s.key(i);
+        const at = typeof k === 'string' && k.indexOf(BACKUP_PREFIX) === 0 ? Number(k.slice(BACKUP_PREFIX.length)) : NaN;
+        if (Number.isFinite(at) && at > bestAt) { best = k; bestAt = at; }
+      }
+      return best;
+    } catch (e) { return null; }
   }
 
   function loadLocal() {
     recovered = null;
+    olderBackup = null;
     let text = null;
     try {
       const s = storage();
       text = s ? s.getItem(KEY) : null;
     } catch (e) { return null; }
-    if (!text) return null;
-    try { return importJSON(text); } catch (e) {
-      keepBackup(text);
-      return null;
+    let char = null;
+    if (text) {
+      try { char = importJSON(text); } catch (e) { keepBackup(text); }
     }
+    if (!recovered) olderBackup = newestBackupKey();
+    return char;
   }
 
   function exportName(char) {
@@ -130,6 +155,7 @@
       (report || toast)(e instanceof ImportError ? e.message : 'Could not read that file.');
       return false;
     }
+    recovered = null;
     UI().setCharacter(c);
     return true;
   }
@@ -301,14 +327,29 @@
   const actions = {
     print: () => { root.print(); },
     exportFile: (C) => { download(exportJSON(C), exportName(C), 'application/json'); },
-    downloadRaw: () => { if (recovered) download(recovered.text, 'sfbuilder-recovered.txt', 'text/plain'); }
+    downloadRaw: () => {
+      let text = recovered ? recovered.text : null;
+      if (text === null && olderBackup) { try { text = storage().getItem(olderBackup); } catch (e) { text = null; } }
+      if (text === null || text === undefined) return;
+      download(text, 'sfbuilder-recovered.txt', 'text/plain');
+      if (recovered) recovered.backed = true;
+    },
+    startFresh: () => { recovered = null; }
   };
+
+  function recoveryNotice() {
+    const raw = ' <button class="btn sm" data-act="downloadRaw">Download raw</button>';
+    if (unbackedPending()) return ' <span class="pill warn">' + esc(UNBACKED) + '</span>' + raw + ' <button class="btn sm" data-act="startFresh">Start fresh</button>';
+    if (recovered) return ' <span class="pill warn">' + esc(RECOVERED) + '</span>' + raw;
+    if (olderBackup) return ' <span class="pill">A backup of an unreadable save is kept.</span>' + raw;
+    return '';
+  }
 
   const hook = {
     load: loadLocal,
     save: saveLocal,
     statusLine: () => (available ? '' : '<span class="pill warn">' + esc(NOT_SAVING) + '</span>')
-      + (recovered ? ' <span class="pill warn">' + esc(RECOVERED) + '</span> <button class="btn sm" data-act="downloadRaw">Download raw</button>' : ''),
+      + recoveryNotice(),
     tabPrint,
     tabIO,
     actions,

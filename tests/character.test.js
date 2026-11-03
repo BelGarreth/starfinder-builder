@@ -25,7 +25,10 @@ const fixture = (n) => JSON.parse(fs.readFileSync(path.join(__dirname, 'fixtures
 
 function memoryStorage() {
   const m = {};
-  return { getItem: (k) => (k in m ? m[k] : null), setItem: (k, v) => { m[k] = String(v); }, removeItem: (k) => { delete m[k]; }, dump: m };
+  return {
+    getItem: (k) => (k in m ? m[k] : null), setItem: (k, v) => { m[k] = String(v); }, removeItem: (k) => { delete m[k]; }, dump: m,
+    get length() { return Object.keys(m).length; }, key: (i) => Object.keys(m)[i] || null
+  };
 }
 
 function throwingStorage() {
@@ -277,4 +280,87 @@ test('tabPrint shows multi-pick feats per instance', () => {
   c.levels[0] = { class: 'soldier', increases: [], skills: {}, feats: ['student'], choices: { student: ['ath', 'acr'] }, spells: {} };
   const t = text(H.tabPrint(c, U.blankUI(), data, U.ctxOf(c, data)));
   assert.ok(/Athletics, Acrobatics/.test(t), t);
+});
+
+function downloaded(action) {
+  const got = [];
+  win.document = { createElement: () => ({ click() {} }), body: { appendChild() {}, removeChild() {} } };
+  win.Blob = function (parts, o) { got.push(parts.join(''), o.type); };
+  win.URL = { createObjectURL: () => 'blob:x', revokeObjectURL() {} };
+  win.setTimeout = () => 0;
+  try { action(); } finally { delete win.setTimeout; delete win.document; delete win.Blob; delete win.URL; }
+  return got;
+}
+
+function quotaOnBackup() {
+  const s = memoryStorage();
+  const real = s.setItem;
+  s.setItem = (k, v) => { if (k.indexOf('.backup-') !== -1) throw new Error('quota'); real(k, v); };
+  return s;
+}
+
+test('when the backup cannot be written, autosave is suppressed and the notice says so', () => {
+  const s = quotaOnBackup();
+  withStorage(s, () => {
+    s.dump['sfbuilder.v1'] = '{corrupt';
+    assert.strictEqual(H.load(), null);
+    assert.strictEqual(H.saveLocal(fullChar()), false);
+    assert.strictEqual(s.dump['sfbuilder.v1'], '{corrupt');
+    const html = H.statusLine({}, U.blankUI(), data);
+    const t = text(html);
+    assert.ok(t.indexOf('could not be read and could not be backed up. Download it before editing.') !== -1, t);
+    assert.ok(t.indexOf('A copy was kept') === -1);
+    assert.ok(t.indexOf('Not saving') === -1);
+    assert.ok(html.indexOf('data-act="downloadRaw"') !== -1 && html.indexOf('data-act="startFresh"') !== -1);
+  });
+});
+
+test('downloading the raw text releases the autosave block', () => {
+  const s = quotaOnBackup();
+  withStorage(s, () => {
+    s.dump['sfbuilder.v1'] = '{corrupt';
+    H.load();
+    assert.deepStrictEqual(downloaded(H.actions.downloadRaw), ['{corrupt', 'text/plain']);
+    assert.strictEqual(H.saveLocal(fullChar()), true);
+  });
+});
+
+test('Start fresh and a successful import release the autosave block', () => {
+  [() => H.actions.startFresh(), () => H.applyImport(JSON.stringify(fullChar()), () => {})].forEach((release) => {
+    const s = quotaOnBackup();
+    withStorage(s, () => {
+      s.dump['sfbuilder.v1'] = '{corrupt';
+      H.load();
+      assert.strictEqual(H.saveLocal(fullChar()), false);
+      release();
+      assert.strictEqual(H.saveLocal(fullChar()), true);
+      assert.strictEqual(text(H.statusLine({}, U.blankUI(), data)).indexOf('backed up'), -1);
+    });
+  });
+});
+
+test('a failed import keeps the autosave block', () => {
+  const s = quotaOnBackup();
+  withStorage(s, () => {
+    s.dump['sfbuilder.v1'] = '{corrupt';
+    H.load();
+    H.applyImport('{', () => {});
+    assert.strictEqual(H.saveLocal(fullChar()), false);
+  });
+});
+
+test('on load an existing backup key is offered for download, newest first', () => {
+  const s = memoryStorage();
+  withStorage(s, () => {
+    H.actions.startFresh();
+    s.dump['sfbuilder.v1.backup-100'] = 'older';
+    s.dump['sfbuilder.v1.backup-300'] = 'newest';
+    s.dump['sfbuilder.v1.backup-200'] = 'middle';
+    H.saveLocal(fullChar());
+    assert.ok(H.load());
+    const html = H.statusLine({}, U.blankUI(), data);
+    assert.ok(html.indexOf('data-act="downloadRaw"') !== -1);
+    assert.ok(text(html).indexOf('could not be read') === -1);
+    assert.deepStrictEqual(downloaded(H.actions.downloadRaw), ['newest', 'text/plain']);
+  });
 });
