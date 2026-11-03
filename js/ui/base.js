@@ -143,7 +143,7 @@
     return '<div class="who"><h1>' + esc(C.name || 'Unnamed character') + '</h1><div class="sub">' + esc(sub.join(' · ') || 'No race, theme or class yet') + '</div></div>'
       + '<div class="wallet stats">' + stat('SP', s.sp) + stat('HP', s.hp) + stat('RP', s.rp) + stat('EAC', s.eac) + stat('KAC', s.kac)
       + stat('Fort', sign(s.fort)) + stat('Ref', sign(s.ref)) + stat('Will', sign(s.will)) + stat('Init', sign(s.initiative)) + bulk + '</div>'
-      + '<div class="acts">' + status + '</div>';
+      + '<div class="acts">' + status + btn('clear', 'Clear', { c: 'sm x', title: 'Start over with a blank character' }) + '</div>';
   }
 
   function renderTabs(C, UI, data, ctx) {

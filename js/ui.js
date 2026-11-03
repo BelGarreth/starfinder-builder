@@ -88,7 +88,17 @@
     else lvl.choices[slug] = list.length > 1 ? list : list[0];
   }
 
+  const CLEAR_PROMPT = 'Clear this character and start over? This can\'t be undone. Export first if you want to keep it.';
+
   U.actions = {
+    clear: (C, UI) => {
+      if (typeof root.confirm !== 'function' || !root.confirm(CLEAR_PROMPT)) return;
+      const s = store();
+      if (s && s.unbackedPending && s.unbackedPending() && s.actions && s.actions.startFresh) s.actions.startFresh();
+      UI.tab = 'char';
+      UI.enh = {};
+      U.setCharacter(U.blank());
+    },
     tab: (C, UI, data, a) => { UI.tab = a; },
     goto: (C, UI, data, a, b) => { UI.tab = a; if (b !== undefined && b !== null && b !== '') UI.lvl = Number(b); },
     lvl: (C, UI, data, a) => { UI.lvl = Number(a); UI.featSlot = null; },

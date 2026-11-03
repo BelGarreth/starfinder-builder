@@ -142,6 +142,10 @@ The Sheet tab (right after Character) is an on-screen character sheet for use at
 
 Play-time state lives in `char.play = {hp: {current, nonlethal?}, sp: {current}, rp: {current}, temp: {[target]: n}, conditions?, notes?}`. Current HP, SP and RP default to the maximum and are clamped to 0..max. `temp` keys are `str`..`cha`, `eac`, `kac`, `cmd`, `fort`, `ref`, `will`, `initiative`, `speed.land`, `attack.melee`, `attack.ranged`, `damage.all` and `skill.<key>`; values are whole numbers within ±99, applied as untyped modifiers only by `derive(char, data, {play: true})`, which only the Sheet calls. Validation, Print, BBCode and the Myth-Weavers maximums use the build. `migrate()` sanitises `play` and drops unknown targets. Myth-Weavers export writes current HP, SP and RP to `hp`, `stam` and `res`, and the maximums to `max_*`. Rest restores SP and RP, Heal to full restores HP and clears nonlethal damage, and Reset temp bonuses clears `temp`.
 
+## Clear
+
+The Clear button in the top bar asks for confirmation, then replaces the character with a blank one through `SFUI.setCharacter`, returns to the Character tab and lets autosave overwrite the stored character. It never touches `sfbuilder.v1.backup-*` keys. If an unbacked recovery is pending it releases the block the same way Start fresh does.
+
 ## BBCode export
 
 The BBCode tab (after Import/Export) shows a read-only forum post for the character and a Copy button (`navigator.clipboard`, falling back to a hidden textarea and `execCommand('copy')`). `SFCHAR.toBBCode(char, data)` builds it from `derive()` and the character, reusing `featDetail` and `paramDetail`, and is exported on the hook. It targets Myth-Weavers and uses only `[b]`, `[i]`, `[size=5]` (name only), `[list]` / `[*]`, `[table]` / `[tr]` / `[td]` and `[spoiler=Title]` for Feats, Class features, Spells and Gear. `[u]`, `[color]` and `[url]` are not emitted. Every `[` and `]` in names and notes becomes the full-width `［` or `］`, so user text can't open or close a tag. The textarea content is HTML-escaped.

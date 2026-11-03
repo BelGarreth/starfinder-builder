@@ -873,7 +873,7 @@
     tabBBCode,
     actions,
     toBBCode, featDetail, paramDetail,
-    VERSION, KEY, ImportError, defaultChar, migrate, exportJSON, importJSON, saveLocal, loadLocal, exportName, applyImport, applyChar, download, toast, probeStorage, recoveredBackup: () => recovered, playCurrent, playAdjust
+    VERSION, KEY, ImportError, defaultChar, migrate, exportJSON, importJSON, saveLocal, loadLocal, exportName, applyImport, applyChar, download, toast, probeStorage, recoveredBackup: () => recovered, unbackedPending, playCurrent, playAdjust
   };
   probeStorage();
   root.SFCHAR = hook;

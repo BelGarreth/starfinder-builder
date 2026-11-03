@@ -427,6 +427,60 @@ test('the BBCode tab shows an escaped read-only textarea and a Copy button', () 
   assert.ok(U.renderMain(c, Object.assign(U.blankUI(), { tab: 'bbcode' }), data).indexOf('copyBBCode') !== -1);
 });
 
+function withConfirm(answer, fn) {
+  const asked = [];
+  win.confirm = (m) => { asked.push(m); return answer; };
+  try { fn(asked); } finally { delete win.confirm; }
+}
+
+test('Clear on OK replaces the character with a blank one, returns to the Character tab and leaves backups alone', () => {
+  const s = memoryStorage();
+  withStorage(s, () => {
+    s.dump['sfbuilder.v1.backup-100'] = 'older';
+    U.setCharacter(fullChar());
+    const UIs = U.blankUI();
+    UIs.tab = 'gear';
+    withConfirm(true, (asked) => {
+      U.actions.clear(win.C, UIs, data);
+      assert.deepStrictEqual(asked, ["Clear this character and start over? This can't be undone. Export first if you want to keep it."]);
+    });
+    assert.deepStrictEqual(clone(win.C), clone(U.blank()));
+    assert.strictEqual(UIs.tab, 'char');
+    assert.strictEqual(H.saveLocal(win.C), true);
+    assert.deepStrictEqual(clone(JSON.parse(s.dump['sfbuilder.v1'])), clone(U.blank()));
+    assert.strictEqual(s.dump['sfbuilder.v1.backup-100'], 'older');
+    assert.deepStrictEqual(Object.keys(s.dump).sort(), ['sfbuilder.v1', 'sfbuilder.v1.backup-100']);
+  });
+});
+
+test('Clear on cancel changes nothing', () => {
+  U.setCharacter(fullChar());
+  const before = clone(win.C);
+  const UIs = U.blankUI();
+  UIs.tab = 'gear';
+  withConfirm(false, () => U.actions.clear(win.C, UIs, data));
+  assert.deepStrictEqual(clone(win.C), before);
+  assert.strictEqual(UIs.tab, 'gear');
+});
+
+test('Clear releases a pending unbacked recovery like Start fresh', () => {
+  const s = quotaOnBackup();
+  withStorage(s, () => {
+    s.dump['sfbuilder.v1'] = '{corrupt';
+    H.load();
+    assert.strictEqual(H.saveLocal(fullChar()), false);
+    withConfirm(false, () => U.actions.clear(win.C, U.blankUI(), data));
+    assert.strictEqual(H.saveLocal(fullChar()), false);
+    withConfirm(true, () => U.actions.clear(win.C, U.blankUI(), data));
+    assert.strictEqual(H.recoveredBackup(), null);
+    assert.strictEqual(H.saveLocal(win.C), true);
+  });
+});
+
+test('the top bar offers Clear', () => {
+  assert.ok(U.renderTop(fullChar(), U.blankUI(), data).indexOf('data-act="clear"') !== -1);
+});
+
 function playChar() {
   const c = fullChar();
   c.play = { hp: { current: 5, nonlethal: 2 }, sp: { current: 3 }, rp: { current: 1 }, temp: { str: 2, 'skill.ath': -1 }, conditions: 'Shaken', notes: 'round 3' };
@@ -457,3 +511,8 @@ test('Myth-Weavers export puts current HP, SP and RP in hp, stam and res and the
   assert.deepStrictEqual([plain.hp, plain.stam, plain.res], ['13', '8', '5']);
 });
 
+test('Clear wipes play state', () => {
+  U.setCharacter(playChar());
+  withConfirm(true, () => U.actions.clear(win.C, U.blankUI(), data));
+  assert.strictEqual(win.C.play, undefined);
+});
