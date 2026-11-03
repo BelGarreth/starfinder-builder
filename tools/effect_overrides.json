@@ -2329,5 +2329,471 @@
   "_why": "Foundry ships a constant -10 Stealth; that is the penalty on one diversion-assisted hide check, not a standing modifier.",
   "replace": true,
   "modifiers": []
+ },
+ "attunement_surge_(su)_(graviton)": {
+  "_why": "Activated, mode-bound or temporary effect that Foundry ships as a standing constant: attunement surge until the start of your next turn.",
+  "replace": true,
+  "modifiers": [
+   {
+    "name": "Attunement Surge (Su) - Graviton",
+    "type": "insight",
+    "effectType": "saves",
+    "valueAffected": "",
+    "modifier": "(1 + floor(@classes.solarian.levels / 9))",
+    "modifierType": "formula",
+    "condition": "While you have expended 2 attunement points on your turn, until the beginning of your next turn",
+    "notes": "Your insight bonus to Reflex saves applies to all your saving throws."
+   }
+  ]
+ },
+ "attunement_surge_(su)_(resistance)": {
+  "_why": "Activated, mode-bound or temporary effect that Foundry ships as a standing constant: attunement surge until the start of your next turn.",
+  "replace": true,
+  "modifiers": [
+   {
+    "name": "Attunement Surge (Su) - Resistance - Acid",
+    "type": "untyped",
+    "effectType": "energy-resistance",
+    "valueAffected": "acid",
+    "modifier": "(1 + floor(@classes.solarian.levels / 6))",
+    "modifierType": "formula",
+    "condition": "While you have expended 2 attunement points on your turn, until the beginning of your next turn",
+    "notes": "There is currently no way to stack Energy Resistance modifiers. After applying damage, refund damage equal to the value of either the Energy Resistance of this feature, or the highest other functioning Energy Resistance available. Whichever is lower. (These values can be viewed by hovering over the Energy Resistance field in sheet's Attributes tab)"
+   },
+   {
+    "name": "Attunement Surge (Su) - Resistance - Cold",
+    "type": "untyped",
+    "effectType": "energy-resistance",
+    "valueAffected": "cold",
+    "modifier": "(1 + floor(@classes.solarian.levels / 6))",
+    "modifierType": "formula",
+    "condition": "While you have expended 2 attunement points on your turn, until the beginning of your next turn",
+    "notes": "There is currently no way to stack Energy Resistance modifiers. After applying damage, refund damage equal to the value of either the Energy Resistance of this feature, or the highest other functioning Energy Resistance available. Whichever is lower. (These values can be viewed by hovering over the Energy Resistance field in sheet's Attributes tab)"
+   },
+   {
+    "name": "Attunement Surge (Su) - Resistance - Electricity",
+    "type": "untyped",
+    "effectType": "energy-resistance",
+    "valueAffected": "electricity",
+    "modifier": "(1 + floor(@classes.solarian.levels / 6))",
+    "modifierType": "formula",
+    "condition": "While you have expended 2 attunement points on your turn, until the beginning of your next turn",
+    "notes": "There is currently no way to stack Energy Resistance modifiers. After applying damage, refund damage equal to the value of either the Energy Resistance of this feature, or the highest other functioning Energy Resistance available. Whichever is lower. (These values can be viewed by hovering over the Energy Resistance field in sheet's Attributes tab)"
+   },
+   {
+    "name": "Attunement Surge (Su) - Resistance - Fire",
+    "type": "untyped",
+    "effectType": "energy-resistance",
+    "valueAffected": "fire",
+    "modifier": "(1 + floor(@classes.solarian.levels / 6))",
+    "modifierType": "formula",
+    "condition": "While you have expended 2 attunement points on your turn, until the beginning of your next turn",
+    "notes": "There is currently no way to stack Energy Resistance modifiers. After applying damage, refund damage equal to the value of either the Energy Resistance of this feature, or the highest other functioning Energy Resistance available. Whichever is lower. (These values can be viewed by hovering over the Energy Resistance field in sheet's Attributes tab)"
+   },
+   {
+    "name": "Attunement Surge (Su) - Resistance - Sonic",
+    "type": "untyped",
+    "effectType": "energy-resistance",
+    "valueAffected": "sonic",
+    "modifier": "(1 + floor(@classes.solarian.levels / 6))",
+    "modifierType": "formula",
+    "condition": "While you have expended 2 attunement points on your turn, until the beginning of your next turn",
+    "notes": "There is currently no way to stack Energy Resistance modifiers. After applying damage, refund damage equal to the value of either the Energy Resistance of this feature, or the highest other functioning Energy Resistance available. Whichever is lower. (These values can be viewed by hovering over the Energy Resistance field in sheet's Attributes tab)"
+   },
+   {
+    "name": "Attunement Surge (Su) - Resistance - DR",
+    "type": "untyped",
+    "effectType": "damage-reduction",
+    "valueAffected": "",
+    "modifier": "(1 + floor(@classes.solarian.levels / 6))",
+    "modifierType": "formula",
+    "condition": "While you have expended 2 attunement points on your turn, until the beginning of your next turn",
+    "notes": "There is currently no way to stack DR modifiers. After applying damage, refund damage equal to the value of either the Damage Reduction of this feature, or the highest other functioning Damage Reduction available. Whichever is lower. (These values can be viewed by hovering over the Damage Reduction field in sheet's Attributes tab)"
+   }
+  ]
+ },
+ "broken_cycle": {
+  "_why": "Activated, mode-bound or temporary effect that Foundry ships as a standing constant: insight multiplier applies to graviton mode (Reflex) and photon mode (damage) bonuses only.",
+  "replace": true,
+  "modifiers": [
+   {
+    "name": "Broken Cycle - Graviton Mode",
+    "type": "insight",
+    "effectType": "save",
+    "valueAffected": "reflex",
+    "modifier": "(max(0, 0 - sign(@resources.solarian.stellarMode.value)) * (1 + floor((@classes.solarian.levels * 1.5) / 9)))",
+    "modifierType": "formula",
+    "condition": "While in graviton mode",
+    "notes": ""
+   },
+   {
+    "name": "Broken Cycle - Photon Mode",
+    "type": "insight",
+    "effectType": "all-damage",
+    "valueAffected": "acr",
+    "modifier": "(max(0, sign(@resources.solarian.stellarMode.value)) * (1 + floor((@classes.solarian.levels * 1.5) / 6)))",
+    "modifierType": "formula",
+    "condition": "While in photon mode",
+    "notes": ""
+   }
+  ]
+ },
+ "combat_tracking_(ex)": {
+  "_why": "Activated, mode-bound or temporary effect that Foundry ships as a standing constant: full BAB only against the foe designated as a move action while it is in sight.",
+  "replace": true,
+  "modifiers": [
+   {
+    "name": "Combat Tracking (Ex)",
+    "type": "untyped",
+    "effectType": "base-attack-bonus",
+    "valueAffected": "",
+    "modifier": "-floor(@classes.mechanic.levels * 0.75) + @classes.mechanic.levels",
+    "modifierType": "formula",
+    "condition": "Against the foe you designated for your exocortex to track, while it is in sight",
+    "notes": ""
+   }
+  ]
+ },
+ "corona_(su)": {
+  "_why": "Activated, mode-bound or temporary effect that Foundry ships as a standing constant: standard action, 1 round or until you leave photon mode.",
+  "replace": true,
+  "modifiers": [
+   {
+    "name": "New Modifier",
+    "type": "untyped",
+    "effectType": "energy-resistance",
+    "valueAffected": "cold",
+    "modifier": "(lookupRange(@classes.solarian.levels, 0, 6, 10, 12, 15, 18, 20))",
+    "modifierType": "formula",
+    "condition": "While your corona is active (1 round or until you leave photon mode)",
+    "notes": ""
+   }
+  ]
+ },
+ "dark_matter_(su)": {
+  "_why": "Activated, mode-bound or temporary effect that Foundry ships as a standing constant: move action, 1 round or until you leave graviton mode.",
+  "replace": true,
+  "modifiers": [
+   {
+    "name": "Dark Matter (Su)",
+    "type": "untyped",
+    "effectType": "damage-reduction",
+    "valueAffected": "",
+    "modifier": "(lookupRange(@resources.solarian.stellarMode.value, floor(@classes.solarian.levels / 2), 0, (lookupRange(@classes.solarian.levels, 0, 2, 1, 6, 2, 9, 3, 12, 4, 15, 5, 18, 6))))",
+    "modifierType": "formula",
+    "condition": "While dark matter is active (1 round or until you leave graviton mode)",
+    "notes": ""
+   }
+  ]
+ },
+ "eclipse_defense_(su)": {
+  "_why": "Activated, mode-bound or temporary effect that Foundry ships as a standing constant: +4 only when attuned or fully attuned, for the reaction attack roll.",
+  "replace": true,
+  "modifiers": [
+   {
+    "name": "Eclipse Defense (Su)",
+    "type": "untyped",
+    "effectType": "all-attacks",
+    "valueAffected": "",
+    "modifier": "(ternary(lt(@resources.solarian.stellarMode.value, 0), 4, 0))",
+    "modifierType": "formula",
+    "condition": "When attuned or fully attuned, on the attack roll made as a reaction with this revelation",
+    "notes": ""
+   }
+  ]
+ },
+ "plasma_sheath_(su)": {
+  "_why": "Activated, mode-bound or temporary effect that Foundry ships as a standing constant: move action, 1 round or until you leave photon mode.",
+  "replace": true,
+  "modifiers": [
+   {
+    "name": "Plasma Sheath (Su)",
+    "type": "untyped",
+    "effectType": "all-damage",
+    "valueAffected": "",
+    "modifier": "(lookupRange(@resources.solarian.stellarMode.value, 0, 1, floor(@classes.solarian.levels / 2)))",
+    "modifierType": "formula",
+    "condition": "While plasma sheath is active (1 round or until you leave photon mode)",
+    "notes": ""
+   }
+  ]
+ },
+ "reflection_(su)": {
+  "_why": "Activated, mode-bound or temporary effect that Foundry ships as a standing constant: penalty removed only when attuned or fully attuned, on the redirected ranged attack.",
+  "replace": true,
+  "modifiers": [
+   {
+    "name": "Reflection (Su)",
+    "type": "untyped",
+    "effectType": "ranged-attacks",
+    "valueAffected": "",
+    "modifier": "(lookupRange(@resources.solarian.stellarMode.value, 0, 0, -4))",
+    "modifierType": "formula",
+    "condition": "On the redirected ranged attack, when attuned or fully attuned",
+    "notes": ""
+   }
+  ]
+ },
+ "sunbolt_(su)": {
+  "_why": "Activated, mode-bound or temporary effect that Foundry ships as a standing constant: +2 only when attuned or fully attuned, on the sunbolt attack roll.",
+  "replace": true,
+  "modifiers": [
+   {
+    "name": "Sunbolt (Su)",
+    "type": "untyped",
+    "effectType": "ranged-attacks",
+    "valueAffected": "",
+    "modifier": "(ternary(gt(@resources.solarian.stellarMode.value, 0), 2, 0))",
+    "modifierType": "formula",
+    "condition": "When attuned or fully attuned, on the ranged attack roll to use sunbolt",
+    "notes": ""
+   }
+  ]
+ },
+ "stalwart_shield_(su)": {
+  "_why": "Activated, mode-bound or temporary effect that Foundry ships as a standing constant: move action holding a solar shield, 1 round or until you leave graviton mode.",
+  "replace": true,
+  "modifiers": [
+   {
+    "name": "Stalwart Shield (Su)",
+    "type": "enhancement",
+    "effectType": "energy-resistance",
+    "valueAffected": "cold",
+    "modifier": "lookupRange(@classes.solarian.levels, 0, 5, 5, 10, 10, 15, 15, 20, 20)",
+    "modifierType": "formula",
+    "condition": "While stalwart shield is active (1 round or until you leave graviton mode)",
+    "notes": ""
+   }
+  ]
+ },
+ "weapon_orbit_(su)": {
+  "_why": "Activated, mode-bound or temporary effect that Foundry ships as a standing constant: standard action ranged attack with a melee weapon.",
+  "replace": true,
+  "modifiers": [
+   {
+    "name": "Weapon Orbit (Su)",
+    "type": "untyped",
+    "effectType": "melee-damage",
+    "valueAffected": "",
+    "modifier": "-@abilities.str.mod",
+    "modifierType": "formula",
+    "condition": "On the ranged attack made with a melee weapon using weapon orbit",
+    "notes": ""
+   },
+   {
+    "name": "Weapon Orbit (Su)",
+    "type": "untyped",
+    "effectType": "melee-damage",
+    "valueAffected": "acr",
+    "modifier": "@abilities.cha.mod",
+    "modifierType": "formula",
+    "condition": "On the ranged attack made with a melee weapon using weapon orbit",
+    "notes": ""
+   },
+   {
+    "name": "Weapon Orbit (Su) with Flashing Strikes (Ex)",
+    "type": "untyped",
+    "effectType": "ranged-attacks",
+    "valueAffected": "",
+    "modifier": "-3",
+    "modifierType": "formula",
+    "condition": "On the ranged attack made with a melee weapon using weapon orbit",
+    "notes": "While attuned, you may use the Flashing Strikes (Ex) feature to make a full attack with Weapon Orbit (Su) with only a -3 penalty"
+   }
+  ]
+ },
+ "jump_jets_(ex_exocortex)": {
+  "_why": "The fly speed bonus is for a hover drone for 1 round after use; nothing on the character sheet.",
+  "replace": true,
+  "modifiers": []
+ },
+ "perfect_mirror_(ex)": {
+  "_why": "Foundry ships an all-damage constant, but the text reduces damage you take when using the Deflecting Armor gear boost; not a damage bonus.",
+  "replace": true,
+  "modifiers": []
+ },
+ "primal_defense_(ex)": {
+  "_why": "Placeholder zero values; the DR and resistance equal the cast spell level until your next turn (or 1 minute), so it is text-only.",
+  "replace": true,
+  "modifiers": []
+ },
+ "spell_thief_(su)": {
+  "_why": "Foundry ships Acrobatics +4, but the text grants no standing skill bonus; trick attack damage empowerment is text-only.",
+  "replace": true,
+  "modifiers": []
+ },
+ "trick_attack_(ex)": {
+  "_why": "Foundry ships Acrobatics +4 as a placeholder for the trick attack check; no standing skill bonus in the text.",
+  "replace": true,
+  "modifiers": []
+ },
+ "trick_attack_(ex)_(heavyweight_skirmisher)": {
+  "_why": "Foundry ships Acrobatics +4 as a placeholder for the trick attack check; no standing skill bonus in the text.",
+  "replace": true,
+  "modifiers": []
+ },
+ "twinned_tornado_(ex)": {
+  "_why": "Activated, mode-bound or temporary effect that Foundry ships as a standing constant: -6 penalty applies only to the twinned tornado full attack, instead of the normal -4.",
+  "replace": true,
+  "modifiers": [
+   {
+    "name": "Twinned Tornado (Ex)",
+    "type": "untyped",
+    "effectType": "all-attacks",
+    "valueAffected": "",
+    "modifier": "-6",
+    "modifierType": "formula",
+    "condition": "When making a full attack with two weapons using twinned tornado",
+    "notes": ""
+   }
+  ]
+ },
+ "resistant_energy_(ex)": {
+  "_why": "Foundry hard-codes acid; the energy type is the player's choice, so it is a situational formula.",
+  "replace": true,
+  "modifiers": [
+   {
+    "name": "Resistant Energy",
+    "type": "untyped",
+    "effectType": "energy-resistance",
+    "valueAffected": "acid",
+    "modifier": "5",
+    "modifierType": "formula",
+    "condition": "Against the energy type you chose (acid, cold, electricity, fire or sonic), set the type in the Modifiers tab",
+    "notes": ""
+   }
+  ]
+ },
+ "improved_resistant_energy_(ex)": {
+  "_why": "Foundry hard-codes acid and fire; the energy types are chosen, so it is a situational formula.",
+  "replace": true,
+  "modifiers": [
+   {
+    "name": "Improved Resistant Energy",
+    "type": "untyped",
+    "effectType": "energy-resistance",
+    "valueAffected": "acid",
+    "modifier": "15",
+    "modifierType": "formula",
+    "condition": "Against the energy type you chose (acid, cold, electricity, fire or sonic), set the type in the Modifiers tab",
+    "notes": ""
+   },
+   {
+    "name": "Improved Resistant Energy",
+    "type": "untyped",
+    "effectType": "energy-resistance",
+    "valueAffected": "fire",
+    "modifier": "15",
+    "modifierType": "formula",
+    "condition": "Against the energy type you chose (acid, cold, electricity, fire or sonic), set the type in the Modifiers tab",
+    "notes": ""
+   }
+  ]
+ },
+ "greater_resistance_(ex_exocortex)": {
+  "_why": "Foundry hard-codes acid; the energy type is chosen, so it is a situational formula.",
+  "replace": true,
+  "modifiers": [
+   {
+    "name": "Greater Resistance (Ex; Exocortex)",
+    "type": "untyped",
+    "effectType": "energy-resistance",
+    "valueAffected": "acid",
+    "modifier": "5",
+    "modifierType": "formula",
+    "condition": "Against the chosen energy type for which you have the Resistance mod",
+    "notes": ""
+   }
+  ]
+ },
+ "resistance_(ex_exocortex)": {
+  "_why": "Foundry hard-codes acid; the energy type is chosen, so it is a situational formula.",
+  "replace": true,
+  "modifiers": [
+   {
+    "name": "Resistance (Ex; Exocortex)",
+    "type": "untyped",
+    "effectType": "energy-resistance",
+    "valueAffected": "acid",
+    "modifier": "min(@classes.mechanic.levels, 10)",
+    "modifierType": "formula",
+    "condition": "Against the energy type you chose (acid, cold, electricity, fire or sonic), set the type in the Modifiers tab",
+    "notes": ""
+   }
+  ]
+ },
+ "channel_skill_(su)": {
+  "_why": "Foundry hard-codes Acrobatics and Athletics; the two skills depend on the chosen connection, so the bonus is a situational formula.",
+  "replace": true,
+  "modifiers": [
+   {
+    "name": "Channel Skill (Su)",
+    "type": "insight",
+    "effectType": "skill",
+    "valueAffected": "acr",
+    "modifier": "lookupRange(@classes.mystic.levels, 0, 2, 1, 5, 2, 8, 3, 11, 4, 14, 5, 17, 6, 20, 7)",
+    "modifierType": "formula",
+    "condition": "On the two skills associated with your connection (choose them in the Modifiers tab)",
+    "notes": ""
+   },
+   {
+    "name": "Channel Skill (Su)",
+    "type": "insight",
+    "effectType": "skill",
+    "valueAffected": "ath",
+    "modifier": "lookupRange(@classes.mystic.levels, 0, 2, 1, 5, 2, 8, 3, 11, 4, 14, 5, 17, 6, 20, 7)",
+    "modifierType": "formula",
+    "condition": "On the two skills associated with your connection (choose them in the Modifiers tab)",
+    "notes": ""
+   }
+  ]
+ },
+ "flight_system_(ex_exocortex)": {
+  "_why": "Limited to 10 minutes per day in 1-minute increments, so it is not a standing speed.",
+  "replace": true,
+  "modifiers": [
+   {
+    "name": "Flight System (Ex; Exocortex)",
+    "type": "untyped",
+    "effectType": "specific-speed",
+    "valueAffected": "flying",
+    "modifier": "floor(@attributes.speed.land.value / 2)",
+    "modifierType": "formula",
+    "condition": "While flying with the flight system (10 minutes per day, 1-minute increments)",
+    "notes": ""
+   }
+  ]
+ },
+ "improved_quick_movement_(ex)": {
+  "_why": "Builds on quick movement, which only applies while unencumbered and in light armor or none.",
+  "replace": true,
+  "modifiers": [
+   {
+    "name": "Improved Quick Movement (Ex)",
+    "type": "untyped",
+    "effectType": "specific-speed",
+    "valueAffected": "land",
+    "modifier": "ternary(gte(@classes.operative.levels, 9), 20, 10)",
+    "modifierType": "formula",
+    "condition": "While unencumbered and wearing light armor or no armor",
+    "notes": ""
+   }
+  ]
+ },
+ "the_only_mech_for_me_(ex)": {
+  "_why": "Applies only once you have bonded to a mech (8 hours of work, once per day); replaces the standing constant.",
+  "replace": true,
+  "modifiers": [
+   {
+    "name": "The Only Mech for Me (Ex)",
+    "type": "insight",
+    "effectType": "skill",
+    "valueAffected": "pil",
+    "modifier": "lookupRange(@details.level.value, 1, 1, 3, 2, 7, 3, 11, 4, 15, 5, 19, 6)",
+    "modifierType": "formula",
+    "condition": "While bonded to a mech",
+    "notes": ""
+   }
+  ]
  }
 }
