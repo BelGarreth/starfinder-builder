@@ -171,6 +171,16 @@ class BuildDataTest(unittest.TestCase):
         self.assertEqual(self.d['classes']['envoy_enhanced']['aon'], 'https://www.aonsrd.com/Classes.aspx?ItemName=Envoy')
         self.assertTrue(self.d['items']['baton_tactical']['aon'].startswith('https://www.aonsrd.com/Search.aspx?Query='))
 
+    def test_feat_aon_links_use_feat_display_without_type_suffix(self):
+        feats = self.d['feats']
+        self.assertEqual(feats['blind-fight_(combat)']['aon'], 'https://www.aonsrd.com/FeatDisplay.aspx?ItemName=Blind-Fight')
+        self.assertEqual(feats['toughness']['aon'], 'https://www.aonsrd.com/FeatDisplay.aspx?ItemName=Toughness')
+        teamwork = [f for f in feats.values() if f['name'].endswith('(Combat, Teamwork)')]
+        self.assertTrue(teamwork)
+        for f in feats.values():
+            self.assertTrue(f['aon'].startswith('https://www.aonsrd.com/FeatDisplay.aspx?ItemName='), f['name'])
+            self.assertNotIn('%28', f['aon'], f['name'])
+
     def test_no_summary_leaks_label_markers(self):
         for section in ('features', 'items'):
             for slug, rec in self.d[section].items():
@@ -193,6 +203,28 @@ class BuildDataTest(unittest.TestCase):
             self.assertEqual(keys, sorted(self.d))
             self.assertEqual(races, len(self.d['races']))
 
+
+    def test_stale_files_ignores_built_date_and_names_changed_files(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            build_data.write_data_dir(dict(self.d, meta=dict(self.d['meta'], built='2000-01-01')), tmp)
+            self.assertEqual(build_data.stale_files(dict(self.d, meta=dict(self.d['meta'], built='2099-12-31')), tmp), [])
+            items = Path(tmp) / 'items.js'
+            items.write_text(items.read_text().replace('"items":{', '"items":{"x":{},', 1))
+            (Path(tmp) / 'index.js').unlink()
+            self.assertEqual(build_data.stale_files(self.d, tmp), ['items.js', 'index.js'])
+
+    def test_check_flag_exits_nonzero_and_names_the_stale_file(self):
+        script = str(ROOT / 'tools' / 'build_data.py')
+        with tempfile.TemporaryDirectory() as tmp:
+            build_data.write_data_dir(dict(self.d, meta={'foundrySha': SHA, 'built': '2000-01-01'}), tmp)
+            ok = subprocess.run(['python3', script, '--check', '--out', tmp], capture_output=True, text=True)
+            self.assertEqual(ok.returncode, 0, ok.stderr)
+            spells = Path(tmp) / 'spells.js'
+            spells.write_text(spells.read_text().replace('"spells":{', '"spells":{"x":{},', 1))
+            bad = subprocess.run(['python3', script, '--check', '--out', tmp], capture_output=True, text=True)
+            self.assertEqual(bad.returncode, 1)
+            self.assertIn('spells.js', bad.stderr)
+            self.assertNotIn('core.js', bad.stderr)
 
 class SummarizeTest(unittest.TestCase):
     def test_strips_html_and_uuid(self):

@@ -21,7 +21,7 @@
 - `data.js` target size is under 3 MB. Foundry descriptions get cut to a 1–2 sentence summary.
 - Look copies grimoire-ledger (`~/personal-repos/grimoire-ledger/index.html` `:root` tokens, `.top`, `.tabs`, `.card`, `.btn`, `.fld`, `table.t`, print sheet).
 - Blocked, not warned: an illegal pick can't be made. It's rendered disabled with its reason. Bulk over the limit is the one thing that warns, not blocks.
-- Every AoN link is by name: `https://www.aonsrd.com/{Races|Themes|Feats|SpellDisplay|Classes}.aspx?ItemName=<name>`. Anything else uses `https://www.aonsrd.com/Search.aspx?Query=<name>`. Nothing ever requests AoN.
+- Every AoN link is by name: `https://www.aonsrd.com/{Races|Themes|SpellDisplay|Classes}.aspx?ItemName=<name>`. Feats use `https://www.aonsrd.com/FeatDisplay.aspx?ItemName=<name>` with Foundry's trailing parenthetical suffix (such as "(Combat)" or "(Combat, Teamwork)") stripped, because `Feats.aspx` ignores `ItemName`. Anything else uses `https://www.aonsrd.com/Search.aspx?Query=<name>`. Nothing ever requests AoN.
 - Footer and README carry the OGL 1.0a Section 15 notice and the Paizo Community Use statement.
 - Commits: plain one-line Conventional Commit subject, no trailers, no AI attribution.
 
@@ -281,6 +281,6 @@ README.md, LICENSE-OGL.md, .gitignore (+ .cache/)
 **Files:**
 - Modify: `README.md` (confirm live URL)
 
-- [ ] **Step 1:** Run every test (`node --test tests/` and `python3 -m unittest discover -s tools -p 'test_*.py'`) and `python3 tools/build_data.py --check`. `--check` rebuilds in memory and fails if `data.js` differs. Expected: all PASS, and no diff.
+- [ ] **Step 1:** Run every test (`node --test 'tests/*.test.js'` and `python3 -m unittest discover -s tools -p 'test_*.py'`) and `python3 tools/build_data.py --check`. `--check` rebuilds in memory and fails, naming the file, if any `data/*.js` differs (ignoring `meta.built`). Expected: all PASS, and no diff.
 - [ ] **Step 2: Ask Gareth before this step**, since it's outward-facing: `gh repo create BelGarreth/starfinder-builder --public --source . --push`. Then enable Pages from `main` `/`: `gh api -X POST repos/BelGarreth/starfinder-builder/pages -f 'source[branch]=main' -f 'source[path]=/'`.
 - [ ] **Step 3:** Once the Pages build finishes (`gh api repos/BelGarreth/starfinder-builder/pages --jq .status` → `built`), open `https://belgarreth.github.io/starfinder-builder/` and repeat the Task 10 Step 1 check against the live site.

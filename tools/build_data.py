@@ -100,6 +100,10 @@ def aon(page, name):
     return f'{AON}{page}.aspx?ItemName={quote(name)}'
 
 
+def aon_feat(name):
+    return aon('FeatDisplay', re.sub(r'\s*\([^()]*\)\s*$', '', name))
+
+
 def aon_search(name):
     return f'{AON}Search.aspx?Query={quote(name)}'
 
@@ -624,7 +628,7 @@ def build_feats(items, features=None, prereq_overrides=None):
         parsed = overrides[slug]['prereq'] if slug in overrides else prereq.parse_prereq(text, feat_slugs, prereq.SKILL_KEYS, feature_slugs)
         feats[slug] = {
             'name': item['name'], 'combat': bool(s.get('details', {}).get('combat')), 'prereqText': text,
-            'prereq': parsed, 'modifiers': modifiers(s), 'aon': aon('Feats', item['name']), 'src': s.get('source', ''),
+            'prereq': parsed, 'modifiers': modifiers(s), 'aon': aon_feat(item['name']), 'src': s.get('source', ''),
             'summary': summarize(markup[benefit.end():] if benefit else markup), **bonus_flag(item), **tab_flag(item),
         }
     return feats
@@ -916,29 +920,55 @@ INDEX_JS = (
 )
 
 
-def write_part_js(part, path):
+def part_js(part):
     body = json.dumps(part, separators=(',', ':'), ensure_ascii=False)
-    text = (
+    return (
         '(function(root){\n'
         f'  const part = {body};\n'
         "  if (typeof module !== 'undefined') module.exports = part; else root.SFDATA = Object.assign(root.SFDATA || {}, part);\n"
         '})(this);\n'
     )
-    Path(path).write_text(text, encoding='utf-8')
+
+
+def data_files(data):
+    files = {f'{name}.js': part_js({k: data[k] for k in keys}) for name, keys in PARTS.items()}
+    files['index.js'] = INDEX_JS
+    return files
+
+
+def write_part_js(part, path):
+    Path(path).write_text(part_js(part), encoding='utf-8')
 
 
 def write_data_dir(data, out_dir):
     out_dir = Path(out_dir)
     out_dir.mkdir(parents=True, exist_ok=True)
-    for name, keys in PARTS.items():
-        write_part_js({k: data[k] for k in keys}, out_dir / f'{name}.js')
-    (out_dir / 'index.js').write_text(INDEX_JS, encoding='utf-8')
+    for name, text in data_files(data).items():
+        (out_dir / name).write_text(text, encoding='utf-8')
+
+
+BUILT = re.compile(r'("meta":\{"foundrySha":(?:null|"[^"]*"),"built":)(?:null|"[^"]*")')
+
+
+def without_built(text):
+    return BUILT.sub(r'\1null', text, count=1)
+
+
+def stale_files(data, out_dir):
+    out_dir = Path(out_dir)
+    stale = []
+    for name, text in data_files(data).items():
+        path = out_dir / name
+        if not path.exists() or without_built(path.read_text(encoding='utf-8')) != without_built(text):
+            stale.append(name)
+    return stale
 
 
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('--sha', default=(ROOT / 'tools' / 'foundry.lock').read_text().strip())
     parser.add_argument('--out', default=str(ROOT / 'data'))
+    parser.add_argument('--check', action='store_true', help='rebuild in memory and fail if any data file differs')
     args = parser.parse_args()
     src = fetch_foundry(args.sha, ROOT / '.cache' / 'foundry')
     data = build(src, sha=args.sha, built=date.today().isoformat())
@@ -948,6 +978,11 @@ def main():
         for slug in failed:
             print(f'  {slug}', file=sys.stderr)
         sys.exit(1)
+    if args.check:
+        stale = stale_files(data, args.out)
+        for name in stale:
+            print(f'{Path(args.out) / name} is out of date; run python3 tools/build_data.py', file=sys.stderr)
+        sys.exit(1 if stale else 0)
     write_data_dir(data, args.out)
 
 
