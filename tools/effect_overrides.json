@@ -2960,5 +2960,30 @@
     "notes": ""
    }
   ]
+ },
+ "stellar_mode_(su)": {
+  "_why": "Conditional: the insight bonuses apply only while attuned in combat (Reflex while graviton-attuned, damage while photon-attuned), rising at higher solarian levels.",
+  "effects": [
+   {
+    "name": "Stellar Mode (graviton)",
+    "type": "insight",
+    "effectType": "save",
+    "valueAffected": "reflex",
+    "modifier": "1 + floor(@classes.solarian.levels / 9)",
+    "modifierType": "formula",
+    "condition": "While graviton-attuned",
+    "notes": ""
+   },
+   {
+    "name": "Stellar Mode (photon)",
+    "type": "insight",
+    "effectType": "all-damage",
+    "valueAffected": "",
+    "modifier": "1 + floor(@classes.solarian.levels / 6)",
+    "modifierType": "formula",
+    "condition": "While photon-attuned",
+    "notes": ""
+   }
+  ]
  }
 }

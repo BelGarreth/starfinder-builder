@@ -414,5 +414,45 @@ class PrereqIntegrationTest(unittest.TestCase):
             build_data.build_progressions(dangling, features, self.d['feats'])
 
 
+    def test_option_requirements_parse_into_needs(self):
+        f = self.d['features']
+        self.assertEqual(f["improved_get_'em_(ex)"]['needs'], ["get_'em_(ex)"])
+        self.assertEqual(f['improved_seize_the_advantage_(ex)']['needs'], ['seize_the_advantage_(ex)'])
+        self.assertEqual(f['superior_overcharge_(ex)']['needs'], ['overcharge_(ex)', 'improved_overcharge_(ex)'])
+        self.assertEqual(f['prototype_tinkerer_(ex)']['needs'], [['experimental_armor_prototype', 'experimental_explosives_(ex)',
+                                                                  'experimental_vehicle_(ex)', 'experimental_weapon_prototype_(ex)']])
+        self.assertEqual(f['repair_drone_(ex)']['needs'], ['drone'])
+        self.assertEqual(f['ambusher']['needsClassSkill'], ['ste'])
+        self.assertEqual(f['geomagnetic_charge_(ex)']['minLevel'], 8)
+        self.assertIn('four or more arms', f['fourfold_tactician']['needsText'][0])
+        for rec in f.values():
+            for need in rec.get('needs', []):
+                for slug in (need if isinstance(need, list) else [need]):
+                    self.assertIn(slug, f)
+
+    def test_stellar_types_and_stellar_mode(self):
+        f = self.d['features']
+        for slug, rec in f.items():
+            if rec.get('category') == 'zenithRevelation':
+                self.assertIn(rec.get('stellarType'), ('graviton', 'photon'), slug)
+        self.assertEqual(f['quantum_entrapment_(su)']['stellarType'], 'graviton')
+        self.assertEqual(f['stellar_mode_(su)']['cls'], 'solarian')
+        self.assertIn({'fixed': 'stellar_mode_(su)'}, self.d['progressions']['solarian']['levels']['1'])
+
+    def test_mechanic_trick_pool_has_no_drone_tricks(self):
+        pool = next(e for e in self.d['progressions']['mechanic']['levels']['2'] if e.get('choice') == 'trick')['pool']
+        for slug in ('repair_drone_(ex)', 'artificial_pilot_(ex)', 'exploration_routine_(ex)', 'protective_programming_(ex)',
+                     'melded_mod_(ex)', 'drone_meld_(ex)'):
+            self.assertNotIn(slug, pool)
+        self.assertIn('combat_boost_(ex)', pool)
+
+    def test_distinct_choice_needs_the_field_on_every_option(self):
+        source = json.loads((ROOT / 'tools' / 'class_progressions.json').read_text())
+        features = json.loads(json.dumps(self.d['features']))
+        del features['starquake_(su)']['stellarType']
+        with self.assertRaisesRegex(ValueError, 'starquake'):
+            build_data.build_progressions(source, features, self.d['feats'])
+
+
 if __name__ == '__main__':
     unittest.main()

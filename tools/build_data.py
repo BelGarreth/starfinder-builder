@@ -202,6 +202,16 @@ HEADING_LINK = re.compile(r'<h\d>\s*@UUID\[Compendium\.sfrpg\.class-features\.It
 STRONG_LINK = re.compile(r'<strong>\s*@UUID\[Compendium\.sfrpg\.class-features\.Item\.(\w+)\]')
 SPEC_EXPLOIT = re.compile(r'Specialization Exploit(?:\s|:|</?strong>)*@UUID\[Compendium\.sfrpg\.class-features\.Item\.(\w+)\]')
 ASSOCIATED = re.compile(r'Associated Skills?(?:\s|:|</?strong>)*(.*?)(?:\.(?=\s|<)|</p>)', re.S)
+NEED_LINK = re.compile(r'@UUID\[Compendium\.sfrpg\.([\w-]+)\.(?:Item\.)?(?:JournalEntry\.)?(?:[\w]+\.JournalEntryPage\.)?([\w#-]+)\]\{([^}]*)\}')
+NEED_SENTENCE = re.compile(r'\b(?:you|your exocortex) must (?:have|be|know)\b(.*?)\bto (?:choose|learn|select|take)(?: or use)? (?:this|it)\b', re.I)
+NEED_LEVEL = re.compile(r'(?:at least )?(\d+)(?:st|nd|rd|th) level', re.I)
+NEED_CLASS_SKILL = re.compile(r'^(.+?) as a class skill$', re.I)
+NEED_NOISE = re.compile(
+    r"\b(?:envoy|mechanic|stellar|magic|operative|alternate|class|species|option of the artificial "
+    r"intelligence class feature|improvisations?|epiphan(?:y|ies)|exploits?|tricks?|revelations?|hacks?|gear boosts?|abilit(?:y|ies)|features?|"
+    r"traits?|mods?)\b", re.I)
+STELLAR_TYPE = re.compile(r'@Icon\[type:(graviton|photon)\]|fully (graviton|photon)-attuned')
+EXTRA_CLASS_FEATURES = {'stellar_mode_(su)': 'solarian'}
 REPEATABLE = re.compile(r'(?:select|choose|take|learn|gain)\s+(?:this|it)[^.]{0,40}(?:more than once|multiple times)|each subsequent time you (?:choose|select|take) this', re.I)
 
 
@@ -262,11 +272,14 @@ def class_feature_record(item, cls, lineage):
         rec['repeatable'] = True
     if rec['category'] == 'specialization':
         rec['skillFocus'] = associated_skills(markup)
+    stellar = STELLAR_TYPE.search(markup)
+    if stellar and rec['category'] in ('revelation', 'zenithRevelation'):
+        rec['stellarType'] = stellar.group(1) or stellar.group(2)
     return rec
 
 
 def build_class_features(class_features, features, classes=None):
-    feats = {s: i for s, i in class_features.items() if i['type'] == 'feat'}
+    feats = {s: i for s, i in class_features.items() if i['type'] == 'feat' or s in EXTRA_CLASS_FEATURES}
     by_id = {i['_id']: s for s, i in feats.items()}
     class_ids = {i['_id']: s for s, i in (classes or {}).items()}
     memo = {}
@@ -275,6 +288,8 @@ def build_class_features(class_features, features, classes=None):
         req = item['system'].get('requirements', '') or ''
         named = CLASS_REQ.search(req)
         lineage = class_lineage(slug, feats, by_id, class_ids, memo)
+        if slug in EXTRA_CLASS_FEATURES:
+            lineage = lineage or {'cls': EXTRA_CLASS_FEATURES[slug], 'category': None, 'parent': None, 'enhanced': False}
         if lineage and lineage['cls'] not in CLASSES:
             continue
         if (not named and not lineage) or (not named and OTHER_CLASS_REQ.search(req)):
@@ -300,7 +315,97 @@ def build_class_features(class_features, features, classes=None):
         for tier, slugs in rec.get('grants', {}).items():
             rec['grants'][tier] = [key_of[g] for g in slugs]
         out[key_of[slug]] = rec
+    index = name_index({**features, **out})
+    ids = {i: key_of[s] for i, s in by_id.items() if s in key_of}
+    for slug, rec in raw.items():
+        if rec['category']:
+            attach_needs(rec, description(feats[slug]), ids, index)
     return out
+
+
+def prune_needs(features):
+    for rec in features.values():
+        if 'needs' not in rec:
+            continue
+        kept = []
+        for need in rec['needs']:
+            options = need if isinstance(need, list) else [need]
+            if all(o in features for o in options):
+                kept.append(need)
+            else:
+                rec.setdefault('needsText', []).append('Requires ' + ' or '.join(options))
+        if kept:
+            rec['needs'] = kept
+        else:
+            del rec['needs']
+
+
+def name_key(name):
+    return re.sub(r'\s*\([^)]*\)', '', name.replace('’', "'")).strip().casefold()
+
+
+def name_index(records):
+    index = {}
+    for key, rec in sorted(records.items()):
+        index.setdefault(name_key(rec['name']), []).append((key, rec.get('cls')))
+    return index
+
+
+def resolve_need(part, ids, index, cls):
+    found = [ids[i] for i in re.findall(r'\x00([\w#-]+)\x00', part) if i in ids]
+    if found:
+        return found
+    for label in re.findall(r'\x01([^\x01]*)\x01', part):
+        part = part.replace('\x01' + label + '\x01', label)
+    name = re.sub(r'\s+', ' ', NEED_NOISE.sub(' ', re.sub(r'\x00[\w#-]+\x00', ' ', part))).strip(" ,.'").casefold()
+    name = re.sub(r'^(?:(?:the|an?|both|selected)\s+)+', '', name)
+    hits = sorted(index.get(name_key(name), []), key=lambda h: h[1] != cls)
+    if hits and hits[0][1] is None:
+        return [h[0] for h in hits if h[1] is None]
+    return [h[0] for h in hits[:1]]
+
+
+def attach_needs(rec, markup, ids, index):
+    marked = NEED_LINK.sub(lambda m: f'\x00{m.group(2)}\x00\x01{m.group(3)}\x01', markup)
+    text = re.sub(r'\s+', ' ', html.unescape(TAG.sub(' ', marked)))
+    needs, texts = [], []
+    for sentence in re.split(r'(?<=[.!?])\s+', text):
+        match = NEED_SENTENCE.search(sentence)
+        if not match or re.search(r'\brank', match.group(1)):
+            continue
+        shown = re.sub(r'\x00[\w#-]+\x00\x01([^\x01]*)\x01', r'\1', sentence).strip()
+        phrase = re.sub(r'\([^()\x00]*\)', ' ', match.group(1)).strip()
+        level = NEED_LEVEL.search(phrase)
+        if level:
+            rec['minLevel'] = max(rec['minLevel'] or 0, int(level.group(1)))
+            phrase = NEED_LEVEL.sub('', phrase).strip()
+            phrase = re.sub(r'^(?:and\s+)?(?:have\s+)?', '', phrase).strip()
+            if not phrase:
+                continue
+        skill = NEED_CLASS_SKILL.match(re.sub(r'\x00[\w#-]+\x00|\x01', '', phrase).strip())
+        if skill and prereq.SKILL_KEYS.get(skill.group(1).strip().casefold()):
+            rec.setdefault('needsClassSkill', []).append(prereq.SKILL_KEYS[skill.group(1).strip().casefold()])
+            continue
+        if re.search(r'\bneither\b', phrase, re.I):
+            texts.append(shown)
+            continue
+        listed = re.search(r'\(([^()]*\x00[^()]*)\)', re.sub(r'\((?:ex|su|sp)\)', '', match.group(1), flags=re.I))
+        any_of = bool(listed) or bool(re.search(r'\bor\b', phrase))
+        source = listed.group(1) if listed else phrase
+        parts = [p for p in re.split(r',|\band\b|\bor\b|\(|\)', source) if p.strip(' \x00\x01')]
+        resolved = [resolve_need(p, ids, index, rec['cls']) for p in parts]
+        if not resolved or not all(resolved):
+            texts.append(shown)
+            continue
+        if any_of:
+            options = [o for r in resolved for o in r]
+            needs.append(options if len(options) > 1 else options[0])
+        else:
+            needs.extend(r if len(r) > 1 else r[0] for r in resolved)
+    if needs:
+        rec['needs'] = needs
+    if texts:
+        rec['needsText'] = texts
 
 
 def option_grants(category, markup, by_id):
@@ -549,9 +654,23 @@ def expand_pool(pool, cls, features):
     if not isinstance(pool, dict) or 'category' not in pool:
         return pool
     exclude = set(pool.get('exclude', []))
+    banned = set(pool.get('excludeNeeds', []))
     return sorted(k for k, f in features.items()
                   if f['kind'] == 'class' and f['cls'] == cls and f['category'] == pool['category']
-                  and k not in exclude and (pool.get('enhanced') or not f['enhanced']))
+                  and k not in exclude and (pool.get('enhanced') or not f['enhanced'])
+                  and not (banned and needs_any(k, banned, features)))
+
+
+def needs_any(slug, banned, features, seen=None):
+    seen = set() if seen is None else seen
+    if slug in seen:
+        return False
+    seen.add(slug)
+    for need in features.get(slug, {}).get('needs', []):
+        options = need if isinstance(need, list) else [need]
+        if all(o in banned or needs_any(o, banned, features, seen) for o in options):
+            return True
+    return False
 
 
 def check_entry(entry, cls, where, features, feats, choice_ids):
@@ -571,6 +690,8 @@ def check_entry(entry, cls, where, features, feats, choice_ids):
             for slug in pool:
                 if slug not in features:
                     raise ValueError(f'{where}: pool of {entry["choice"]} names unknown feature {slug}')
+                if entry.get('distinct') and not features[slug].get(entry['distinct']):
+                    raise ValueError(f'{where}: {slug} has no {entry["distinct"]} for choice {entry["choice"]}')
     if 'fixedOf' in entry and entry['fixedOf'] not in choice_ids:
         raise ValueError(f'{where}: fixedOf names unknown choice {entry["fixedOf"]}')
     if 'bonusFeat' in entry and isinstance(entry.get('pool'), list):
@@ -632,6 +753,7 @@ def build(src, sha=None, built=None, core_path=ROOT / 'tools' / 'race_traits.jso
     used = {t for r in races.values() for t in r['coreTraits'] + r['altTraits']} | {f for t in themes.values() for f in t['features']}
     feats = build_feats(load_dir(src / 'feats'), features, load_json(prereq_path))
     emitted = {**{k: v for k, v in features.items() if k in used}, **class_features}
+    prune_needs(emitted)
     effect_overrides = load_json(effects_path)
     apply_replacements(feats, emitted, effect_overrides)
     progressions = build_progressions(load_json(progressions_path), emitted, feats)

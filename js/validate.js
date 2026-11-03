@@ -171,7 +171,7 @@
     if (typeof slug !== 'string' || !has(features, slug)) return { code: 'missing', why: "Feature '" + slug + "' no longer exists" };
     const f = features[slug];
     if (rules.poolOf(entry, data, ctx.here.cls).indexOf(slug) === -1) {
-      return { code: 'pool', why: f.name + ' is not a ' + (entry.label || entry.choice) + ' option for ' + className(ctx.here.cls, data) };
+      return { code: 'pool', why: f.name + ' is not an option for ' + (entry.label || entry.choice) };
     }
     if (typeof f.minLevel === 'number' && f.minLevel > ctx.here.classLevel) {
       return { code: 'level', why: 'Requires ' + className(ctx.here.cls, data) + ' level ' + f.minLevel };
@@ -179,7 +179,34 @@
     if (!entry.allowKnown && !f.repeatable && ctx.known.indexOf(slug) !== -1) {
       return { code: 'duplicate', why: f.name + ' cannot be taken twice' };
     }
+    const unmet = asList(f.needs).filter((need) => !asList(need).some((k) => ctx.has[k]));
+    if (unmet.length) {
+      const name = (k) => (features[k] || {}).name || k;
+      return { code: 'prereq', why: 'Requires ' + unmet.map((need) => asList(need).map(name).join(' or ')).join(', ') };
+    }
+    const skills = asList(f.needsClassSkill).filter((k) => !ctx.classSkills[k]);
+    if (skills.length) return { code: 'prereq', why: 'Requires ' + skills.map((k) => (rules.SKILLS[k] || {}).name || k).join(', ') + ' as a class skill' };
+    if (entry.distinct && f[entry.distinct] && ctx.siblings.some((k) => k !== slug && (features[k] || {})[entry.distinct] === f[entry.distinct])) {
+      return { code: 'split', why: (entry.label || entry.choice) + ': only one ' + f[entry.distinct] + ' pick at this level' };
+    }
     return null;
+  }
+
+  function classSkillsOf(char, data) {
+    const set = Object.assign({}, rules.classSkillSet(char, data));
+    const theme = char.theme && table(data, 'themes')[char.theme];
+    if (theme && theme.skill) set[theme.skill] = true;
+    return set;
+  }
+
+  function hasAt(char, data, levelIndex, entry, upTo) {
+    const lvls = levelsOf(char).slice(0, levelIndex + 1).map((l, i) => {
+      if (i !== levelIndex || !l) return l;
+      const choices = Object.assign({}, l.choices);
+      choices[entry.choice] = asList(choices[entry.choice]).slice(0, upTo);
+      return Object.assign({}, l, { choices });
+    });
+    return featureSet(Object.assign({}, char, { levels: lvls }), data);
   }
 
   function knownBefore(plan, levelIndex, entry, upTo, char, data) {
@@ -194,12 +221,19 @@
     return known;
   }
 
-  function choiceProblem(entry, slug, levelIndex, char, data, index) {
+  function choiceProblem(entry, slug, levelIndex, char, data, index, everyOther) {
     const { plan, here } = choicePlan(char, data, levelIndex);
     if (!here) return { code: 'missing', why: 'No level ' + (levelIndex + 1) };
     const picks = asList(here.choices[entry.choice]);
     const upTo = Number.isInteger(index) ? index : picks.indexOf(slug) === -1 ? picks.length : picks.indexOf(slug);
-    return featureProblem(entry, slug, { here, known: knownBefore(plan, levelIndex, entry, upTo, char, data) }, data);
+    const asOf = rules.charAt(char, levelIndex + 1);
+    return featureProblem(entry, slug, {
+      here,
+      known: knownBefore(plan, levelIndex, entry, upTo, char, data),
+      has: hasAt(char, data, levelIndex, entry, upTo),
+      classSkills: classSkillsOf(asOf, data),
+      siblings: everyOther || !Number.isInteger(index) ? picks.filter((k, j) => j !== upTo) : picks.slice(0, index)
+    }, data);
   }
 
   function allowed(kind, slug, levelIndex, char, data, slot) {
@@ -208,8 +242,10 @@
       const id = slot && typeof slot === 'object' ? slot.id : slot;
       const entry = here && here.entries.find((e) => e.choice === id);
       if (!entry) return { ok: false, why: 'No ' + id + ' choice at this level' };
-      const problem = choiceProblem(entry, slug, levelIndex, char, data, slot && typeof slot === 'object' ? slot.index : undefined);
-      return problem ? { ok: false, why: problem.why } : { ok: true };
+      const problem = choiceProblem(entry, slug, levelIndex, char, data, slot && typeof slot === 'object' ? slot.index : undefined, true);
+      if (problem) return { ok: false, why: problem.why };
+      const text = asList((table(data, 'features')[slug] || {}).needsText);
+      return text.length ? { ok: true, why: 'Not checked: ' + text.join(' ') } : { ok: true };
     }
     if (kind !== 'feat') return { ok: true };
     const here = asList((levelsOf(char)[levelIndex] || {}).feats);
@@ -229,7 +265,7 @@
     picks.forEach((k, j) => {
       const name = (rules.SKILLS[k] || {}).name || k;
       if (!has(rules.SKILLS, k)) push('invalid', "Skill '" + k + "' does not exist", k);
-      else if (Array.isArray(entry.from) && entry.from.indexOf(k) === -1) push('pool', name + ' is not a ' + entry.label + ' option', k);
+      else if (Array.isArray(entry.from) && entry.from.indexOf(k) === -1) push('pool', name + ' is not an option for ' + entry.label, k);
       else if (earlier.indexOf(k) !== -1 || picks.indexOf(k) !== j) push('duplicate', name + ' is already chosen for ' + entry.label, k);
       else if (entry.minRanks && (ranks[k] || 0) < entry.minRanks) push('ranks', entry.label + ' needs ' + entry.minRanks + ' rank in ' + name, k);
     });

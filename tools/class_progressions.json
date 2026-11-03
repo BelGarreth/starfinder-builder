@@ -1057,6 +1057,9 @@
      "fixed": "solar_manifestation_(su)"
     },
     {
+     "fixed": "stellar_mode_(su)"
+    },
+    {
      "fixed": "stellar_revelation"
     },
     {
@@ -1176,6 +1179,7 @@
       "category": "zenithRevelation"
      },
      "count": 2,
+     "distinct": "stellarType",
      "minLevelFrom": "requirements"
     }
    ],
@@ -1280,6 +1284,7 @@
       "category": "zenithRevelation"
      },
      "count": 2,
+     "distinct": "stellarType",
      "minLevelFrom": "requirements"
     }
    ],
@@ -1401,7 +1406,15 @@
      "choice": "trick",
      "label": "Mechanic trick",
      "pool": {
-      "category": "mechanicTrick"
+      "category": "mechanicTrick",
+      "excludeNeeds": [
+       "drone"
+      ],
+      "exclude": [
+       "drone_meld_(ex)",
+       "melded_mod_(ex)",
+       "experimental_cortex_design_(ex)"
+      ]
      },
      "count": 1,
      "minLevelFrom": "requirements"
@@ -1420,7 +1433,15 @@
      "choice": "trick",
      "label": "Mechanic trick",
      "pool": {
-      "category": "mechanicTrick"
+      "category": "mechanicTrick",
+      "excludeNeeds": [
+       "drone"
+      ],
+      "exclude": [
+       "drone_meld_(ex)",
+       "melded_mod_(ex)",
+       "experimental_cortex_design_(ex)"
+      ]
      },
      "count": 1,
      "minLevelFrom": "requirements"
@@ -1439,7 +1460,15 @@
      "choice": "trick",
      "label": "Mechanic trick",
      "pool": {
-      "category": "mechanicTrick"
+      "category": "mechanicTrick",
+      "excludeNeeds": [
+       "drone"
+      ],
+      "exclude": [
+       "drone_meld_(ex)",
+       "melded_mod_(ex)",
+       "experimental_cortex_design_(ex)"
+      ]
      },
      "count": 1,
      "minLevelFrom": "requirements"
@@ -1470,7 +1499,15 @@
      "choice": "trick",
      "label": "Mechanic trick",
      "pool": {
-      "category": "mechanicTrick"
+      "category": "mechanicTrick",
+      "excludeNeeds": [
+       "drone"
+      ],
+      "exclude": [
+       "drone_meld_(ex)",
+       "melded_mod_(ex)",
+       "experimental_cortex_design_(ex)"
+      ]
      },
      "count": 1,
      "minLevelFrom": "requirements"
@@ -1486,7 +1523,15 @@
      "choice": "trick",
      "label": "Mechanic trick",
      "pool": {
-      "category": "mechanicTrick"
+      "category": "mechanicTrick",
+      "excludeNeeds": [
+       "drone"
+      ],
+      "exclude": [
+       "drone_meld_(ex)",
+       "melded_mod_(ex)",
+       "experimental_cortex_design_(ex)"
+      ]
      },
      "count": 1,
      "minLevelFrom": "requirements"
@@ -1514,7 +1559,15 @@
      "choice": "trick",
      "label": "Mechanic trick",
      "pool": {
-      "category": "mechanicTrick"
+      "category": "mechanicTrick",
+      "excludeNeeds": [
+       "drone"
+      ],
+      "exclude": [
+       "drone_meld_(ex)",
+       "melded_mod_(ex)",
+       "experimental_cortex_design_(ex)"
+      ]
      },
      "count": 1,
      "minLevelFrom": "requirements"
@@ -1530,7 +1583,15 @@
      "choice": "trick",
      "label": "Mechanic trick",
      "pool": {
-      "category": "mechanicTrick"
+      "category": "mechanicTrick",
+      "excludeNeeds": [
+       "drone"
+      ],
+      "exclude": [
+       "drone_meld_(ex)",
+       "melded_mod_(ex)",
+       "experimental_cortex_design_(ex)"
+      ]
      },
      "count": 1,
      "minLevelFrom": "requirements"
@@ -1555,7 +1616,15 @@
      "choice": "trick",
      "label": "Mechanic trick",
      "pool": {
-      "category": "mechanicTrick"
+      "category": "mechanicTrick",
+      "excludeNeeds": [
+       "drone"
+      ],
+      "exclude": [
+       "drone_meld_(ex)",
+       "melded_mod_(ex)",
+       "experimental_cortex_design_(ex)"
+      ]
      },
      "count": 1,
      "minLevelFrom": "requirements"
@@ -1580,7 +1649,15 @@
      "choice": "trick",
      "label": "Mechanic trick",
      "pool": {
-      "category": "mechanicTrick"
+      "category": "mechanicTrick",
+      "excludeNeeds": [
+       "drone"
+      ],
+      "exclude": [
+       "drone_meld_(ex)",
+       "melded_mod_(ex)",
+       "experimental_cortex_design_(ex)"
+      ]
      },
      "count": 1,
      "minLevelFrom": "requirements"
@@ -1599,7 +1676,15 @@
      "choice": "trick",
      "label": "Mechanic trick",
      "pool": {
-      "category": "mechanicTrick"
+      "category": "mechanicTrick",
+      "excludeNeeds": [
+       "drone"
+      ],
+      "exclude": [
+       "drone_meld_(ex)",
+       "melded_mod_(ex)",
+       "experimental_cortex_design_(ex)"
+      ]
      },
      "count": 1,
      "minLevelFrom": "requirements"

@@ -182,13 +182,18 @@
     const features = (data && data.features) || {};
     const plan = levelPlan(char, data);
     const out = [];
-    const add = (slug, p, via) => { if (typeof slug === 'string' && hasOwn(features, slug)) out.push({ slug, levelIndex: p.levelIndex, cls: p.cls, via }); };
+    const add = (slug, p, via, choice, index) => {
+      if (typeof slug !== 'string' || !hasOwn(features, slug)) return;
+      const f = { slug, levelIndex: p.levelIndex, cls: p.cls, via };
+      if (choice) { f.choice = choice; f.index = index; }
+      out.push(f);
+    };
     plan.forEach((p) => {
       p.entries.forEach((e) => {
         if (e.fixed) add(e.fixed, p, 'fixed');
         else if (e.choice) {
           const pool = poolOf(e, data, p.cls);
-          listOf(p.choices[e.choice]).forEach((k) => { if (pool.indexOf(k) !== -1) add(k, p, 'choice'); });
+          listOf(p.choices[e.choice]).forEach((k, j) => { if (pool.indexOf(k) !== -1) add(k, p, 'choice', e.choice, j); });
         } else if (e.fixedOf) {
           const option = pickedFor(plan, p.cls, e.fixedOf)[0];
           const rec = hasOwn(features, option) ? features[option] : null;
@@ -397,7 +402,7 @@
     mod, baseScores, pointBuyErrors, classLevels, charLevel,
     bab, baseSave, hp, sp, rp, featSlots, rankBudget,
     progressionOf, entriesAt, levelPlan, choiceEntry, poolOf, pickedFor, classFeatures, skillPicks, skillFocusSkills,
-    SKILLS, ACP_SKILLS, charAt, equippedArmor, skillRanksOf, bulkState, derive
+    SKILLS, ACP_SKILLS, charAt, classSkillSet, equippedArmor, skillRanksOf, bulkState, derive
   };
   if (typeof module !== 'undefined') module.exports = api; else root.SF = Object.assign(root.SF || {}, api);
 })(this);

@@ -191,3 +191,61 @@ test('picks outside the schema are flagged, and orphaned slugs are missing', () 
   assert.ok(blockersAt(c, 1).some((x) => x.code === 'missing' && x.ref === 'gone_feature'));
   assert.ok(!features(c).includes('quick_movement_(ex)'));
 });
+
+test('option requirements are enforced: Improved Get Em needs Get Em', () => {
+  const c = build('envoy', 6, { 1: { improvisation: 'clever_feint_(ex)' }, 6: { improvisation: "improved_get_'em_(ex)" } });
+  assert.deepStrictEqual(allowed('choice', "improved_get_'em_(ex)", 5, c, data, 'improvisation'), { ok: false, why: "Requires Get 'Em (Ex)" });
+  assert.ok(blockersAt(c, 6).some((b) => b.code === 'prereq' && b.ref === "improved_get_'em_(ex)"));
+  c.levels[0].choices.improvisation = "get_'em_(ex)";
+  assert.deepStrictEqual(allowed('choice', "improved_get_'em_(ex)", 5, c, data, 'improvisation'), { ok: true });
+  assert.ok(!blockersAt(c, 6).some((b) => b.code === 'prereq'));
+});
+
+test('a requirement picked at a later level does not satisfy an earlier pick', () => {
+  const c = build('envoy', 8, { 1: { improvisation: 'clever_feint_(ex)' }, 6: { improvisation: "improved_get_'em_(ex)" }, 8: { improvisation: "get_'em_(ex)" } });
+  assert.ok(blockersAt(c, 6).some((b) => b.code === 'prereq' && b.ref === "improved_get_'em_(ex)"));
+  assert.ok(!blockersAt(c, 8).some((b) => b.code === 'prereq'));
+});
+
+test('zenith revelations must be one graviton and one photon at each of 9 and 17', () => {
+  const zen = choiceAt('solarian', 9, 'zenithRevelation');
+  assert.ok(zen.pool.every((k) => ['graviton', 'photon'].indexOf(data.features[k].stellarType) !== -1));
+  const two = build('solarian', 9, { 9: { zenithRevelation: ['starquake_(su)', 'wormholes_(su)'] } });
+  assert.ok(blockersAt(two, 9).some((b) => b.code === 'split' && b.ref === 'wormholes_(su)'));
+  assert.strictEqual(allowed('choice', 'time_dilation_(su)', 8, two, data, { id: 'zenithRevelation', index: 1 }).ok, false);
+  assert.strictEqual(allowed('choice', 'ray_of_light_(su)', 8, two, data, { id: 'zenithRevelation', index: 1 }).ok, true);
+  assert.strictEqual(choiceAt('solarian', 17, 'zenithRevelation').distinct, 'stellarType');
+});
+
+test('the exocortex mechanic trick pool leaves out drone-only tricks and checks exocortex needs', () => {
+  const pool = choiceAt('mechanic', 2, 'trick').pool;
+  ['repair_drone_(ex)', 'artificial_pilot_(ex)', 'exploration_routine_(ex)', 'protective_programming_(ex)', 'melded_mod_(ex)', 'drone_meld_(ex)', 'experimental_cortex_design_(ex)']
+    .forEach((k) => assert.ok(pool.indexOf(k) === -1, k));
+  const c = build('mechanic', 2, { 1: { ai: 'exocortex', memoryModule: 'com' }, 2: { trick: 'combat_boost_(ex)' } });
+  assert.deepStrictEqual(blockersAt(c, 2), []);
+  c.levels[0].choices.ai = [];
+  assert.ok(blockersAt(c, 2).some((b) => b.code === 'prereq' && b.ref === 'combat_boost_(ex)'));
+});
+
+test('an exocortex mod from the 11th-level list cannot be the first mod at 7', () => {
+  const c = build('mechanic', 7, { 1: { ai: 'exocortex' } });
+  assert.deepStrictEqual(allowed('choice', 'flight_system_(ex_exocortex)', 6, c, data, 'exocortexMod'), { ok: false, why: 'Requires Mechanic level 11' });
+  assert.strictEqual(allowed('choice', 'speed_(ex_exocortex)', 6, c, data, 'exocortexMod').ok, true);
+});
+
+test('ambusher needs stealth as a class skill, and unparsed requirements are shown but not blocked', () => {
+  const c = build('soldier', 1);
+  assert.deepStrictEqual(allowed('choice', 'ambusher', 0, c, data, 'fightingStyle'), { ok: false, why: 'Requires Stealth as a class skill' });
+  c.theme = Object.keys(data.themes).find((k) => data.themes[k].skill === 'ste');
+  assert.strictEqual(allowed('choice', 'ambusher', 0, c, data, 'fightingStyle').ok, true);
+  const four = allowed('choice', 'fourfold_tactician', 0, c, data, 'fightingStyle');
+  assert.strictEqual(four.ok, true);
+  assert.ok(/^Not checked: You must have four or more arms/.test(four.why));
+});
+
+test('solarian level 1 has stellar mode, and pool messages read naturally', () => {
+  assert.ok(entries('solarian', 1).some((e) => e.fixed === 'stellar_mode_(su)'));
+  assert.ok(features(build('solarian', 1)).indexOf('stellar_mode_(su)') !== -1);
+  const c = build('envoy', 1, { 1: { improvisation: 'quick_movement_(ex)' } });
+  assert.ok(blockersAt(c, 1).some((b) => b.msg === 'Quick Movement (Ex) is not an option for Envoy improvisation'));
+});

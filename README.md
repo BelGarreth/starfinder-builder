@@ -47,31 +47,39 @@ does not exist. An `_enhanced` class uses its base levels plus `enhanced.levels`
 with the same id as a base choice at that level replaces it. An entry is one of:
 
 - `{fixed: slug}`: the feature is gained at that class level.
-- `{choice: id, label, pool, count, minLevelFrom?, allowKnown?}`: the player picks `count` features,
+- `{choice: id, label, pool, count, minLevelFrom?, allowKnown?, distinct?}`: the player picks `count` features,
   stored as `char.levels[i].choices[id]` (a slug or a list of slugs). In the source file `pool` may be
   `{category, exclude?, enhanced?}`, which the build expands to every feature of that class and category.
   In `SFDATA` it is a slug list or `{poolOf: id}`, meaning the same pool as choice `id`. A pick is
   blocked if it is outside the pool, if its `minLevel` is above the class level, or if it repeats an
   earlier pick or granted feature, unless the feature is `repeatable` or the entry has `allowKnown`.
+  `distinct: field` makes the picks at one level differ in that field. Zenith revelations use
+  `stellarType`, so each of levels 9 and 17 takes one graviton and one photon. A source pool may also
+  give `excludeNeeds: [slug]`, which drops every option that needs one of those slugs.
 - `{fixedOf: id, tier}`: grants the features the option chosen for choice `id` lists under
   `grants[tier]`. Fighting styles, connections and specializations get `grants` from their own text:
   the style techniques at 1/5/9/13/17, the connection powers at 1/3/6/9/12/15/18, and the specialization
   exploit (5) and power (11). The secondary fighting style uses tiers 1/5/9 at soldier levels 9/13/17.
 - `{bonusFeat: true, pool?}`: an extra feat slot at that level; `pool` is `"combat"` or a feat slug list.
-  Restricted slots sort after open ones, and `char.levels[i].feats` fills them in that order.
+  Feat slots are matched by position: at each level the open slots sort first and restricted slots
+  after them, and `char.levels[i].feats[j]` fills slot `j` in that order.
 - `{skillPick: id, label, count, from?, minRanks?, classSkill?, skillFocus?}`: skills picked into
   `choices[id]`. `classSkill` makes them class skills and `skillFocus` gives the +3 insight bonus.
 - `{abilityPick: id}`: one ability score key.
 
-A specialization's `skillFocus` list gives its associated skills the Skill Focus bonus. `_minLevels`
+The build reads each pool option's "You must have … to choose/learn/select/take this" sentence. Named
+features become `needs: [slug | [slug, …]]`, where a nested list means any one of them. A required
+level raises `minLevel`, and "X as a class skill" becomes `needsClassSkill`. A pick is blocked until
+every need is held at that point: by race, theme, class features or earlier picks. A requirement the
+build cannot resolve to a record becomes `needsText`, such as a solar shield, a fly speed, four arms or
+a known spell. That text is shown with the option but not enforced. A specialization's `skillFocus` list gives its associated skills the Skill Focus bonus. `_minLevels`
 corrects a feature's level where Foundry's requirement text is wrong, such as the 11th-level exocortex mods.
 
 Known gaps: the mechanic gets the exocortex only. The drone is not offered, so drone mods and Control
-Net's drone half are not modelled, and mechanic tricks that need a drone are still listed in the pool.
-Pool options are gated by level only; other requirement text on an option is not enforced. The solarian's solar weapon, flare and shield are
-inventory items in Foundry, so the armor-or-weapon pick is left to gear. Zenith revelations are checked
-for count but not for the one-graviton, one-photon split. The Bully and Diplomat specialization powers
-have no feature record to grant.
+Net's drone half are not modelled, and tricks that need a drone are left out of the trick pool. The solarian's solar weapon, flare and shield are
+inventory items in Foundry, so the armor-or-weapon pick is left to gear. The Bully and Diplomat specialization powers
+have no feature record to grant. The rule that an exocortex always keeps one mod from the 7th-level list
+holds through the level gate, because swapping mods on level-up is not modelled.
 
 ## Tests
 
