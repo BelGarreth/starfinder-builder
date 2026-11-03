@@ -36,7 +36,8 @@ function throwingStorage() {
 function withStorage(storage, fn) {
   const had = Object.prototype.hasOwnProperty.call(win, 'localStorage');
   Object.defineProperty(win, 'localStorage', { value: storage, configurable: true, writable: true });
-  try { return fn(); } finally { if (had) win.localStorage = undefined; else delete win.localStorage; }
+  H.probeStorage();
+  try { return fn(); } finally { if (had) win.localStorage = undefined; else delete win.localStorage; H.probeStorage(); }
 }
 
 function fullChar() {
@@ -199,4 +200,81 @@ test('applyImport replaces the character on success and leaves it untouched on e
   assert.strictEqual(toasts.length, 1);
   assert.ok(/levels/.test(toasts[0]));
   assert.deepStrictEqual(clone(win.C), before);
+});
+
+test('storage availability is probed once, not on every render', () => {
+  const s = memoryStorage();
+  let writes = 0;
+  const counting = Object.assign({}, s, { setItem: (k, v) => { writes++; s.setItem(k, v); } });
+  withStorage(counting, () => {
+    const before = writes;
+    for (let i = 0; i < 5; i++) H.statusLine(fullChar(), U.blankUI(), data);
+    assert.strictEqual(writes, before);
+  });
+});
+
+test('statusLine flips to the warning when a save fails', () => {
+  const s = memoryStorage();
+  withStorage(s, () => {
+    H.loadLocal();
+    assert.strictEqual(text(H.statusLine({}, U.blankUI(), data)), '');
+    const real = s.setItem;
+    s.setItem = () => { throw new Error('quota'); };
+    assert.strictEqual(H.saveLocal(fullChar()), false);
+    s.setItem = real;
+    assert.ok(text(H.statusLine({}, U.blankUI(), data)).indexOf('Not saving: export to keep your work') !== -1);
+  });
+});
+
+['{', '{"v":3,"name":"x"}', '{"v":9,"levels":[]}'].forEach((blob) => {
+  test('an unreadable saved blob is backed up, flagged, and recoverable: ' + blob, () => {
+    const s = memoryStorage();
+    withStorage(s, () => {
+      s.setItem('sfbuilder.v1', blob);
+      assert.strictEqual(H.load(), null);
+      const keys = Object.keys(s.dump).filter((k) => k.indexOf('sfbuilder.v1.backup-') === 0);
+      assert.strictEqual(keys.length, 1);
+      assert.strictEqual(s.dump[keys[0]], blob);
+      assert.strictEqual(H.saveLocal(fullChar()), true);
+      assert.strictEqual(s.dump[keys[0]], blob);
+      const html = H.statusLine({}, U.blankUI(), data);
+      assert.ok(text(html).indexOf('Your saved character could not be read. A copy was kept.') !== -1);
+      assert.ok(html.indexOf('data-act="downloadRaw"') !== -1);
+      assert.strictEqual(H.recoveredBackup().text, blob);
+      const got = [];
+      const doc = { createElement: () => ({ click() {} }), body: { appendChild() {}, removeChild() {} } };
+      win.document = doc;
+      win.Blob = function (parts, o) { got.push(parts.join(''), o.type); };
+      win.URL = { createObjectURL: () => 'blob:x', revokeObjectURL() {} };
+      win.setTimeout = () => 0;
+      try { H.actions.downloadRaw(); } finally { delete win.setTimeout; delete win.document; delete win.Blob; delete win.URL; }
+      assert.deepStrictEqual(got, [blob, 'text/plain']);
+    });
+  });
+});
+
+test('a readable save raises no recovery notice', () => {
+  const s = memoryStorage();
+  withStorage(s, () => {
+    H.saveLocal(fullChar());
+    H.load();
+    assert.strictEqual(H.recoveredBackup(), null);
+    assert.strictEqual(text(H.statusLine({}, U.blankUI(), data)), '');
+  });
+});
+
+test('tabPrint shows param and choice picks next to their feats and features', () => {
+  const c = fixture('vesk-soldier-1.json');
+  c.levels[0] = { class: 'soldier', increases: [], skills: {}, feats: ['skill_focus', 'weapon_focus_(combat)'], choices: { skill_focus: 'per', 'weapon_focus_(combat)': 'smallA', fightingStyle: 'sharpshoot' }, spells: {} };
+  const t = text(H.tabPrint(c, U.blankUI(), data, U.ctxOf(c, data)));
+  assert.ok(/Skill Focus[^()]*\(Perception\)/.test(t), t);
+  assert.ok(/Weapon Focus \(Combat\) \(small arms\)/.test(t), t);
+  assert.ok(/Primary fighting style/.test(t) && /Sharpshoot/i.test(t), t);
+});
+
+test('tabPrint shows multi-pick feats per instance', () => {
+  const c = fixture('vesk-soldier-1.json');
+  c.levels[0] = { class: 'soldier', increases: [], skills: {}, feats: ['student'], choices: { student: ['ath', 'acr'] }, spells: {} };
+  const t = text(H.tabPrint(c, U.blankUI(), data, U.ctxOf(c, data)));
+  assert.ok(/Athletics, Acrobatics/.test(t), t);
 });

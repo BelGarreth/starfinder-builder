@@ -2,11 +2,15 @@
   const VERSION = 1;
   const KEY = 'sfbuilder.v1';
   const PROBE = 'sfbuilder.probe';
+  const RECOVERED = 'Your saved character could not be read. A copy was kept.';
   const NOT_SAVING = 'Not saving: export to keep your work';
 
   class ImportError extends Error {
     constructor(message) { super(message); this.name = 'ImportError'; }
   }
+
+  let available = false;
+  let recovered = null;
 
   const UI = () => root.SFUI || {};
   const SF = () => root.SF;
@@ -51,31 +55,47 @@
     try { return root.localStorage || null; } catch (e) { return null; }
   }
 
-  function storageWorks() {
+  function probeStorage() {
     try {
       const s = storage();
-      if (!s) return false;
+      if (!s) { available = false; return false; }
       s.setItem(PROBE, '1');
       s.removeItem(PROBE);
-      return true;
-    } catch (e) { return false; }
+      available = true;
+    } catch (e) { available = false; }
+    return available;
   }
 
   function saveLocal(char) {
     try {
       const s = storage();
-      if (!s) return false;
+      if (!s) throw new Error('no storage');
       s.setItem(KEY, exportJSON(char));
       return true;
-    } catch (e) { return false; }
+    } catch (e) {
+      available = false;
+      return false;
+    }
+  }
+
+  function keepBackup(text) {
+    const key = KEY + '.backup-' + Date.now();
+    recovered = { key, text };
+    try { storage().setItem(key, text); } catch (e) { }
   }
 
   function loadLocal() {
+    recovered = null;
+    let text = null;
     try {
       const s = storage();
-      const text = s ? s.getItem(KEY) : null;
-      return text ? importJSON(text) : null;
+      text = s ? s.getItem(KEY) : null;
     } catch (e) { return null; }
+    if (!text) return null;
+    try { return importJSON(text); } catch (e) {
+      keepBackup(text);
+      return null;
+    }
   }
 
   function exportName(char) {
@@ -114,13 +134,13 @@
     return true;
   }
 
-  function download(char) {
+  function download(content, filename, type) {
     const doc = root.document;
-    const blob = new root.Blob([exportJSON(char)], { type: 'application/json' });
+    const blob = new root.Blob([content], { type });
     const url = root.URL.createObjectURL(blob);
     const a = doc.createElement('a');
     a.href = url;
-    a.download = exportName(char);
+    a.download = filename;
     doc.body.appendChild(a);
     a.click();
     doc.body.removeChild(a);
@@ -183,17 +203,61 @@
 
   const li = (name, summary, tag) => '<div class="pp-li"><b>' + esc(name) + '</b>' + (tag ? ' <small>' + esc(tag) + '</small>' : '') + (summary ? '<div><small>' + esc(summary) + '</small></div>' : '') + '</div>';
 
+  function featDetail(C, data, levelIndex, slug, k) {
+    const rules = SF();
+    const choices = (C.levels[levelIndex] && C.levels[levelIndex].choices) || {};
+    const def = rules.FEAT_CHOICE[slug];
+    if (def) {
+      const v = asList(choices[slug])[k];
+      if (!v) return '';
+      if (def.kind === 'special') return (UI().table(data, 'items')[v] || {}).name || v;
+      return rules.TYPE_NAME[v] || v;
+    }
+    return paramDetail(data, choices, slug, k);
+  }
+
+  function paramDetail(data, choices, slug, k) {
+    const param = SF().paramOf(data, slug);
+    if (!param) return '';
+    const list = asList(choices[slug]).slice(k * param.count, (k + 1) * param.count);
+    return list.filter(Boolean).map((v) => SF().optionName(param.kind, v)).join(', ');
+  }
+
   function featPage(C, data) {
     const u = UI();
+    const rules = SF();
     const feats = [];
-    u.levelsOf(C).forEach((l, i) => asList(l.feats).forEach((slug) => {
-      const rec = u.table(data, 'feats')[slug];
-      feats.push(li(rec ? rec.name : slug, rec && rec.summary, 'level ' + (i + 1)));
-    }));
-    const features = SF().classFeatures(C, data).map((f) => {
-      const rec = u.table(data, 'features')[f.slug];
-      return li(rec ? rec.name : f.slug, rec && rec.summary, u.className(data, f.cls) + ' (level ' + (f.levelIndex + 1) + ')');
+    u.levelsOf(C).forEach((l, i) => {
+      const seen = {};
+      asList(l.feats).forEach((slug) => {
+        const k = seen[slug] || 0;
+        seen[slug] = k + 1;
+        const rec = u.table(data, 'feats')[slug];
+        const detail = featDetail(C, data, i, slug, k);
+        feats.push(li((rec ? rec.name : slug) + (detail ? ' (' + detail + ')' : ''), rec && rec.summary, 'level ' + (i + 1)));
+      });
     });
+    const plan = rules.levelPlan(C, data);
+    const label = (f) => {
+      const e = plan[f.levelIndex].entries.find((x) => x.choice === f.choice);
+      return e && e.label ? e.label : '';
+    };
+    const counts = {};
+    const features = rules.classFeatures(C, data).map((f) => {
+      const rec = u.table(data, 'features')[f.slug];
+      const key = f.levelIndex + '|' + f.slug;
+      const k = counts[key] || 0;
+      counts[key] = k + 1;
+      const detail = paramDetail(data, C.levels[f.levelIndex].choices || {}, f.slug, k);
+      const from = f.via === 'choice' ? label(f) : '';
+      const tag = [from, u.className(data, f.cls) + ' (level ' + (f.levelIndex + 1) + ')'].filter(Boolean).join(', ');
+      return li((rec ? rec.name : f.slug) + (detail ? ' (' + detail + ')' : ''), rec && rec.summary, tag);
+    });
+    plan.forEach((p) => p.entries.forEach((e) => {
+      if (!e.skillPick) return;
+      const names = asList(p.choices[e.skillPick]).filter((v) => rules.SKILLS[v]).map((v) => rules.SKILLS[v].name);
+      if (names.length) features.push(li((e.label || 'Skill choice') + ': ' + names.join(', '), '', u.className(data, p.cls) + ' (level ' + (p.levelIndex + 1) + ')'));
+    }));
     if (!feats.length && !features.length) return '';
     return '<section class="pp-page"><div class="pp-sec"><div class="pp-h">Class features</div><div class="pp-list">' + (features.join('') || '<div class="pp-note">None.</div>') + '</div></div>'
       + '<div class="pp-sec"><div class="pp-h">Feats</div><div class="pp-list">' + (feats.join('') || '<div class="pp-note">None.</div>') + '</div></div></section>';
@@ -236,18 +300,21 @@
 
   const actions = {
     print: () => { root.print(); },
-    exportFile: (C) => { download(C); }
+    exportFile: (C) => { download(exportJSON(C), exportName(C), 'application/json'); },
+    downloadRaw: () => { if (recovered) download(recovered.text, 'sfbuilder-recovered.txt', 'text/plain'); }
   };
 
   const hook = {
     load: loadLocal,
     save: saveLocal,
-    statusLine: () => (storageWorks() ? '' : '<span class="pill warn">' + esc(NOT_SAVING) + '</span>'),
+    statusLine: () => (available ? '' : '<span class="pill warn">' + esc(NOT_SAVING) + '</span>')
+      + (recovered ? ' <span class="pill warn">' + esc(RECOVERED) + '</span> <button class="btn sm" data-act="downloadRaw">Download raw</button>' : ''),
     tabPrint,
     tabIO,
     actions,
-    VERSION, KEY, ImportError, defaultChar, migrate, exportJSON, importJSON, saveLocal, loadLocal, exportName, applyImport
+    VERSION, KEY, ImportError, defaultChar, migrate, exportJSON, importJSON, saveLocal, loadLocal, exportName, applyImport, probeStorage, recoveredBackup: () => recovered
   };
+  probeStorage();
   root.SFCHAR = hook;
   if (typeof module !== 'undefined') module.exports = hook;
 
