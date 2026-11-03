@@ -166,6 +166,7 @@
       const s = storage();
       if (!s) throw new Error('no storage');
       s.setItem(KEY, exportJSON(char));
+      available = true;
       return true;
     } catch (e) {
       available = false;

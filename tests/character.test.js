@@ -364,3 +364,17 @@ test('on load an existing backup key is offered for download, newest first', () 
     assert.deepStrictEqual(downloaded(H.actions.downloadRaw), ['newest', 'text/plain']);
   });
 });
+
+test('the Not saving notice clears once a later save succeeds', () => {
+  const s = memoryStorage();
+  let full = false;
+  const flaky = Object.assign({}, s, { setItem: (k, v) => { if (full) throw new Error('quota'); s.setItem(k, v); } });
+  withStorage(flaky, () => {
+    full = true;
+    assert.strictEqual(H.saveLocal(fullChar()), false);
+    assert.match(text(H.statusLine(fullChar(), U.blankUI(), data)), /Not saving/);
+    full = false;
+    assert.strictEqual(H.saveLocal(fullChar()), true);
+    assert.doesNotMatch(text(H.statusLine(fullChar(), U.blankUI(), data)), /Not saving/);
+  });
+});
