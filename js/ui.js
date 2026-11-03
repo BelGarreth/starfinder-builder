@@ -4,11 +4,7 @@
   const { asList, levelsOf, TABS } = U;
   const store = () => root.SFCHAR || null;
 
-  U.blank = () => ({
-    v: 1, name: '', race: '', variant: null, theme: '',
-    abilities: { pb: { str: 0, dex: 0, con: 0, int: 0, wis: 0, cha: 0 } },
-    levels: [], gear: [], notes: ''
-  });
+  U.blank = () => SF().blankCharacter();
   U.blankUI = () => ({ tab: 'char', lvl: 0, enh: {}, swapFrom: {} });
   U.newLevel = (cls) => ({ class: cls, increases: [], skills: {}, feats: [], choices: {}, spells: {} });
 

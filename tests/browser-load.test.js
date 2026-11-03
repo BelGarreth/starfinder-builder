@@ -30,3 +30,15 @@ test('every script loads in index.html order with no require or module', () => {
   assert.ok(Array.isArray(win.SF.validate(vesk, win.SFDATA)));
   assert.strictEqual(typeof win.SFUI.view, 'function');
 });
+
+test('the UI starts on a blank character with no persistence hook loaded', () => {
+  const win = {};
+  win.window = win;
+  const ctx = vm.createContext(win);
+  scripts.filter((src) => src !== 'js/character.js').forEach((src) => vm.runInContext(fs.readFileSync(path.join(root, src), 'utf8'), ctx, { filename: src }));
+  assert.strictEqual(win.SFCHAR, undefined);
+  assert.deepStrictEqual(JSON.parse(JSON.stringify(win.C)), JSON.parse(JSON.stringify(win.SF.blankCharacter())));
+  assert.deepStrictEqual(JSON.parse(JSON.stringify(win.SFUI.blank())), JSON.parse(JSON.stringify(win.SF.blankCharacter())));
+  const v = win.SFUI.view(win.C, win.SFUI.blankUI(), win.SFDATA);
+  assert.ok(v.main.length > 0);
+});

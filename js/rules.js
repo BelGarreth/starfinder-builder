@@ -5,6 +5,12 @@
   const INCREASE_COUNT = 4;
   const SAVE_KEYS = ['fort', 'ref', 'will'];
 
+  const blankCharacter = () => ({
+    v: 1, name: '', race: '', variant: null, theme: '',
+    abilities: { pb: { str: 0, dex: 0, con: 0, int: 0, wis: 0, cha: 0 } },
+    levels: [], gear: [], notes: ''
+  });
+
   const mod = (score) => Math.floor((score - 10) / 2);
   const levelsOf = (char) => (char && Array.isArray(char.levels) ? char.levels : []);
   const ownRec = (tbl, k) => (tbl && typeof k === 'string' && Object.prototype.hasOwnProperty.call(tbl, k) ? tbl[k] : null);
@@ -508,6 +514,7 @@
 
   const api = {
     version: 1,
+    blankCharacter,
     ABILITIES, POINT_BUY, increaseAt, INCREASE_COUNT,
     mod, baseScores, abilityScores, pointBuyErrors, pointBuyMax, rankMax, classLevels, charLevel,
     bab, baseSave, hp, sp, rp, featSlots, rankBudget,

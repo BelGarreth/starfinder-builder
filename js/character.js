@@ -23,13 +23,7 @@
   const clone = (o) => JSON.parse(JSON.stringify(o));
   const own = (o, k) => (!!o && Object.prototype.hasOwnProperty.call(o, k) ? o[k] : undefined);
 
-  function defaultChar() {
-    return {
-      v: VERSION, name: '', race: '', variant: null, theme: '',
-      abilities: { pb: { str: 0, dex: 0, con: 0, int: 0, wis: 0, cha: 0 } },
-      levels: [], gear: [], notes: ''
-    };
-  }
+  const defaultChar = () => (typeof module !== 'undefined' ? require('./rules.js') : root.SF).blankCharacter();
 
   const ABILITY_KEYS = ['str', 'dex', 'con', 'int', 'wis', 'cha'];
   const PRO_ABILITIES = ['cha', 'int', 'wis'];
