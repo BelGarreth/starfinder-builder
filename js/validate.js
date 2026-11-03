@@ -26,7 +26,7 @@
 
   const hooks = {
     choiceBlockers: (char, data, ctx) => choiceBlockers(char, data, ctx),
-    spellBlockers: () => [],
+    spellBlockers: (char, data, ctx) => spellBlockers(char, data, ctx),
     gearBlockers: () => []
   };
 
@@ -255,11 +255,147 @@
       const text = asList((table(data, 'features')[slug] || {}).needsText);
       return text.length ? { ok: true, why: 'Not checked: ' + text.join(' ') } : { ok: true };
     }
+    if (kind === 'spell') return spellAllowed(slug, levelIndex, char, data, slot);
     if (kind !== 'feat') return { ok: true };
     const here = asList((levelsOf(char)[levelIndex] || {}).feats);
     const before = Number.isInteger(slot) ? here.slice(0, slot) : here;
     const problem = featProblem(slug, levelIndex, char, data, priorLevelFeats(char, levelIndex).concat(before))
       || (Number.isInteger(slot) ? slotProblem(slotsAt(char, data, levelIndex)[slot], slug, data) : null);
+    return problem ? { ok: false, why: problem.why } : { ok: true };
+  }
+
+  function spellLevelName(n) {
+    return n === 0 ? '0-level' : n + (n === 1 ? 'st' : n === 2 ? 'nd' : n === 3 ? 'rd' : 'th') + '-level';
+  }
+
+  function spellCaster(char, data, levelIndex) {
+    const here = rules.levelPlan(char, data)[levelIndex];
+    const lvl = levelsOf(char)[levelIndex];
+    if (!here || !lvl || !rules.spellListOf(here.cls, data)) return null;
+    const rec = table(data, 'classes')[here.cls];
+    const score = rules.baseScores(char, data, levelIndex + 1)[rec.spellAbility] || 0;
+    const slots = rules.spellSlotsFor(char, data, here.cls, here.classLevel, score);
+    return { cls: here.cls, key: rules.spellListOf(here.cls, data), classLevel: here.classLevel, ability: rec.spellAbility, score, known: slots.known };
+  }
+
+  function connectionSlugs(char, data, levelIndex, cls) {
+    const list = rules.connectionSpells(rules.charAt(char, levelIndex + 1), data)[cls] || [];
+    return list.map((c) => c.slug);
+  }
+
+  function spellsOf(lvl) {
+    const spells = (lvl && lvl.spells) || {};
+    return { learn: asList(spells.learn), swap: spells.swap };
+  }
+
+  function applySwap(held, swap) {
+    if (!swap || typeof swap !== 'object') return held;
+    const at = held.indexOf(swap.from);
+    const next = held.slice();
+    if (at !== -1) next.splice(at, 1);
+    if (typeof swap.to === 'string') next.push(swap.to);
+    return next;
+  }
+
+  function heldBefore(char, data, levelIndex, cls) {
+    let held = [];
+    levelsOf(char).slice(0, levelIndex).forEach((lvl) => {
+      if (!lvl || lvl.class !== cls) return;
+      const s = spellsOf(lvl);
+      held = applySwap(held, s.swap).concat(s.learn.filter((k) => typeof k === 'string'));
+    });
+    return held;
+  }
+
+  function countAtLevel(held, spells, level) {
+    return held.filter((k) => has(spells, k) && spells[k].level === level).length;
+  }
+
+  function spellProblem(slug, levelIndex, char, data, held, opts) {
+    const spells = table(data, 'spells');
+    if (typeof slug !== 'string' || !has(spells, slug)) return { code: 'missing', why: "Spell '" + slug + "' no longer exists" };
+    const caster = spellCaster(char, data, levelIndex);
+    const spell = spells[slug];
+    if (!caster) return { code: 'invalid', why: 'Level ' + (levelIndex + 1) + ' is not a spellcasting class level' };
+    const name = className(caster.cls, data);
+    if (!spell.allowedClasses || !spell.allowedClasses[caster.key]) return { code: 'class', why: spell.name + ' is not on the ' + name + ' spell list' };
+    if (!has(caster.known, spell.level)) {
+      return { code: 'level', why: name + ' level ' + caster.classLevel + ' cannot learn ' + spellLevelName(spell.level) + ' spells' };
+    }
+    if (caster.score < 10 + spell.level) {
+      return { code: 'ability', why: 'Requires ' + cap(caster.ability) + ' ' + (10 + spell.level) + ' to learn ' + spellLevelName(spell.level) + ' spells' };
+    }
+    if (held.indexOf(slug) !== -1) return { code: 'duplicate', why: spell.name + ' is already known' };
+    if (connectionSlugs(char, data, levelIndex, caster.cls).indexOf(slug) !== -1) return { code: 'duplicate', why: spell.name + ' is already a connection spell' };
+    if (!(opts && opts.swap) && countAtLevel(held, spells, spell.level) >= caster.known[spell.level]) {
+      return { code: 'overspent', why: name + ' knows only ' + caster.known[spell.level] + ' ' + spellLevelName(spell.level) + ' spells at level ' + caster.classLevel };
+    }
+    return null;
+  }
+
+  function swapProblem(swap, levelIndex, char, data, held) {
+    const spells = table(data, 'spells');
+    if (!swap || typeof swap !== 'object' || Array.isArray(swap)) return { code: 'invalid', why: 'A spell swap needs a spell to drop and a spell to learn', ref: undefined };
+    if (!has(spells, swap.from)) return { code: 'missing', why: "Spell '" + swap.from + "' no longer exists", ref: swap.from };
+    if (held.indexOf(swap.from) === -1) return { code: 'swap', why: spells[swap.from].name + ' is not a spell you already know', ref: swap.from };
+    const rest = held.filter((k) => k !== swap.from);
+    const problem = spellProblem(swap.to, levelIndex, char, data, rest, { swap: true });
+    if (problem) return Object.assign({ ref: swap.to }, problem);
+    if (spells[swap.to].level !== spells[swap.from].level) return { code: 'swap', why: 'A swap must replace a spell with one of the same level', ref: swap.to };
+    return null;
+  }
+
+  function spellBlockers(char, data, ctx) {
+    const out = [];
+    const lvl = levelsOf(char)[ctx.levelIndex];
+    const s = spellsOf(lvl);
+    const push = (code, msg, ref) => {
+      const b = { level: ctx.level, tab: 'spells', code, msg };
+      if (ref !== undefined) b.ref = ref;
+      out.push(b);
+    };
+    const caster = spellCaster(char, data, ctx.levelIndex);
+    const hasSwap = !!(lvl && lvl.spells && lvl.spells.swap);
+    if (!caster) {
+      if (s.learn.length || hasSwap) push('invalid', 'Level ' + ctx.level + ' is not a spellcasting class level');
+      return out;
+    }
+    let held = heldBefore(char, data, ctx.levelIndex, caster.cls);
+    if (hasSwap) {
+      const problem = swapProblem(lvl.spells.swap, ctx.levelIndex, char, data, held);
+      if (problem) push(problem.code, problem.why, problem.ref);
+      else held = applySwap(held, lvl.spells.swap);
+    }
+    s.learn.forEach((slug) => {
+      const problem = spellProblem(slug, ctx.levelIndex, char, data, held);
+      if (problem) push(problem.code, problem.why, slug);
+      if (typeof slug === 'string') held = held.concat([slug]);
+    });
+    const spells = table(data, 'spells');
+    Object.keys(caster.known).forEach((l) => {
+      const level = Number(l);
+      if (caster.score < 10 + level) return;
+      const missing = caster.known[l] - countAtLevel(held, spells, level);
+      if (missing > 0) push('unspent', 'Learn ' + missing + ' more ' + spellLevelName(level) + ' spell' + (missing === 1 ? '' : 's') + ' at level ' + ctx.level);
+    });
+    return out;
+  }
+
+  function spellAllowed(slug, levelIndex, char, data, slot) {
+    const lvl = levelsOf(char)[levelIndex];
+    const asked = slot && typeof slot === 'object' ? slot.cls : slot;
+    if (!lvl) return { ok: false, why: 'No level ' + (levelIndex + 1) };
+    if (typeof asked === 'string' && asked !== lvl.class) return { ok: false, why: 'Level ' + (levelIndex + 1) + ' is a ' + className(lvl.class, data) + ' level' };
+    const swapping = !!(slot && typeof slot === 'object' && slot.swap);
+    let held = heldBefore(char, data, levelIndex, lvl.class);
+    if (swapping) {
+      held = held.filter((k) => k !== slot.from);
+    } else {
+      const swap = lvl.spells && lvl.spells.swap;
+      if (swap && !swapProblem(swap, levelIndex, char, data, held)) held = applySwap(held, swap).filter((k) => k !== slug);
+      held = held.concat(spellsOf(lvl).learn.filter((k) => typeof k === 'string' && k !== slug));
+    }
+    const problem = spellProblem(slug, levelIndex, char, data, held, { swap: swapping });
     return problem ? { ok: false, why: problem.why } : { ok: true };
   }
 

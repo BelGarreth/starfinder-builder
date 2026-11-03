@@ -281,7 +281,34 @@ def class_feature_record(item, cls, lineage):
     return rec
 
 
-def build_class_features(class_features, features, classes=None):
+SPELLS_MARK = re.compile(r'Spells?\s*(?:</strong>)?\s*:')
+SPELL_LINK = re.compile(r'@UUID\[Compendium\.sfrpg\.spells\.Item\.(\w+)\]\{')
+NESTED_SPELL_LINK = re.compile(r'(\u27e6(\w+)\u27e7\{)\u27e6\2\u27e7\{')
+SPELL_ENTRY = re.compile(r'(\d)(?:st|nd|rd|th)?(?:\s*[-\u2013]\s*(\d)(?:st|nd|rd|th))?\s*[-\u2013]?\s*\u27e6(\w+)\u27e7')
+
+
+def connection_spells(markup, spell_ids):
+    mark = SPELLS_MARK.search(markup)
+    if not mark:
+        return None
+    region = markup[mark.end():].split('<h2', 1)[0]
+    region = SPELL_LINK.sub(lambda m: '\u27e6%s\u27e7{' % m.group(1), region)
+    while NESTED_SPELL_LINK.search(region):
+        region = NESTED_SPELL_LINK.sub(r'\1', region)
+    region = re.sub(r'<[^>]*>|&nbsp;', ' ', region)
+    out = {'fixed': {}}
+    for start, end, spell_id in SPELL_ENTRY.findall(region):
+        slug = spell_ids.get(spell_id)
+        if slug is None:
+            continue
+        if end:
+            out['variable'] = slug
+        else:
+            out['fixed'][start] = slug
+    return out if out['fixed'] or 'variable' in out else None
+
+
+def build_class_features(class_features, features, classes=None, spell_ids=None):
     feats = {s: i for s, i in class_features.items() if i['type'] == 'feat' or s in EXTRA_CLASS_FEATURES}
     by_id = {i['_id']: s for s, i in feats.items()}
     class_ids = {i['_id']: s for s, i in (classes or {}).items()}
@@ -301,6 +328,10 @@ def build_class_features(class_features, features, classes=None):
         grants = option_grants(raw[slug]['category'], description(item), by_id)
         if grants:
             raw[slug]['grants'] = grants
+        if raw[slug]['category'] == 'connection' and spell_ids:
+            found = connection_spells(description(item), spell_ids)
+            if found:
+                raw[slug]['connectionSpells'] = found
     for slug, rec in list(raw.items()):
         for granted in [g for tier in rec.get('grants', {}).values() for g in tier]:
             if granted not in raw:
@@ -777,7 +808,9 @@ def build(src, sha=None, built=None, core_path=ROOT / 'tools' / 'race_traits.jso
     theme = load_dir(src / 'theme-features')
     features = build_features(racial, theme)
     class_items = load_dir(src / 'classes')
-    class_features = build_class_features(load_dir(src / 'class-features'), features, class_items)
+    spell_items = load_dir(src / 'spells')
+    class_features = build_class_features(load_dir(src / 'class-features'), features, class_items,
+                                          {i['_id']: s for s, i in spell_items.items()})
     races = build_races(load_dir(src / 'races'), racial, load_core_traits(core_path, features))
     themes = build_themes(load_dir(src / 'themes'), theme, features)
     used = {t for r in races.values() for t in r['coreTraits'] + r['altTraits']} | {f for t in themes.values() for f in t['features']}
@@ -795,7 +828,7 @@ def build(src, sha=None, built=None, core_path=ROOT / 'tools' / 'race_traits.jso
         'classes': build_classes(class_items),
         'feats': feats,
         'features': emitted,
-        'spells': build_spells(load_dir(src / 'spells')),
+        'spells': build_spells(spell_items),
         'items': build_items(load_dir(src / 'equipment')),
         'progressions': progressions,
         'overrides': {'effects': effect_values(effect_overrides)},

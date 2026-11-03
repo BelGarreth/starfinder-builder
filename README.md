@@ -75,6 +75,16 @@ build cannot resolve to a record becomes `needsText`, such as a solar shield, a 
 a known spell. That text is shown with the option but not enforced. A specialization's `skillFocus` list gives its associated skills the Skill Focus bonus. `_minLevels`
 corrects a feature's level where Foundry's requirement text is wrong, such as the 11th-level exocortex mods.
 
+Spells (mystic and technomancer): `char.levels[i].spells = {learn: [slug], swap?: {from, to}}` belongs to that
+level's class, so multiclass casters keep one known pool per class. `spellSlots(char, data)` returns
+`{[cls]: {known, perDay}}`; `perDay` adds `bonusSpellsPerDay` for the spell ability modifier and leaves out 0-level
+spells, which are unlimited. A pick must be on the class list, castable at that class level, within the spell ability
+rule (score of at least 10 + spell level), not a duplicate and within the known table. One swap per level replaces a
+known spell with another of the same level. A mystic's connection spells come from `features[connection].connectionSpells`
+(`{fixed: {level: slug}, variable?: slug}`), are added by `connectionSpells(char, data)` and do not count as known.
+A variable-level spell holds the highest spell level the mystic can cast, and the fixed spells fill the lower levels.
+The Crusader connection's 6th-level spell is plain text in Foundry with no link, so it has no entry.
+
 Known gaps: the mechanic gets the exocortex only. The drone is not offered, so drone mods and Control
 Net's drone half are not modelled, and tricks that need a drone are left out of the trick pool. The solarian's solar weapon, flare and shield are
 inventory items in Foundry, so the armor-or-weapon pick is left to gear. The Bully and Diplomat specialization powers

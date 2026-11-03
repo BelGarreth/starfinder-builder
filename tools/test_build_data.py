@@ -384,6 +384,19 @@ class PrereqIntegrationTest(unittest.TestCase):
             for granted in [g for tier in rec.get('grants', {}).values() for g in tier]:
                 self.assertIn(granted, f, slug)
 
+    def test_connection_spells_resolve_fixed_and_variable_lists(self):
+        features = self.d['features']
+        self.assertEqual(features['overlord']['connectionSpells']['fixed']['4'], 'confusion')
+        healer = features['healer']['connectionSpells']
+        self.assertEqual(healer['variable'], 'mystic_cure')
+        self.assertEqual(healer['fixed']['1'], 'remove_condition_lesser')
+        for slug, rec in features.items():
+            if rec.get('category') != 'connection':
+                continue
+            found = rec['connectionSpells']
+            for spell in list(found['fixed'].values()) + ([found['variable']] if 'variable' in found else []):
+                self.assertIn(spell, self.d['spells'], slug)
+
     def test_progressions_cover_levels_and_resolve(self):
         prog = self.d['progressions']
         for cls in build_data.CLASSES:

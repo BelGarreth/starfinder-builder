@@ -256,6 +256,64 @@
     return Math.max(1, (rec ? rec.ranks : 0) + intMod) + (isHuman(char, data) ? 1 : 0);
   }
 
+  const SPELL_LISTS = { mystic: 'myst', technomancer: 'tech' };
+  const MAX_BONUS_MOD = 10;
+
+  function spellListOf(cls, data) {
+    const rec = classRec(data, cls);
+    const base = rec && rec.enhancedOf ? rec.enhancedOf : String(cls || '').replace(/_enhanced$/, '');
+    return rec && rec.caster && hasOwn(SPELL_LISTS, base) ? SPELL_LISTS[base] : null;
+  }
+
+  function spellRow(table, classLevel) {
+    const row = hasOwn(table, classLevel) ? table[classLevel] : {};
+    const out = {};
+    Object.keys(row).forEach((l) => { out[l] = row[l]; });
+    return out;
+  }
+
+  function spellSlotsFor(char, data, cls, classLevel, score) {
+    const rec = classRec(data, cls);
+    const known = spellRow(rec.spellsKnown || {}, classLevel);
+    const perDay = spellRow(rec.spellsPerDay || {}, classLevel);
+    const bonus = spellRow(rec.bonusSpellsPerDay || {}, Math.min(mod(score), MAX_BONUS_MOD));
+    if (mod(score) >= 1) Object.keys(perDay).forEach((l) => { perDay[l] += bonus[l] || 0; });
+    return { known, perDay };
+  }
+
+  function spellSlots(char, data) {
+    const out = {};
+    const levels = classLevels(char);
+    const scores = baseScores(char, data);
+    Object.keys(levels).forEach((cls) => {
+      const rec = classRec(data, cls);
+      if (!spellListOf(cls, data) || !isAbility(rec.spellAbility)) return;
+      out[cls] = spellSlotsFor(char, data, cls, levels[cls], scores[rec.spellAbility]);
+    });
+    return out;
+  }
+
+  function connectionSpells(char, data) {
+    const features = (data && data.features) || {};
+    const plan = levelPlan(char, data);
+    const out = {};
+    Object.keys(classLevels(char)).forEach((cls) => {
+      const rec = classRec(data, cls);
+      const pick = pickedFor(plan, cls, 'connection')[0];
+      const found = hasOwn(features, pick) ? features[pick].connectionSpells : null;
+      if (!rec || !found || !spellListOf(cls, data)) return;
+      const known = spellRow(rec.spellsKnown || {}, classLevels(char)[cls]);
+      const top = Math.max.apply(null, [0].concat(Object.keys(known).map(Number)));
+      const list = [];
+      for (let level = 1; level <= top; level++) {
+        const slug = level === top && found.variable ? found.variable : (found.fixed || {})[level];
+        if (slug) list.push({ slug, level });
+      }
+      out[cls] = list;
+    });
+    return out;
+  }
+
   const SKILLS = {
     acr: { name: 'Acrobatics', ability: 'dex' },
     ath: { name: 'Athletics', ability: 'str' },
@@ -416,7 +474,7 @@
     ABILITIES, POINT_BUY, increaseAt,
     mod, baseScores, pointBuyErrors, classLevels, charLevel,
     bab, baseSave, hp, sp, rp, featSlots, rankBudget,
-    progressionOf, entriesAt, levelPlan, choiceEntry, poolOf, pickedFor, classFeatures, skillPicks, skillFocusSkills, freeRanks,
+    spellSlots, connectionSpells, spellListOf, spellSlotsFor, progressionOf, entriesAt, levelPlan, choiceEntry, poolOf, pickedFor, classFeatures, skillPicks, skillFocusSkills, freeRanks,
     SKILLS, ACP_SKILLS, charAt, classSkillSet, equippedArmor, skillRanksOf, bulkState, derive
   };
   if (typeof module !== 'undefined') module.exports = api; else root.SF = Object.assign(root.SF || {}, api);
