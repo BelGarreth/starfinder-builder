@@ -444,7 +444,8 @@
     const preBulk = gearBulk(c, data, scores.str);
     const encumbered = preBulk.state !== 'ok';
     const speedBase = BASE_SPEED + (armor ? armor.speedAdjust || 0 : 0);
-    const resolved = lib.resolve(c, data, { state: { encumbered }, derived: { speedBase: BASE_SPEED, speedLand: speedBase } });
+    const play = !!(opts && opts.play);
+    const resolved = lib.resolve(c, data, { play, state: { encumbered }, derived: { speedBase: BASE_SPEED, speedLand: speedBase } });
     const total = (keys, extra) => lib.stack(resolved.constants
       .filter((m) => m.targets.some((t) => keys.indexOf(t) !== -1))
       .map((m) => ({ type: m.type, value: m.value, source: m.kind + ':' + m.sourceKey }))
@@ -508,7 +509,7 @@
       situational: resolved.situational,
       bulk
     };
-    sheet.attacks = (typeof module !== 'undefined' ? require('./gear.js') : root.SF).attackLines(c, data, sheet);
+    sheet.attacks = (typeof module !== 'undefined' ? require('./gear.js') : root.SF).attackLines(c, data, sheet, { play });
     return sheet;
   }
 

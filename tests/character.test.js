@@ -426,3 +426,34 @@ test('the BBCode tab shows an escaped read-only textarea and a Copy button', () 
   assert.ok(U.TABS.map((t) => t[0]).join().endsWith('io,bbcode,mythweavers'));
   assert.ok(U.renderMain(c, Object.assign(U.blankUI(), { tab: 'bbcode' }), data).indexOf('copyBBCode') !== -1);
 });
+
+function playChar() {
+  const c = fullChar();
+  c.play = { hp: { current: 5, nonlethal: 2 }, sp: { current: 3 }, rp: { current: 1 }, temp: { str: 2, 'skill.ath': -1 }, conditions: 'Shaken', notes: 'round 3' };
+  return c;
+}
+
+test('play state round-trips through export and import', () => {
+  const c = playChar();
+  assert.deepStrictEqual(clone(H.importJSON(H.exportJSON(c))), clone(c));
+});
+
+test('migrate sanitises play: numbers coerced, unknown targets dropped, junk ignored', () => {
+  const raw = clone(fullChar());
+  raw.play = { hp: { current: '7.9', nonlethal: -4 }, sp: { current: 'x' }, rp: 'bad', temp: { str: '3', 'skill.bogus': 2, bogus: 9, __proto__x: 1, eac: 0, 'skill.ath': 1e9, dex: 'NaN' }, conditions: 12, notes: { a: 1 } };
+  const c = H.migrate(raw);
+  assert.deepStrictEqual(clone(c.play), { hp: { current: 7, nonlethal: 0 }, temp: { str: 3, 'skill.ath': 99 }, conditions: '12' });
+  ['junk', 5, null, [], { temp: [] }, { temp: { str: {} } }].forEach((v) => {
+    const r = clone(fullChar());
+    r.play = v;
+    assert.strictEqual(H.migrate(r).play, undefined);
+  });
+});
+
+test('Myth-Weavers export puts current HP, SP and RP in hp, stam and res and the maximums in max_*', () => {
+  const sd = win.SFCHAR.toMythWeavers(playChar(), data).sheet_data;
+  assert.deepStrictEqual([sd.hp, sd.max_hp, sd.stam, sd.max_stam, sd.res, sd.max_res, sd.hp_nonlethal], ['5', '13', '3', '8', '1', '5', '2']);
+  const plain = win.SFCHAR.toMythWeavers(fullChar(), data).sheet_data;
+  assert.deepStrictEqual([plain.hp, plain.stam, plain.res], ['13', '8', '5']);
+});
+

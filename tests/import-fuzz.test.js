@@ -38,14 +38,16 @@ function base() {
       { id: 'g1', item: 'second_skin', qty: 1, equipped: true, slots: [{ item: 'second_skin' }] },
       { id: 'g2', item: 'semi-auto_pistol_tactical', qty: 1, equipped: true, fusions: [{ item: 'semi-auto_pistol_tactical', level: 1 }] }
     ],
-    notes: ''
+    notes: '',
+    play: { hp: { current: 5, nonlethal: 1 }, sp: { current: 2 }, temp: { str: 2, 'skill.per': 1 }, conditions: 'Shaken', notes: 'n' }
   };
 }
 
 const NUMERIC = [
   ['abilities', 'pb', 'str'], ['abilities', 'pb', 'wis'], ['abilities', 'raceAny'], ['abilities', 'themeAny'], ['proAbility'],
   ['levels', 0, 'skills', 'med'], ['levels', 4, 'increases', 0], ['levels', 4, 'increases'],
-  ['gear', 0, 'qty'], ['gear', 1, 'fusions', 0, 'level'], ['gear', 0, 'equipped'], ['gear', 0, 'id']
+  ['gear', 0, 'qty'], ['gear', 1, 'fusions', 0, 'level'], ['gear', 0, 'equipped'], ['gear', 0, 'id'],
+  ['play'], ['play', 'hp'], ['play', 'hp', 'current'], ['play', 'hp', 'nonlethal'], ['play', 'temp'], ['play', 'temp', 'str'], ['play', 'temp', 'skill.per'], ['play', 'conditions'], ['play', 'notes']
 ];
 const VALUES = ['5', XSS, {}, [], null, true, 'abc', [XSS], { x: XSS }];
 
@@ -74,6 +76,8 @@ function assertSaneSheet(c, label) {
   });
   ['hp', 'sp', 'rp', 'eac', 'kac', 'fort', 'ref', 'will', 'initiative'].forEach((k) => assert.ok(Number.isFinite(s[k]), label + ' ' + k + '=' + s[k]));
   Object.keys(s.skills).forEach((k) => assert.ok(Number.isFinite(s.skills[k].total), label + ' skill ' + k));
+  const played = SF.derive(c, data, { play: true });
+  assert.ok(Object.keys(played.skills).every((k) => Number.isFinite(played.skills[k].total)) && Number.isFinite(played.abilities.str.score), label + ' play');
   assert.ok(Number.isFinite(s.bulk.carried) && Number.isFinite(s.bulk.limit), label + ' bulk');
 }
 

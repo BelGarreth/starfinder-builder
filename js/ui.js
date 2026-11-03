@@ -10,12 +10,13 @@
 
   const placeholder = (title) => '<div class="card"><h2>' + title + '</h2><p class="note">Coming soon.</p></div>';
   U.tabPrint = U.tabPrint || ((C, UI, data, ctx) => (store() && store().tabPrint ? store().tabPrint(C, UI, data, ctx) : placeholder('Print')));
+  U.tabSheet = U.tabSheet || ((C, UI, data, ctx) => (store() && store().tabSheet ? store().tabSheet(C, UI, data, ctx) : placeholder('Sheet')));
   U.tabIO = U.tabIO || ((C, UI, data, ctx) => (store() && store().tabIO ? store().tabIO(C, UI, data, ctx) : placeholder('Import/Export')));
 
   U.tabBBCode = U.tabBBCode || ((C, UI, data, ctx) => (store() && store().tabBBCode ? store().tabBBCode(C, UI, data, ctx) : placeholder('BBCode')));
   U.tabMythWeavers = U.tabMythWeavers || ((C, UI, data, ctx) => (store() && store().tabMythWeavers ? store().tabMythWeavers(C, UI, data, ctx) : placeholder('Myth-Weavers')));
 
-  const TAB_FN = { char: 'tabChar', abilities: 'tabAbilities', class: 'tabClass', skills: 'tabSkills', feats: 'tabFeats', gear: 'tabGear', spells: 'tabSpells', print: 'tabPrint', io: 'tabIO', bbcode: 'tabBBCode', mythweavers: 'tabMythWeavers' };
+  const TAB_FN = { char: 'tabChar', sheet: 'tabSheet', abilities: 'tabAbilities', class: 'tabClass', skills: 'tabSkills', feats: 'tabFeats', gear: 'tabGear', spells: 'tabSpells', print: 'tabPrint', io: 'tabIO', bbcode: 'tabBBCode', mythweavers: 'tabMythWeavers' };
 
   U.renderMain = function (C, UI, data, ctx) {
     const x = ctx || U.ctxOf(C, data);
@@ -41,6 +42,10 @@
     if (!C.abilities) C.abilities = { pb: {} };
     if (!C.abilities.pb) C.abilities.pb = {};
     if (!Array.isArray(C.gear)) C.gear = [];
+    if (C.play && typeof C.play === 'object') {
+      if (C.play.temp && !Object.keys(C.play.temp).length) delete C.play.temp;
+      if (!Object.keys(C.play).length) delete C.play;
+    }
     levelsOf(C).forEach((l, i) => {
       if (!l.choices) l.choices = {};
       const granted = SF().grantedAt(C, data, i);
@@ -211,6 +216,15 @@
       const clean = list.slice(0, total).map((v) => (v === undefined ? '' : v));
       if (!clean.some(Boolean)) delete lvl.choices[slug];
       else lvl.choices[slug] = total > 1 ? clean : clean[0];
+    },
+    playTemp: (C, UI, data, value, a, key) => {
+      const limit = SF().PLAY_TEMP_LIMIT;
+      const n = Math.max(-limit, Math.min(limit, Math.floor(Number(value))));
+      if (!SF().playTargets(key)) return;
+      const temp = Object.assign({}, C.play && C.play.temp);
+      if (!Number.isFinite(n) || n === 0) delete temp[key];
+      else temp[key] = n;
+      C.play = Object.assign({}, C.play, { temp });
     },
     gearAbility: (C, UI, data, value, a) => {
       const g = C.gear[Number(a)];

@@ -14,7 +14,7 @@
   const ROW_CAP = 200;
 
   const TABS = [
-    ['char', 'Character'], ['abilities', 'Abilities'], ['class', 'Class features'], ['skills', 'Skills'],
+    ['char', 'Character'], ['sheet', 'Sheet'], ['abilities', 'Abilities'], ['class', 'Class features'], ['skills', 'Skills'],
     ['feats', 'Feats'], ['gear', 'Gear'], ['spells', 'Spells'], ['print', 'Print'], ['io', 'Import/Export'], ['bbcode', 'BBCode'], ['mythweavers', 'Myth-Weavers']
   ];
   const TAB_LABEL = {};
@@ -103,7 +103,9 @@
     return levelsOf(C).some((l) => l && !!SF().spellListOf(l.class, data));
   }
 
-  const visibleTabs = (C, data) => TABS.filter((t) => t[0] !== 'spells' || isCaster(C, data));
+  const hasSheet = () => !!root.SFCHAR && typeof root.SFCHAR.tabSheet === 'function';
+
+  const visibleTabs = (C, data) => TABS.filter((t) => (t[0] !== 'spells' || isCaster(C, data)) && (t[0] !== 'sheet' || hasSheet()));
 
   const ctxOf = (C, data) => ({ sheet: SF().derive(C, data), blockers: SF().validate(C, data) });
 
