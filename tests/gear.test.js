@@ -155,15 +155,19 @@ test('exocortex combat tracking grants heavy armor and longarms and longarm spec
   assert.match(line(c, data.items[longarm].name).damage, /\+3$/);
 });
 
-test('every character gets an unarmed strike, vesk also gets natural weapons', () => {
+test('vesk natural weapons replace the nonlethal unarmed strike; everyone else gets the unarmed strike', () => {
   const c = withGear([], 1);
   const lines = gear.attackLines(c, data, rules.derive(c, data));
-  assert.strictEqual(lines.find((l) => l.name === 'Unarmed strike').damage, '1d3+4');
-  assert.match(lines.find((l) => l.name === 'Unarmed strike').notes, /nonlethal/);
-  assert.match(lines.find((l) => l.name === 'Natural weapons (vesk)').notes, /lethal/);
+  const natural = lines.find((l) => l.name === 'Natural weapons (vesk)');
+  assert.strictEqual(natural.damage, '1d3+4');
+  assert.match(natural.notes, /lethal/);
+  assert.doesNotMatch(natural.notes, /nonlethal/);
+  assert.strictEqual(lines.some((l) => l.name === 'Unarmed strike'), false);
   const human = clone(c);
   human.race = 'human';
-  assert.strictEqual(gear.attackLines(human, data, rules.derive(human, data)).some((l) => /Natural/.test(l.name)), false);
+  const humanLines = gear.attackLines(human, data, rules.derive(human, data));
+  assert.strictEqual(humanLines.some((l) => /Natural/.test(l.name)), false);
+  assert.match(humanLines.find((l) => l.name === 'Unarmed strike').notes, /nonlethal/);
 });
 
 test('vesk natural weapons add 1.5x level from level 3 instead of stacking with specialization', () => {

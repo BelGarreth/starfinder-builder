@@ -485,7 +485,7 @@
       const extra = naturalSpec ? { type: SPEC_TYPE, value: naturalSpec, source: 'race:vesk' } : null;
       addLine('Natural weapons (vesk)', Object.assign({}, unarmedBase, { types: ['lethal'], notes: 'Not archaic, threatens squares', extraDamage: extra }), strikeParts, null);
     }
-    addLine(UNARMED.name, Object.assign({}, unarmedBase, { types: ['nonlethal'] }), strikeParts, null);
+    else addLine(UNARMED.name, Object.assign({}, unarmedBase, { types: ['nonlethal'] }), strikeParts, null);
     return lines;
   }
 
