@@ -174,20 +174,22 @@ class BuildDataTest(unittest.TestCase):
             for slug, rec in self.d[section].items():
                 self.assertFalse(rec['summary'].startswith('>'), (section, slug))
 
-    def test_size_budget(self):
-        self.assertLess(len(json.dumps(self.d, separators=(',', ':'), ensure_ascii=False).encode()), 3_000_000)
-
-    def test_write_data_js_round_trips_through_node(self):
+    def test_write_data_dir_round_trips_through_node_and_stays_small(self):
         with tempfile.TemporaryDirectory() as tmp:
-            path = Path(tmp) / 'data.js'
-            build_data.write_data_js(self.d, path)
-            text = path.read_text()
-            self.assertIn('root.SFDATA', text)
+            build_data.write_data_dir(self.d, tmp)
+            for name in ('core.js', 'spells.js', 'items.js'):
+                text = (Path(tmp) / name).read_text()
+                self.assertIn('Object.assign(root.SFDATA || {}', text)
+                self.assertLess(len(text.encode()), 3_000_000, name)
+            self.assertIn('"foundrySha"', (Path(tmp) / 'core.js').read_text())
+            self.assertNotIn('"spells"', (Path(tmp) / 'core.js').read_text()[:200])
             out = subprocess.run(
-                ['node', '-e', f"const d=require({json.dumps(str(path))});process.stdout.write(JSON.stringify(Object.keys(d.races).length))"],
+                ['node', '-e', f"const d=require({json.dumps(str(Path(tmp) / 'index.js'))});process.stdout.write(JSON.stringify([Object.keys(d).sort(),Object.keys(d.races).length]))"],
                 capture_output=True, text=True, check=True,
             ).stdout
-            self.assertEqual(int(out), len(self.d['races']))
+            keys, races = json.loads(out)
+            self.assertEqual(keys, sorted(self.d))
+            self.assertEqual(races, len(self.d['races']))
 
 
 class SummarizeTest(unittest.TestCase):
@@ -285,7 +287,7 @@ class PrereqIntegrationTest(unittest.TestCase):
         self.assertGreater(len(cf), 400)
         self.assertEqual({f['cls'] for f in cf.values()}, set(build_data.CLASSES))
         for key, f in cf.items():
-            self.assertTrue(f['requirements'], key)
+            self.assertIn('requirements', f)
             self.assertTrue(f['summary'], key)
             self.assertIn('modifiers', f)
             self.assertIsInstance(f['enhanced'], bool)
@@ -297,6 +299,26 @@ class PrereqIntegrationTest(unittest.TestCase):
         for f in self.d['features'].values():
             if f['kind'] == 'class':
                 self.assertNotRegex(f['requirements'], r'(?i)vanguard|witchwarper|biohacker|evolutionist|nanocyte|precog')
+
+    def test_when_field_only_on_constants_and_known(self):
+        for slug, value in self.d['overrides']['effects'].items():
+            if value != 'none':
+                for m in value:
+                    if 'when' in m:
+                        self.assertEqual(m['when'], 'armor', slug)
+                        self.assertEqual(m['modifierType'], 'constant', slug)
+        self.assertEqual(self.d['overrides']['effects']['armor_savant_(vesk)'][0]['when'], 'armor')
+
+    def test_class_features_pick_up_lineage_and_category(self):
+        f = self.d['features']
+        self.assertEqual((f['dramatic_dive_(ex)']['cls'], f['dramatic_dive_(ex)']['category']), ('operative', 'exploit'))
+        self.assertEqual((f['quick_scan_(su)']['cls'], f['quick_scan_(su)']['category']), ('technomancer', 'hack'))
+        self.assertEqual((f['debug_curse_(su)']['cls'], f['debug_curse_(su)']['category']), ('mechanic', 'mechanicTrick'))
+        self.assertEqual(f['dramatic_dive_(ex)']['minLevel'], 2)
+        cats = {x['category'] for x in f.values() if x['kind'] == 'class'}
+        self.assertTrue({'exploit', 'revelation', 'hack', 'gearBoost', 'mechanicTrick', 'connection', 'fightingStyle', 'improvisation'} <= cats)
+        self.assertEqual(f['exosuit']['cls'], 'soldier')
+        self.assertIn('@classes.soldier.levels', self.d['overrides']['effects']['exosuit'][0]['modifier'])
 
     def test_conditional_bonuses_are_never_constant(self):
         for slug, value in self.d['overrides']['effects'].items():

@@ -31,7 +31,7 @@ UUID_LABELLED = re.compile(r'@\w+\[[^\]]*\]\{([^}]*)\}')
 UUID_BARE = re.compile(r'@\w+\[[^\]]*\]')
 ROLL_LABELLED = re.compile(r'\[\[[^\]]*\]\]\{([^}]*)\}')
 ROLL_BARE = re.compile(r'\[\[/\w+\s+([^\]]*?)\]\]')
-LABEL_PARAGRAPH = re.compile(r'<(p|h\d)>\s*&gt;.*?</\1>', re.S)
+LABEL_PARAGRAPH = re.compile(r'<(p|h\d)>\s*(?:@Icon\[[^\]]*\])?\s*&gt;.*?</\1>', re.S)
 BLOCK_END = re.compile(r'</p>|</li>|<br\s*/?>|<hr\s*/?>|</h\d>', re.I)
 TAG = re.compile(r'<[^>]*>')
 SENTENCE_BREAK = re.compile(r'(?<=[.!?])\s+(?=[A-Z0-9"“(])')
@@ -182,7 +182,24 @@ def build_features(racial, theme):
 
 
 CLASS_REQ = re.compile(r'\b(' + '|'.join(CLASSES) + r')\b', re.I)
-MIN_LEVEL = re.compile(r'(\d+)(?:st|nd|rd|th)?\s+(?:level|technique)|level\s+(\d+)', re.I)
+OTHER_CLASS_REQ = re.compile(r'vanguard|witchwarper|biohacker|evolutionist|nanocyte|precog', re.I)
+MIN_LEVEL = re.compile(r'(\d+)(?:st|nd|rd|th)?\s+(?:level|lvl|technique)|level\s+(\d+)', re.I)
+LINEAGE_LABEL = re.compile(r'^\s*<p>\s*&gt;\s*@UUID\[[^\]]*\]\{([^}]*)\}')
+LINEAGE = {
+    'operative exploit': ('operative', 'exploit'), 'stellar revelation': ('solarian', 'revelation'),
+    'zenith revelation': ('solarian', 'zenithRevelation'), 'magic hack': ('technomancer', 'hack'),
+    'technomantic talent': ('technomancer', 'technomanticTalent'), 'gear boost': ('soldier', 'gearBoost'),
+    'fighting style': ('soldier', 'fightingStyle'), 'mechanic trick': ('mechanic', 'mechanicTrick'),
+    'exocortex mods (ex)': ('mechanic', 'exocortexMod'), 'connection': ('mystic', 'connection'),
+    'envoy improvisation': ('envoy', 'improvisation'), 'expertise talent': ('envoy', 'expertiseTalent'),
+}
+LINEAGE.update({c: (c, None) for c in CLASSES})
+LINEAGE.update({f'{c}, enhanced': (c, None) for c in CLASSES})
+
+
+def class_lineage(item):
+    match = LINEAGE_LABEL.match(description(item))
+    return LINEAGE.get(match.group(1).strip().casefold()) if match else None
 
 
 def build_class_features(class_features, features):
@@ -192,12 +209,15 @@ def build_class_features(class_features, features):
             continue
         req = item['system'].get('requirements', '') or ''
         named = CLASS_REQ.search(req)
-        if not named:
+        lineage = class_lineage(item)
+        if (not named and not lineage) or (not named and OTHER_CLASS_REQ.search(req)):
             continue
+        cls = named.group(1).lower() if named else lineage[0]
         level = MIN_LEVEL.search(req)
         key = slug if slug not in features and slug not in out else f'class-{slug}'
         out[key] = {
-            'name': item['name'], 'kind': 'class', 'cls': named.group(1).lower(), 'enhanced': 'enhanced' in req.lower(),
+            'name': item['name'], 'kind': 'class', 'cls': cls, 'category': lineage[1] if lineage else None,
+            'enhanced': 'enhanced' in req.lower(),
             'minLevel': int(level.group(1) or level.group(2)) if level else None, 'requirements': req,
             'level': None, 'aon': aon_search(item['name']), 'src': item['system'].get('source', ''),
             'summary': summarize(description(item), CLASS_SUMMARY_LIMIT), 'modifiers': modifiers(item['system']),
@@ -429,21 +449,39 @@ def build(src, sha=None, built=None, core_path=ROOT / 'tools' / 'race_traits.jso
     }
 
 
-def write_data_js(data, path):
-    body = json.dumps(data, separators=(',', ':'), ensure_ascii=False)
+PARTS = {
+    'core': ('meta', 'races', 'themes', 'classes', 'feats', 'features', 'progressions', 'overrides'),
+    'spells': ('spells',),
+    'items': ('items',),
+}
+INDEX_JS = (
+    "module.exports = Object.assign({}, require('./core.js'), require('./spells.js'), require('./items.js'));\n"
+)
+
+
+def write_part_js(part, path):
+    body = json.dumps(part, separators=(',', ':'), ensure_ascii=False)
     text = (
         '(function(root){\n'
-        f'  const data = {body};\n'
-        "  if (typeof module !== 'undefined') module.exports = data; else root.SFDATA = data;\n"
+        f'  const part = {body};\n'
+        "  if (typeof module !== 'undefined') module.exports = part; else root.SFDATA = Object.assign(root.SFDATA || {}, part);\n"
         '})(this);\n'
     )
     Path(path).write_text(text, encoding='utf-8')
 
 
+def write_data_dir(data, out_dir):
+    out_dir = Path(out_dir)
+    out_dir.mkdir(parents=True, exist_ok=True)
+    for name, keys in PARTS.items():
+        write_part_js({k: data[k] for k in keys}, out_dir / f'{name}.js')
+    (out_dir / 'index.js').write_text(INDEX_JS, encoding='utf-8')
+
+
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('--sha', default=(ROOT / 'tools' / 'foundry.lock').read_text().strip())
-    parser.add_argument('--out', default=str(ROOT / 'data.js'))
+    parser.add_argument('--out', default=str(ROOT / 'data'))
     args = parser.parse_args()
     src = fetch_foundry(args.sha, ROOT / '.cache' / 'foundry')
     data = build(src, sha=args.sha, built=date.today().isoformat())
@@ -453,7 +491,7 @@ def main():
         for slug in failed:
             print(f'  {slug}', file=sys.stderr)
         sys.exit(1)
-    write_data_js(data, Path(args.out))
+    write_data_dir(data, args.out)
 
 
 if __name__ == '__main__':
