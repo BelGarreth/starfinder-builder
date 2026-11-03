@@ -35,7 +35,7 @@ cannot read; a `text` check is shown but not enforced. `tools/effect_overrides.j
 modifiers, writes these in their place and sets `modifiersReplaced`, and the entry does not appear in
 `overrides.effects`, so nothing is counted twice. The engine reads each record's `modifiers` plus
 `overrides.effects[slug]`, as before. A constant may
-carry `"when": "armor"`, meaning it applies only while armor is equipped. The build fails if a feat has
+carry `"when": "armor"`, meaning it applies only while armor is equipped, or `"when": "lightOrNoArmor"`, meaning only in light armor or none and not encumbered. The build fails if a feat has
 no prerequisite or a bonus-bearing feat or feature has no constant modifier and no override.
 
 ## Tests

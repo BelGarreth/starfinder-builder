@@ -2171,9 +2171,10 @@
     "effectType": "specific-speed",
     "valueAffected": "land",
     "modifier": "lookupRange(@classes.operative.levels, 10, 9, 20, 15, 30)",
-    "modifierType": "formula",
-    "condition": "While unencumbered and wearing light armor or no armor",
-    "notes": ""
+    "modifierType": "constant",
+    "condition": "",
+    "notes": "",
+    "when": "lightOrNoArmor"
    }
   ]
  },
@@ -2774,9 +2775,10 @@
     "effectType": "specific-speed",
     "valueAffected": "land",
     "modifier": "ternary(gte(@classes.operative.levels, 9), 20, 10)",
-    "modifierType": "formula",
-    "condition": "While unencumbered and wearing light armor or no armor",
-    "notes": ""
+    "modifierType": "constant",
+    "condition": "",
+    "notes": "",
+    "when": "lightOrNoArmor"
    }
   ]
  },

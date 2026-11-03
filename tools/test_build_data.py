@@ -317,14 +317,20 @@ class PrereqIntegrationTest(unittest.TestCase):
             if rec.get('modifiersReplaced'):
                 for m in rec['modifiers']:
                     if m['modifierType'] == 'constant' and slug not in ('sneaky_(halfling)', 'toughness'):
-                        self.assertEqual(m.get('when'), 'armor', slug)
+                        self.assertIn(m.get('when'), ('armor', 'lightOrNoArmor'), slug)
+
+    def test_quick_movement_is_a_light_armor_constant(self):
+        for slug in ('quick_movement_(ex)', 'improved_quick_movement_(ex)'):
+            mods = self.d['features'][slug]['modifiers']
+            self.assertEqual([(m['modifierType'], m['when'], m['effectType']) for m in mods],
+                             [('constant', 'lightOrNoArmor', 'specific-speed')], slug)
 
     def test_when_field_only_on_constants_and_known(self):
         for slug, value in self.d['overrides']['effects'].items():
             if value != 'none':
                 for m in value:
                     if 'when' in m:
-                        self.assertEqual(m['when'], 'armor', slug)
+                        self.assertIn(m['when'], ('armor', 'lightOrNoArmor'), slug)
                         self.assertEqual(m['modifierType'], 'constant', slug)
         self.assertEqual(self.d['overrides']['effects']['armor_savant_(vesk)'][0]['when'], 'armor')
 
