@@ -181,3 +181,15 @@ test('gear blockers run even with zero levels', () => {
     hooks.gearBlockers = original;
   }
 });
+
+test('more than 20 levels is a levels blocker', () => {
+  const c = veskInSecondSkin();
+  const twenty = Array.from({ length: 20 }, () => clone(c.levels[0]));
+  c.levels = twenty;
+  assert.ok(!validate(c, data).some((b) => b.code === 'levels'));
+  c.levels = twenty.concat([clone(twenty[0])]);
+  const b = validate(c, data).filter((x) => x.code === 'levels');
+  assert.strictEqual(b.length, 1);
+  assert.strictEqual(b[0].tab, 'class');
+  assert.match(b[0].msg, /at most 20 levels; remove 1/);
+});

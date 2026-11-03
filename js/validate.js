@@ -11,6 +11,7 @@
   const asList = (v) => (Array.isArray(v) ? v : v === undefined || v === null || v === '' ? [] : [v]);
   const cap = (s) => s.charAt(0).toUpperCase() + s.slice(1);
 
+  const MAX_LEVEL = 20;
   const REPEATABLE_FEATS = ['skill_focus', 'weapon_focus_(combat)', 'weapon_specialization_(combat)'];
   const REPEATABLE_TEXT = /multiple times|more than once|each time you (?:take|select|gain) this feat/i;
   const PROFICIENCY = {
@@ -538,6 +539,7 @@
     }
     rules.pointBuyErrors(char, data).forEach((msg) => push(null, 'abilities', 'pointbuy', msg));
     if (!levels.length) push(null, 'class', 'unspent', 'Choose a class for level 1');
+    if (levels.length > MAX_LEVEL) push(null, 'class', 'levels', 'A character has at most ' + MAX_LEVEL + ' levels; remove ' + (levels.length - MAX_LEVEL));
 
     const slots = rules.featSlots(char, data);
     const priorFeats = [];
