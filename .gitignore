@@ -3,3 +3,4 @@
 *.pat
 .claude/settings.local.json
 .superpowers/
+.cache/
